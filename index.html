@@ -36,9 +36,9 @@
         }
         .logo-highlight { color: var(--f1-red); -webkit-text-fill-color: var(--f1-red); }
         .subtitle { margin: 10px 0 0; color: var(--accent-blue); font-weight: bold; text-transform: uppercase; font-size: 0.9rem; }
-        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
-        .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
-        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .grid { display: grid; grid-template-columns: 2.5fr 1fr; gap: 30px; }
+        @media (max-width: 992px) { .grid { grid-template-columns: 1fr; } }
         .card {
             background-color: var(--card-bg);
             padding: 30px;
@@ -47,53 +47,88 @@
         }
         h2 { color: var(--f1-red); margin-top: 0; font-size: 1.8rem; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; }
         
-        /* Stile Tabella Classifica Temporanea */
+        /* Tabella Classifica */
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #2a2a35; }
-        th { color: var(--accent-blue); text-transform: uppercase; font-size: 0.85rem; }
+        th, td { padding: 14px; text-align: left; border-bottom: 1px solid #2a2a35; }
+        th { color: var(--accent-blue); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
         tr:hover { background-color: rgba(255,255,255,0.02); }
         
-        .badge { background-color: var(--f1-red); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        /* Badge Posizioni */
+        .badge { display: inline-block; width: 24px; height: 24px; text-align: center; line-height: 24px; border-radius: 4px; font-weight: bold; font-size: 0.9rem; }
+        .pos-1 { background-color: #ffd700; color: #000; }
+        .pos-2 { background-color: #c0c0c0; color: #000; }
+        .pos-3 { background-color: #cd7f32; color: #fff; }
+        .pos-other { background-color: #333; color: #fff; }
+
+        /* Colori Scuderie 2026 */
+        .team { font-weight: 600; padding-left: 8px; }
+        .ferrari { border-left: 4px solid #e10600; }
+        .audi { border-left: 4px solid #ffffff; }
+        .cadillac { border-left: 4px solid #4a4a4a; }
+        .mclaren { border-left: 4px solid #ff8700; }
+        .mercedes { border-left: 4px solid #00a19c; }
+        .redbull { border-left: 4px solid #0c1e43; }
+        
+        .punti { font-weight: bold; color: var(--accent-blue); font-size: 1.1rem; }
     </style>
 </head>
 <body>
 
     <header>
         <h1 class="logo-text">GRCC<span class="logo-highlight">F1</span>ESPORT</h1>
-        <p class="subtitle">Campione Italiano SimRacing — Nuova Era 2026</p>
+        <p class="subtitle">Campionato Italiano SimRacing — Stagione F1 2026</p>
     </header>
 
     <div class="container">
         <div class="grid">
+            
             <div class="card">
-                <h2>Classifica Piloti (Top 3 Provisoria)</h2>
+                <h2>Classifica Assoluta Piloti</h2>
                 <table>
                     <thead>
                         <tr>
-                            <th>Pos</th>
-                            <th>Pilota</th>
-                            <th>Scuderia</th>
-                            <th>Punti</th>
+                            <th style="width: 8%">Pos</th>
+                            <th style="width: 42%">Pilota</th>
+                            <th style="width: 35%">Scuderia</th>
+                            <th style="width: 15%">Punti</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><span class="badge">1</span></td>
-                            <td>Sim Driver 1</td>
-                            <td>Audi Sport F1</td>
-                            <td>25</td>
+                            <td><span class="badge pos-1">1</span></td>
+                            <td><strong>Pilota 1</strong></td>
+                            <td><span class="team ferrari">Ferrari HP</span></td>
+                            <td class="punti">25</td>
                         </tr>
                         <tr>
-                            <td>2</td>
-                            <td>Sim Driver 2</td>
-                            <td>Ferrari HP</td>
-                            <td>18</td>
+                            <td><span class="badge pos-2">2</span></td>
+                            <td><strong>Pilota 2</strong></td>
+                            <td><span class="team audi">Audi Sport F1 Team</span></td>
+                            <td class="punti">18</td>
                         </tr>
                         <tr>
-                            <td>3</td>
-                            <td>Sim Driver 3</td>
-                            <td>Cadillac Racing</td>
-                            <td>15</td>
+                            <td><span class="badge pos-3">3</span></td>
+                            <td><strong>Pilota 3</strong></td>
+                            <td><span class="team cadillac">Cadillac Racing</span></td>
+                            <td class="punti">15</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge pos-other">4</span></td>
+                            <td><strong>Pilota 4</strong></td>
+                            <td><span class="team mclaren">McLaren F1 Team</span></td>
+                            <td class="punti">12</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge pos-other">5</span></td>
+                            <td><strong>Pilota 5</strong></td>
+                            <td><span class="team mercedes">Mercedes-AMG</span></td>
+                            <td class="punti">10</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge pos-other">6</span></td>
+                            <td><strong>Pilota 6</strong></td>
+                            <td><span class="team redbull">Red Bull Racing</span></td>
+                            <td class="punti">8</td>
                         </tr>
                     </tbody>
                 </table>
@@ -101,11 +136,14 @@
 
             <div class="card">
                 <h2>Prossimo GP</h2>
-                <p><strong>F1 26 — Round 1</strong></p>
+                <p><strong>Round 1</strong></p>
                 <p>📍 Albert Park, Australia 🇦🇺</p>
-                <p>📅 Venerdì Prossimo</p>
-                <p>⏱️ Qualifiche: 21:15 | Gara: 21:45</p>
+                <p>📅 Venerdì sera</p>
+                <p>⏱️ Qualifiche: 21:15<br>⏱️ Gara: 21:45</p>
+                <hr style="border-color: #2a2a35; margin: 20px 0;">
+                <p>💡 <em>Ricorda di registrare la telemetria a fine sessione!</em></p>
             </div>
+
         </div>
     </div>
 
