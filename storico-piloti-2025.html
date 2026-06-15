@@ -13,14 +13,23 @@
             --text-light: #ffffff;
             --text-muted: #8fa0b5;
         }
-        body {
-            font-family: 'Segoe UI', Roboto, sans-serif;
+        html, body {
             background-color: var(--dark-bg);
             color: var(--text-light);
+            font-family: 'Segoe UI', Roboto, sans-serif;
             margin: 0;
-            padding: 15px;
+            padding: 0;
+            min-height: 100vh;
         }
-        .container { max-width: 900px; margin: 10px auto; }
+        body {
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        .container { 
+            max-width: 900px; 
+            margin: 10px auto 40px auto; 
+            display: block;
+        }
         .back-btn {
             display: inline-block;
             color: var(--accent-cyan);
@@ -33,23 +42,26 @@
             transition: 0.2s;
         }
         .back-btn:hover { background-color: var(--accent-cyan); color: #000; }
-        .card { background-color: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid #1f2c3f; }
+        .card { 
+            background-color: var(--card-bg); 
+            padding: 20px; 
+            border-radius: 16px; 
+            border: 1px solid #1f2c3f;
+            height: auto;
+            overflow: visible;
+        }
         h2 { color: var(--f1-red); margin-top: 0; text-transform: uppercase; border-bottom: 1px solid #1f2c3f; padding-bottom: 10px; margin-bottom: 5px; }
         .status-text { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
         
         .table-responsive { width: 100%; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #1f2c3f; font-size: 0.9rem; }
+        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #1f2c3f; font-size: 0.95rem; }
         th { color: var(--accent-cyan); text-transform: uppercase; font-size: 0.8rem; }
         
-        /* Stili specifici per colonne */
         .pos-cell { font-weight: bold; color: #ffb700; width: 40px; text-align: center; }
         .num-cell { color: var(--text-muted); font-family: monospace; width: 50px; text-align: center; }
         .pilot-cell strong { font-weight: 700; color: #fff; }
         .points-cell { font-weight: bold; color: var(--accent-cyan); text-align: right; width: 60px; font-size: 1rem; }
-        
-        /* Evidenzia il podio */
-        tr:nth-child(-n+3) .pos-cell { font-size: 1.1rem; }
         
         tr:hover { background-color: rgba(255,255,255,0.02); }
     </style>
@@ -81,10 +93,27 @@
                         <tr><td class="pos-cell">5</td><td class="num-cell">#17</td><td class="pilot-cell">LRT_KURAMA</td><td class="points-cell">253</td></tr>
                         <tr><td class="pos-cell">6</td><td class="num-cell">#29</td><td class="pilot-cell">GIUMEND29</td><td class="points-cell">223</td></tr>
                         <tr><td class="pos-cell">7</td><td class="num-cell">#12</td><td class="pilot-cell">NXS_ODI</td><td class="points-cell">193</td></tr>
+                        <tr><td class="pos-cell">8</td><td class="num-cell">#26</td><td class="pilot-cell">GRCC F1 VITTORIO</td><td class="points-cell">142</td></tr>
+                        <tr><td class="pos-cell">9</td><td class="num-cell">#24</td><td class="pilot-cell">DANIELE251191</td><td class="points-cell">137</td></tr>
+                        <tr><td class="pos-cell">10</td><td class="num-cell">#31</td><td class="pilot-cell">FRA3123</td><td class="points-cell">115</td></tr>
+                        <tr><td class="pos-cell">11</td><td class="num-cell">#25</td><td class="pilot-cell">MIKYPOWER</td><td class="points-cell">101</td></tr>
+                        <tr><td class="pos-cell">12</td><td class="num-cell">#19</td><td class="pilot-cell">KEIDIKIDZ</td><td class="points-cell">101</td></tr>
+                        <tr><td class="pos-cell">13</td><td class="num-cell">#3</td><td class="pilot-cell">BENEZODOMENICO</td><td class="points-cell">98</td></tr>
+                        <tr><td class="pos-cell">14</td><td class="num-cell">#5</td><td class="pilot-cell">ALESSANDROGIACA93</td><td class="points-cell">90</td></tr>
+                        <tr><td class="pos-cell">15</td><td class="num-cell">#34</td><td class="pilot-cell">DAVIDE_G34</td><td class="points-cell">82</td></tr>
+                        <tr><td class="pos-cell">16</td><td class="num-cell">#28</td><td class="pilot-cell">MKI-110</td><td class="points-cell">57</td></tr>
+                        <tr><td class="pos-cell">17</td><td class="num-cell">#85</td><td class="pilot-cell">CONDE785</td><td class="points-cell">56</td></tr>
+                        <tr><td class="pos-cell">18</td><td class="num-cell">#16</td><td class="pilot-cell">ICEANT16</td><td class="points-cell">35</td></tr>
+                        <tr><td class="pos-cell">19</td><td class="num-cell">#38</td><td class="pilot-cell">TOTO'F1</td><td class="points-cell">35</td></tr>
+                        <tr><td class="pos-cell">20</td><td class="num-cell">#97</td><td class="pilot-cell">BRA_FOSY89</td><td class="points-cell">33</td></tr>
+                        <tr><td class="pos-cell">21</td><td class="num-cell">#82</td><td class="pilot-cell">PEPPEFLE_IRT</td><td class="points-cell">10</td></tr>
+                        <tr><td class="pos-cell">22</td><td class="num-cell">#68</td><td class="pilot-cell">VINX184</td><td class="points-cell">0</td></tr>
+                        <tr><td class="pos-cell">23</td><td class="num-cell">#100</td><td class="pilot-cell">COMMENTATORE</td><td class="points-cell">0</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+
 </body>
 </html>
