@@ -1,321 +1,341 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Line-up Piloti 2026 | GRCCF1ESPORT</title>
-	<style>
-		:root {
-			--f1-red: #e10600;
-			--dark-bg: #0b0f19;
-			--card-bg: #131a26;
-			--accent-cyan: #00ffd1;
-			--text-light: #ffffff;
-			--text-muted: #8fa0b5;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line-up Piloti 2026 | GRCCF1ESPORT</title>
+    <style>
+        :root {
+            --f1-red: #e10600;
+            --dark-bg: #0b0f19;
+            --card-bg: #131a26;
+            --accent-cyan: #00ffd1;
+            --text-light: #ffffff;
+            --text-muted: #8fa0b5;
             
-			/* Colori Scuderie Ufficiali */
-			--ferrari: #e10600;
-			--haas: #b6babd;
-			--aston: #229971;
-			--redbull: #3671c6;
-			--alpine: #0090ff;
-			--audi: #f50057;
-			--mclaren: #ff8700;
-			--mercedes: #27f4d2;
-			--williams: #005aff;
-			--sauber: #52e252;
-		}
-		body {
-			font-family: 'Segoe UI', Roboto, sans-serif;
-			background-color: var(--dark-bg);
-			color: var(--text-light);
-			margin: 0;
-			padding: 15px;
-		}
-		.container { max-width: 1000px; margin: 10px auto 40px auto; }
-		.back-btn {
-			display: inline-block;
-			color: var(--accent-cyan);
-			text-decoration: none;
-			font-weight: bold;
-			margin-bottom: 20px;
-			border: 1px solid var(--accent-cyan);
-			padding: 8px 16px;
-			border-radius: 8px;
-			transition: 0.2s;
-		}
-		.back-btn:hover { background-color: var(--accent-cyan); color: #000; }
+            /* Colori Scuderie Ufficiali */
+            --aston: #229971;
+            --redbull: #3671c6;
+            --haas: #b6babd;
+            --alpine: #0090ff;
+            --audi: #f50057;
+            --mclaren: #ff8700;
+            --racingbulls: #52e252;
+            --williams: #005aff;
+            --cadillac: #ddc48c;
+            --ferrari: #e10600;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            margin: 0;
+            padding: 15px;
+        }
+        .container { max-width: 1000px; margin: 10px auto 40px auto; }
+        .back-btn {
+            display: inline-block;
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border: 1px solid var(--accent-cyan);
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        .back-btn:hover { background-color: var(--accent-cyan); color: #000; }
         
-		h2 { color: var(--f1-red); margin-top: 0; text-transform: uppercase; border-bottom: 1px solid #1f2c3f; padding-bottom: 10px; }
-		.status-text { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 1px; }
+        h2 { color: var(--f1-red); margin-top: 0; text-transform: uppercase; border-bottom: 1px solid #1f2c3f; padding-bottom: 10px; }
+        .status-text { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 1px; }
         
-		.team-section {
-			margin-bottom: 40px;
-			border-left: 4px solid var(--team-color, #1f2c3f);
-			padding-left: 15px;
-		}
-		.team-title {
-			font-size: 1.4rem;
-			font-weight: bold;
-			margin-bottom: 15px;
-			text-transform: uppercase;
-			letter-spacing: 1px;
-		}
+        .team-section {
+            margin-bottom: 40px;
+            border-left: 4px solid var(--team-color, #1f2c3f);
+            padding-left: 15px;
+        }
+        .team-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
         
-		.drivers-grid {
-			display: grid;
-			grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-			gap: 20px;
-		}
+        .drivers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
         
-		.driver-card {
-			background-color: var(--card-bg);
-			border: 1px solid #1f2c3f;
-			border-radius: 12px;
-			overflow: hidden;
-			transition: 0.2s;
-			position: relative;
-		}
-		.driver-card:hover {
-			transform: translateY(-5px);
-			border-color: var(--team-color);
-		}
+        .driver-card {
+            background-color: var(--card-bg);
+            border: 1px solid #1f2c3f;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: 0.2s;
+            position: relative;
+        }
+        .driver-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--team-color);
+        }
         
-		.driver-img-container {
-			width: 100%;
-			height: 240px;
-			background-color: #1c2535;
-			display: flex;
-			align-items: flex-end;
-			justify-content: center;
-			overflow: hidden;
-			position: relative;
-		}
+        .driver-img-container {
+            width: 100%;
+            height: 240px;
+            background-color: #1c2535;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
         
-		.driver-img {
-			width: 100%;
-			height: 100%;
-			object-fit: cover;
-			transition: 0.3s;
-		}
+        .driver-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.3s;
+        }
         
-		.driver-info {
-			padding: 15px;
-			border-top: 3px solid var(--team-color);
-		}
+        .driver-info {
+            padding: 15px;
+            border-top: 3px solid var(--team-color);
+        }
         
-		.driver-number {
-			font-family: 'Impact', sans-serif;
-			font-size: 1.6rem;
-			color: var(--text-muted);
-			position: absolute;
-			top: 10px;
-			right: 15px;
-			opacity: 0.3;
-		}
+        .driver-number {
+            font-family: 'Impact', sans-serif;
+            font-size: 1.6rem;
+            color: var(--text-muted);
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            opacity: 0.3;
+        }
         
-		.driver-name {
-			font-size: 1.1rem;
-			font-weight: bold;
-			margin: 0;
-			text-transform: uppercase;
-		}
-		.driver-psNme {
-			font-size: 0.85rem;
-			color: var(--text-muted);
-			margin: 2px 0 0 0;
-		}
-	</style>
+        .driver-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin: 0;
+            text-transform: uppercase;
+        }
+        .driver-psNme {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 2px 0 0 0;
+        }
+    </style>
 </head>
 <body>
 
-	<div class="container">
-		<a href="campionati.html" class="back-btn">⬅ Torna ai Campionati</a>
+    <div class="container">
+        <a href="campionati.html" class="back-btn">⬅ Torna ai Campionati</a>
 
-		<h2>Griglia Piloti Ufficiale 2026</h2>
-		<div class="status-text">GRCCF1ESPORT — Line-up dei Team</div>
+        <h2>Griglia Piloti Ufficiale 2026</h2>
+        <div class="status-text">GRCCF1ESPORT — Line-up dei Team</div>
 
-		<div class="team-section" style="--team-color: var(--aston);">
-			<div class="team-title">Aston Martin Aramco</div>
-			<div class="drivers-grid">
-				<div class="driver-card" style="--team-color: var(--aston);">
-					<div class="driver-img-container">
-						<img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
-						<div class="driver-number">#69</div>
-					</div>
-					<div class="driver-info">
-						<p class="driver-name">ADRIANLIV</p>
-						<p class="driver-psNme">ID PSN: ADRIANLIV</p>
-					</div>
-				</div>
-				<div class="driver-card" style="--team-color: var(--aston); opacity: 0.4;">
-					<div class="driver-img-container">
-						<img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=SEDILI+VUOTO" alt="Pilota" class="driver-img">
-					</div>
-					<div class="driver-info">
-						<p class="driver-name">Da assegnare</p>
-						<p class="driver-psNme">-</p>
-					</div>
-				</div>
-			</div>
-		</div>
+        <div class="team-section" style="--team-color: var(--aston);">
+            <div class="team-title">Aston Martin Aramco</div>
+            <div class="drivers-grid">
+                <div class="driver-card" style="--team-color: var(--aston);">
+                    <div class="driver-img-container">
+                        <img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
+                        <div class="driver-number">#69</div>
+                    </div>
+                    <div class="driver-info">
+                        <p class="driver-name">ADRIANLIV</p>
+                        <p class="driver-psNme">ID PSN: ADRIANLIV</p>
+                    </div>
+                </div>
+                <div class="driver-card" style="--team-color: var(--aston);">
+                    <div class="driver-img-container">
+                        <img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
+                        <div class="driver-number">#29</div>
+                    </div>
+                    <div class="driver-info">
+                        <p class="driver-name">GIUMEND29</p>
+                        <p class="driver-psNme">ID PSN: GIUMEND29</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-		<div class="team-section" style="--team-color: var(--redbull);">
-			<div class="team-title">Oracle Red Bull Racing</div>
-			<div class="drivers-grid">
-				<div class="driver-card" style="--team-color: var(--redbull);">
-					<div class="driver-img-container">
-						<img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
-						<div class="driver-number">#3</div>
-					</div>
-					<div class="driver-info">
-						<p class="driver-name">BENE20DOMENICO</p>
-						<p class="driver-psNme">ID PSN: BENE20DOMENICO</p>
-					</div>
-				</div>
-				<div class="driver-card" style="--team-color: var(--redbull); opacity: 0.4;">
-					<div class="driver-img-container">
-						<img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=SEDILI+VUOTO" alt="Pilota" class="driver-img">
-					</div>
-					<div class="driver-info">
-						<p class="driver-name">Da assegnare</p>
-						<p class="driver-psNme">-</p>
-					</div>
-				</div>
-			</div>
-		</div>
+        <div class="team-section" style="--team-color: var(--redbull);">
+            <div class="team-title">Oracle Red Bull Racing</div>
+            <div class="drivers-grid">
+                <div class="driver-card" style="--team-color: var(--redbull);">
+                    <div class="driver-img-container">
+                        <img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
+                        <div class="driver-number">#3</div>
+                    </div>
+                    <div class="driver-info">
+                        <p class="driver-name">BENE20DOMENICO</p>
+                        <p class="driver-psNme">ID PSN: BENE20DOMENICO</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-		<div class="team-section" style="--team-color: var(--haas);">
-			<div class="team-title">Haas F1 Team</div>
-			<div class="drivers-grid">
-				<div class="driver-card" style="--team-color: var(--haas);">
-					<div class="driver-img-container">
-						<img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
-						<div class="driver-number">#97</div>
-					</div>
-					<div class="driver-info">
-						<p class="driver-name">BRA_FOSY89</p>
-						<p class="driver-psNme">ID PSN: BRA_FOSY89</p>
-					</div>
-				</div>
-				<div class="driver-card" style="--team-color: var(--haas);">
-					<div class="driver-img-container">
-						<img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
-						<div class="driver-number">#73</div>
-					</div>
-					<div class="driver-info">
-						<p class="driver-name">DAVIARCO1999</p>
-						<p class="driver-psNme">ID PSN: DAVIARCO1999</p>
-					</div>
-				</div>
-			</div>
-		</div>
+        <div class="team-section" style="--team-color: var(--haas);">
+            <div class="team-title">Haas F1 Team</div>
+            <div class="drivers-grid">
+                <div class="driver-card" style="--team-color: var(--haas);">
+                    <div class="driver-img-container">
+                        <img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
+                        <div class="driver-number">#97</div>
+                    </div>
+                    <div class="driver-info">
+                        <p class="driver-name">BRA_FOSY89</p>
+                        <p class="driver-psNme">ID PSN: BRA_FOSY89</p>
+                    </div>
+                </div>
+                <div class="driver-card" style="--team-color: var(--haas);">
+                    <div class="driver-img-container">
+                        <img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
+                        <div class="driver-number">#73</div>
+                    </div>
+                    <div class="driver-info">
+                        <p class="driver-name">DAVIARCO1999</p>
+                        <p class="driver-psNme">ID PSN: DAVIARCO1999</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-		<div class="team-section" style="--team-color: var(--alpine);">
-			<div class="team-title">BWT Alpine F1 Team</div>
-			<div class="drivers-grid">
-				<div class="driver-card" style="--team-color: var(--alpine);">
-					<div class="driver-img-container">
-						<img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
-						<div class="driver-number">#85</div>
-					</div>
-					<div class="driver-info">
-						<p class="driver-name">CONDE785</p>
-						<p class="driver-psNme">ID PSN: CONDE785</p>
-					</div>
-				</div>
-				<div class="driver-card" style="--team-color: var(--alpine); opacity: 0.4;">
-					<div class="driver-img-container">
-						<img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=SEDILI+VUOTO" alt="Pilota" class="driver-img">
-					</div>
-					<div class="driver-info">
-						<p class="driver-name">Da assegnare</p>
-						<p class="driver-psNme">-</p>
-					</div>
-				</div>
-			</div>
-		</div>
+        <div class="team-section" style="--team-color: var(--alpine);">
+            <div class="team-title">BWT Alpine F1 Team</div>
+            <div class="drivers-grid">
+                <div class="driver-card" style="--team-color: var(--alpine);">
+                    <div class="driver-img-container">
+                        <img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
+                        <div class="driver-number">#85</div>
+                    </div>
+                    <div class="driver-info">
+                        <p class="driver-name">CONDE785</p>
+                        <p class="driver-psNme">ID PSN: CONDE785</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-		<div class="team-section" style="--team-color: var(--audi);">
-			<div class="team-title">Audi Kick Sauber</div>
-			<div class="drivers-grid">
-				<div class="driver-card" style="--team-color: var(--audi);">
-					<div class="driver-img-container">
-						<img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
-						<div class="driver-number">#24</div>
-					</div>
-					<div class="driver-info">
-						<p class="driver-name">DANIELE251191</p>
-						<p class="driver-psNme">ID PSN: DANIELE251191</p>
-					</div>
-				</div>
-				<div class="driver-card" style="--team-color: var(--audi); opacity: 0.4;">
-					<div class="driver-img-container">
-						<img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=SEDILI+VUOTO" alt="Pilota" class="driver-img">
-					</div>
-					<div class="driver-info">
-						<p class="driver-name">Da assegnare</p>
-						<p class="driver-psNme">-</p>
-					</div>
-				</div>
-			</div>
-		</div>
+        <div class="team-section" style="--team-color: var(--audi);">
+            <div class="team-title">Audi Sport</div>
+            <div class="drivers-grid">
+                <div class="driver-card" style="--team-color: var(--audi);">
+                    <div class="driver-img-container">
+                        <img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
+                        <div class="driver-number">#24</div>
+                    </div>
+                    <div class="driver-info">
+                        <p class="driver-name">DANIELE251191</p>
+                        <p class="driver-psNme">ID PSN: DANIELE251191</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-		<div class="team-section" style="--team-color: var(--ferrari);">
-			<div class="team-title">Scuderia Ferrari HP</div>
-			<div class="drivers-grid">
-				<div class="driver-card" style="--team-color: var(--ferrari); opacity: 0.4;">
-					<div class="driver-img-container">
-						<img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=SEDILI+VUOTO" alt="Pilota" class="driver-img">
-					</div>
-					<div class="driver-info">
-						<p class="driver-name">Da assegnare</p>
-						<p class="driver-psNme">-</p>
-					</div>
-				</div>
-				<div class="driver-card" style="--team-color: var(--ferrari); opacity: 0.4;">
-					<div class="driver-img-container">
-						<img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=SEDILI+VUOTO" alt="Pilota" class="driver-img">
-					</div>
-					<div class="driver-info">
-						<p class="driver-name">Da assegnare</p>
-						<p class="driver-psNme">-</p>
-					</div>
-				</div>
-			</div>
-		</div>
+        <div class="team-section" style="--team-color: var(--mclaren);">
+            <div class="team-title">McLaren F1 Team</div>
+            <div class="drivers-grid">
+                <div class="driver-card" style="--team-color: var(--mclaren);">
+                    <div class="driver-img-container">
+                        <img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
+                        <div class="driver-number">#31</div>
+                    </div>
+                    <div class="driver-info">
+                        <p class="driver-name">FRA3123</p>
+                        <p class="driver-psNme">ID PSN: FRA3123</p>
+                    </div>
+                </div>
+                <div class="driver-card" style="--team-color: var(--mclaren);">
+                    <div class="driver-img-container">
+                        <img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
+                        <div class="driver-number">#17</div>
+                    </div>
+                    <div class="driver-info">
+                        <p class="driver-name">LRT_KURAMA</p>
+                        <p class="driver-psNme">ID PSN: LRT_KURAMA</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-		<div class="team-section" style="--team-color: var(--mclaren);">
-			<div class="team-title">McLaren F1 Team</div>
-			<div class="drivers-grid">
-				<div class="driver-card" style="--team-color: var(--mclaren); opacity: 0.4;">
-					<div class="driver-img-container">
-						<img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=SEDILI+VUOTO" alt="Pilota" class="driver-img">
-					</div>
-					<div class="driver-info">
-						<p class="driver-name">Da assegnare</p>
-						<p class="driver-psNme">-</p>
-					</div>
-				</div>
-			</div>
-		</div>
+        <div class="team-section" style="--team-color: var(--racingbulls);">
+            <div class="team-title">Racing Bulls</div>
+            <div class="drivers-grid">
+                <div class="driver-card" style="--team-color: var(--racingbulls);">
+                    <div class="driver-img-container">
+                        <img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
+                        <div class="driver-number">#26</div>
+                    </div>
+                    <div class="driver-info">
+                        <p class="driver-name">GRCC F1 VITTORIO</p>
+                        <p class="driver-psNme">ID PSN: GRCC F1 VITTORIO</p>
+                    </div>
+                </div>
+                <div class="driver-card" style="--team-color: var(--racingbulls);">
+                    <div class="driver-img-container">
+                        <img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
+                        <div class="driver-number">#84</div>
+                    </div>
+                    <div class="driver-info">
+                        <p class="driver-name">LILLUPAZZU</p>
+                        <p class="driver-psNme">ID PSN: LILLUPAZZU</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-		<div class="team-section" style="--team-color: var(--mercedes);">
-			<div class="team-title">Mercedes-AMG PETRONAS</div>
-			<div class="drivers-grid">
-				<div class="driver-card" style="--team-color: var(--mercedes); opacity: 0.4;">
-					<div class="driver-img-container">
-						<img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=SEDILI+VUOTO" alt="Pilota" class="driver-img">
-					</div>
-					<div class="driver-info">
-						<p class="driver-name">Da assegnare</p>
-						<p class="driver-psNme">-</p>
-					</div>
-				</div>
-			</div>
-		</div>
+        <div class="team-section" style="--team-color: var(--williams);">
+            <div class="team-title">Williams Racing</div>
+            <div class="drivers-grid">
+                <div class="driver-card" style="--team-color: var(--williams);">
+                    <div class="driver-img-container">
+                        <img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
+                        <div class="driver-number">#35</div>
+                    </div>
+                    <div class="driver-info">
+                        <p class="driver-name">ICEANT16</p>
+                        <p class="driver-psNme">ID PSN: ICEANT16</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-	</div>
+        <div class="team-section" style="--team-color: var(--cadillac);">
+            <div class="team-title">Cadillac Racing</div>
+            <div class="drivers-grid">
+                <div class="driver-card" style="--team-color: var(--cadillac);">
+                    <div class="driver-img-container">
+                        <img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
+                        <div class="driver-number">#19</div>
+                    </div>
+                    <div class="driver-info">
+                        <p class="driver-name">KEIDIKIDZ</p>
+                        <p class="driver-psNme">ID PSN: KEIDIKIDZ</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="team-section" style="--team-color: var(--ferrari);">
+            <div class="team-title">Ferrari HP</div>
+            <div class="drivers-grid">
+                <div class="driver-card" style="--team-color: var(--ferrari);">
+                    <div class="driver-img-container">
+                        <img src="https://via.placeholder.com/300x300/1c2535/ffffff?text=FOTO+PILOTA" alt="Pilota" class="driver-img">
+                        <div class="driver-number">#25</div>
+                    </div>
+                    <div class="driver-info">
+                        <p class="driver-name">MIKYPOWER</p>
+                        <p class="driver-psNme">ID PSN: MIKYPOWER</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
 
 </body>
 </html>
