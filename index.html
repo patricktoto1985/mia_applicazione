@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GRCCF1ESPORT | Campionato F1 2026</title>
+    <title>GRCCF1ESPORT | Race Control</title>
     <style>
         :root {
             --f1-red: #e10600;
-            --dark-bg: #0b0b0f;
-            --card-bg: #16161f;
-            --accent-blue: #00ffd1;
+            --dark-bg: #0b0f19; /* Blu scuro notte profondo tipo lo screen */
+            --card-bg: #131a26; /* Sfondo dei pulsanti */
+            --accent-cyan: #00ffd1; /* Verde/Azzurro neon per i dettagli */
             --text-light: #ffffff;
+            --text-muted: #8fa0b5;
         }
+
         body {
             font-family: 'Segoe UI', Roboto, sans-serif;
             background-color: var(--dark-bg);
@@ -19,167 +21,167 @@
             margin: 0;
             padding: 0;
         }
+
         header {
-            background: linear-gradient(135deg, #000000 0%, var(--card-bg) 100%);
-            padding: 40px 20px;
+            padding: 30px 20px 10px 20px;
             text-align: center;
-            border-bottom: 4px solid var(--f1-red);
         }
+
         .logo-text {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 900;
             letter-spacing: 3px;
             margin: 0;
-            background: linear-gradient(to right, #ffffff, #888888);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
         }
-        .logo-highlight { color: var(--f1-red); -webkit-text-fill-color: var(--f1-red); }
-        .subtitle { margin: 10px 0 0; color: var(--accent-blue); font-weight: bold; text-transform: uppercase; font-size: 0.9rem; }
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
-        .grid { display: grid; grid-template-columns: 2.5fr 1fr; gap: 30px; }
-        @media (max-width: 992px) { .grid { grid-template-columns: 1fr; } }
-        .card {
-            background-color: var(--card-bg);
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        h2 { color: var(--f1-red); margin-top: 0; font-size: 1.8rem; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        
-        /* Tabella Classifica */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 14px; text-align: left; border-bottom: 1px solid #2a2a35; }
-        th { color: var(--accent-blue); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
-        tr:hover { background-color: rgba(255,255,255,0.02); }
-        
-        /* Badge Posizioni */
-        .badge { display: inline-block; width: 24px; height: 24px; text-align: center; line-height: 24px; border-radius: 4px; font-weight: bold; font-size: 0.9rem; }
-        .pos-1 { background-color: #ffd700; color: #000; }
-        .pos-2 { background-color: #c0c0c0; color: #000; }
-        .pos-3 { background-color: #cd7f32; color: #fff; }
-        .pos-other { background-color: #333; color: #fff; }
+        .logo-highlight { color: var(--f1-red); }
 
-        /* Bordi Colorati Ufficiali Scuderie 2026 */
-        .team { font-weight: 600; padding-left: 8px; }
-        .ferrari { border-left: 4px solid #e10600; }
-        .audi { border-left: 4px solid #f5f5f5; }
-        .cadillac { border-left: 4px solid #555555; }
-        .mclaren { border-left: 4px solid #ff8700; }
-        .mercedes { border-left: 4px solid #00a19c; }
-        .redbull { border-left: 4px solid #0c1e43; }
-        .aston { border-left: 4px solid #006643; }
-        .alpine { border-left: 4px solid #0078c1; }
-        .williams { border-left: 4px solid #005aff; }
-        .haas { border-left: 4px solid #e60000; }
-        .rb { border-left: 4px solid #6699ff; }
-        
-        .punti { font-weight: bold; color: var(--accent-blue); font-size: 1.1rem; }
+        .status-bar {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .status-online { color: var(--accent-cyan); font-weight: bold; }
+
+        /* Contenitore della griglia tipo app mobile dello screen */
+        .dashboard-container {
+            max-width: 600px;
+            margin: 20px auto 40px auto;
+            padding: 0 20px;
+        }
+
+        .grid-dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Due colonne perfette */
+            gap: 15px;
+        }
+
+        /* I bottoni grandi della Dashboard */
+        .dash-btn {
+            background-color: var(--card-bg);
+            border: 1px solid #1f2c3f;
+            border-radius: 16px;
+            padding: 25px 15px;
+            text-align: left;
+            text-decoration: none;
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        /* Effetto al passaggio del mouse o click */
+        .dash-btn:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 5px 15px rgba(0, 255, 209, 0.15);
+        }
+
+        /* L'iconcina tonda colorata (pallino in alto a destra nello screen) */
+        .status-dot {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .dot-yellow { background-color: #ffb700; box-shadow: 0 0 8px #ffb700; }
+        .dot-cyan { background-color: var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan); }
+        .dot-red { background-color: var(--f1-red); box-shadow: 0 0 8px var(--f1-red); }
+        .dot-grey { background-color: #556575; }
+
+        .dash-icon {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .dash-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0 0 5px 0;
+        }
+
+        .dash-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        /* Sezione info in basso per il prossimo GP */
+        .footer-info {
+            background: linear-gradient(180deg, rgba(19,26,38,0) 0%, rgba(19,26,38,1) 100%);
+            border-top: 1px solid #1f2c3f;
+            padding: 20px;
+            text-align: center;
+            margin-top: 30px;
+            border-radius: 16px;
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <h1 class="logo-text">GRCC<span class="logo-highlight">F1</span>ESPORT</h1>
-        <p class="subtitle">Campionato Italiano SimRacing — Stagione F1 2026</p>
+        <div class="status-bar">SISTEMA DI CONTROLLO > <span class="status-online">GRCC RACE CONTROL</span></div>
+        <h1 class="logo-text">GRCC<span class="logo-highlight">F1</span></h1>
     </header>
 
-    <div class="container">
-        <div class="grid">
-            
-            <div class="card">
-                <h2>Classifica Assoluta Piloti</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 8%">Pos</th>
-                            <th style="width: 42%">Pilota</th>
-                            <th style="width: 35%">Scuderia</th>
-                            <th style="width: 15%">Punti</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><span class="badge pos-1">1</span></td>
-                            <td><strong>SICKMIRKO</strong></td>
-                            <td><span class="team ferrari">Ferrari HP</span></td>
-                            <td class="punti">25</td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge pos-2">2</span></td>
-                            <td><strong>TOTO'F1</strong></td>
-                            <td><span class="team audi">Audi Sport F1 Team</span></td>
-                            <td class="punti">18</td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge pos-3">3</span></td>
-                            <td><strong>NXS_ODI</strong></td>
-                            <td><span class="team cadillac">Cadillac Racing</span></td>
-                            <td class="punti">15</td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge pos-other">4</span></td>
-                            <td><strong>Pilota 4</strong></td>
-                            <td><span class="team mclaren">McLaren F1 Team</span></td>
-                            <td class="punti">12</td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge pos-other">5</span></td>
-                            <td><strong>Pilota 5</strong></td>
-                            <td><span class="team mercedes">Mercedes-AMG</span></td>
-                            <td class="punti">10</td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge pos-other">6</span></td>
-                            <td><strong>Pilota 6</strong></td>
-                            <td><span class="team redbull">Red Bull Racing</span></td>
-                            <td class="punti">8</td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge pos-other">7</span></td>
-                            <td><strong>Pilota 7</strong></td>
-                            <td><span class="team aston">Aston Martin Aramco</span></td>
-                            <td class="punti">6</td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge pos-other">8</span></td>
-                            <td><strong>Pilota 8</strong></td>
-                            <td><span class="team alpine">Alpine F1 Team</span></td>
-                            <td class="punti">4</td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge pos-other">9</span></td>
-                            <td><strong>Pilota 9</strong></td>
-                            <td><span class="team williams">Williams Racing</span></td>
-                            <td class="punti">2</td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge pos-other">10</span></td>
-                            <td><strong>Pilota 10</strong></td>
-                            <td><span class="team haas">MoneyGram Haas F1</span></td>
-                            <td class="punti">1</td>
-                        </tr>
-                        <tr>
-                            <td><span class="badge pos-other">11</span></td>
-                            <td><strong>Pilota 11</strong></td>
-                            <td><span class="team rb">Visa Cash App RB</span></td>
-                            <td class="punti">0</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+    <div class="dashboard-container">
+        <div class="grid-dashboard">
 
-            <div class="card">
-                <h2>Prossimo GP</h2>
-                <p><strong>Round 1</strong></p>
-                <p>📍 Albert Park, Australia 🇦🇺</p>
-                <p>📅 Venerdì sera</p>
-                <p>⏱️ Qualifiche: 21:15<br>⏱️ Gara: 21:45</p>
-                <hr style="border-color: #2a2a35; margin: 20px 0;">
-                <p>💡 <em>Mappa i nuovi comandi dell'ibrido 2026 sul volante prima del via!</em></p>
-            </div>
+            <a href="#" class="dash-btn">
+                <span class="status-dot dot-yellow"></span>
+                <div class="dash-icon">📅</div>
+                <h2 class="dash-title">Campionati</h2>
+                <p class="dash-desc">Seleziona la stagione attiva o le passate.</p>
+            </a>
 
+            <a href="#" class="dash-btn">
+                <span class="status-dot dot-yellow"></span>
+                <div class="dash-icon">🏆</div>
+                <h2 class="dash-title">Classifica Piloti</h2>
+                <p class="dash-desc">Punti, vittorie, podi e statistiche complete.</p>
+            </a>
+
+            <a href="#" class="dash-btn">
+                <span class="status-dot dot-cyan"></span>
+                <div class="dash-icon">🏎️</div>
+                <h2 class="dash-title">Classifica Costruttori</h2>
+                <p class="dash-desc">I punti di ogni scuderia ufficiale della stagione.</p>
+            </a>
+
+            <a href="#" class="dash-btn">
+                <span class="status-dot dot-cyan"></span>
+                <div class="dash-icon">🏁</div>
+                <h2 class="dash-title">Calendario Gare</h2>
+                <p class="dash-desc">Le tappe della stagione, orari e i risultati dei GP.</p>
+            </a>
+
+            <a href="#" class="dash-btn">
+                <span class="status-dot dot-grey"></span>
+                <div class="dash-icon">📁</div>
+                <h2 class="dash-title">Archivio Verbali</h2>
+                <p class="dash-desc">Tutti i verbali emessi dai commissari con PDF.</p>
+            </a>
+
+            <a href="#" class="dash-btn">
+                <span class="status-dot dot-red"></span>
+                <div class="dash-icon">⚠️</div>
+                <h2 class="dash-title">Albo Warning / Reprimende</h2>
+                <p class="dash-desc">Lo storico sanzioni, patenti e penalità di ogni pilota.</p>
+            </a>
+
+        </div>
+
+        <div class="footer-info">
+            <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">
+                Connesso come <span style="color: white; font-weight: bold;">DIREZIONE GARA</span>
+            </p>
         </div>
     </div>
 
