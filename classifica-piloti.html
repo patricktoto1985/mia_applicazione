@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classifica Piloti | GRCCF1ESPORT</title>
+    <style>
+        :root {
+            --f1-red: #e10600;
+            --dark-bg: #0b0f19;
+            --card-bg: #131a26;
+            --accent-cyan: #00ffd1;
+            --text-light: #ffffff;
+            --text-muted: #8fa0b5;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            margin: 0;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 20px auto; }
+        .back-btn {
+            display: inline-block;
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border: 1px solid var(--accent-cyan);
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        .back-btn:hover { background-color: var(--accent-cyan); color: #000; }
+        .card { background-color: var(--card-bg); padding: 30px; border-radius: 16px; border: 1px solid #1f2c3f; }
+        h2 { color: var(--f1-red); margin-top: 0; text-transform: uppercase; border-bottom: 1px solid #1f2c3f; padding-bottom: 10px; margin-bottom: 5px; }
+        .status-text { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #1f2c3f; }
+        th { color: var(--accent-cyan); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+        tr:hover { background-color: rgba(255,255,255,0.01); }
+        
+        .race-num { font-family: monospace; font-weight: bold; color: var(--text-muted); font-size: 1.1rem; }
+        
+        /* Bordi Colorati Ufficiali Scuderie 2026 */
+        .team { font-weight: 600; padding-left: 8px; }
+        .ferrari { border-left: 4px solid #e10600; }
+        .audi { border-left: 4px solid #f5f5f5; }
+        .cadillac { border-left: 4px solid #555555; }
+        .mclaren { border-left: 4px solid #ff8700; }
+        .mercedes { border-left: 4px solid #00a19c; }
+        .redbull { border-left: 4px solid #0c1e43; }
+        .aston { border-left: 4px solid #006643; }
+        .alpine { border-left: 4px solid #0078c1; }
+        .williams { border-left: 4px solid #005aff; }
+        .haas { border-left: 4px solid #e60000; }
+        .rb { border-left: 4px solid #6699ff; }
+        
+        .punti { font-weight: bold; color: var(--text-muted); font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="index.html" class="back-btn">⬅ Torna al Race Control</a>
+
+        <div class="card">
+            <h2>Classifica Assoluta Piloti</h2>
+            <div class="status-text">Stagione 2026 — Griglia Iscritti Ufficiali</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 10%">Num</th>
+                        <th style="width: 45%">Pilota</th>
+                        <th style="width: 33%">Scuderia</th>
+                        <th style="width: 12%">Punti</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="race-num">#69</td>
+                        <td><strong>ADRIANLIV</strong></td>
+                        <td><span class="team aston">Aston Martin</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#3</td>
+                        <td><strong>BENE20DOMENICO</strong></td>
+                        <td><span class="team redbull">Red Bull Racing</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#97</td>
+                        <td><strong>BRA_FOSY89</strong></td>
+                        <td><span class="team haas">Haas F1 Team</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#85</td>
+                        <td><strong>CONDE785</strong></td>
+                        <td><span class="team alpine">Alpine F1 Team</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#24</td>
+                        <td><strong>DANIELE251191</strong></td>
+                        <td><span class="team audi">Audi Sport</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#73</td>
+                        <td><strong>DAVIARCO1999</strong></td>
+                        <td><span class="team haas">Haas F1 Team</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#31</td>
+                        <td><strong>FRA3123</strong></td>
+                        <td><span class="team mclaren">McLaren F1 Team</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#29</td>
+                        <td><strong>GIUMEND29</strong></td>
+                        <td><span class="team aston">Aston Martin</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#26</td>
+                        <td><strong>GRCC F1 VITTORIO</strong></td>
+                        <td><span class="team rb">Racing Bulls</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#35</td>
+                        <td><strong>ICEANT16</strong></td>
+                        <td><span class="team williams">Williams Racing</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#19</td>
+                        <td><strong>KEIDIKID2</strong></td>
+                        <td><span class="team cadillac">Cadillac Racing</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#84</td>
+                        <td><strong>LILLUPAZZU</strong></td>
+                        <td><span class="team rb">Racing Bulls</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#17</td>
+                        <td><strong>LRT_KURAMA</strong></td>
+                        <td><span class="team mclaren">McLaren F1 Team</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#25</td>
+                        <td><strong>MIKYPOWER</strong></td>
+                        <td><span class="team ferrari">Ferrari HP</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#28</td>
+                        <td><strong>MKI-110</strong></td>
+                        <td><span class="team mercedes">Mercedes-AMG</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#12</td>
+                        <td><strong>NXS_ODI</strong></td>
+                        <td><span class="team cadillac">Cadillac Racing</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#82</td>
+                        <td><strong>PEPPEFLE_IRT</strong></td>
+                        <td><span class="team alpine">Alpine F1 Team</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#8</td>
+                        <td><strong>RAO-783</strong></td>
+                        <td><span class="team redbull">Red Bull Racing</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#6</td>
+                        <td><strong>SALVOTD91</strong></td>
+                        <td><span class="team mercedes">Mercedes-AMG</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#1</td>
+                        <td><strong>SICKMIRKO</strong></td>
+                        <td><span class="team ferrari">Ferrari HP</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                    <tr>
+                        <td class="race-num">#40</td>
+                        <td><strong>TOTO'F1</strong></td>
+                        <td><span class="team audi">Audi Sport</span></td>
+                        <td class="punti">0</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>
