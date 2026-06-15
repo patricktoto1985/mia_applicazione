@@ -7,9 +7,9 @@
     <style>
         :root {
             --f1-red: #e10600;
-            --dark-bg: #0b0f19; /* Blu scuro notte profondo tipo lo screen */
-            --card-bg: #131a26; /* Sfondo dei pulsanti */
-            --accent-cyan: #00ffd1; /* Verde/Azzurro neon per i dettagli */
+            --dark-bg: #0b0f19; 
+            --card-bg: #131a26; 
+            --accent-cyan: #00ffd1; 
             --text-light: #ffffff;
             --text-muted: #8fa0b5;
         }
@@ -30,7 +30,7 @@
         .logo-text {
             font-size: 2.5rem;
             font-weight: 900;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             margin: 0;
             text-transform: uppercase;
         }
@@ -45,7 +45,6 @@
         }
         .status-online { color: var(--accent-cyan); font-weight: bold; }
 
-        /* Contenitore della griglia tipo app mobile dello screen */
         .dashboard-container {
             max-width: 600px;
             margin: 20px auto 40px auto;
@@ -54,11 +53,10 @@
 
         .grid-dashboard {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Due colonne perfette */
+            grid-template-columns: 1fr 1fr; 
             gap: 15px;
         }
 
-        /* I bottoni grandi della Dashboard */
         .dash-btn {
             background-color: var(--card-bg);
             border: 1px solid #1f2c3f;
@@ -74,14 +72,12 @@
             cursor: pointer;
         }
 
-        /* Effetto al passaggio del mouse o click */
         .dash-btn:hover {
             transform: translateY(-3px);
             border-color: var(--accent-cyan);
             box-shadow: 0 5px 15px rgba(0, 255, 209, 0.15);
         }
 
-        /* L'iconcina tonda colorata (pallino in alto a destra nello screen) */
         .status-dot {
             position: absolute;
             top: 15px;
@@ -113,7 +109,6 @@
             line-height: 1.2;
         }
 
-        /* Sezione info in basso per il prossimo GP */
         .footer-info {
             background: linear-gradient(180deg, rgba(19,26,38,0) 0%, rgba(19,26,38,1) 100%);
             border-top: 1px solid #1f2c3f;
@@ -128,14 +123,14 @@
 
     <header>
         <div class="status-bar">SISTEMA DI CONTROLLO > <span class="status-online">GRCC RACE CONTROL</span></div>
-        <h1 class="logo-text">GRCC<span class="logo-highlight">F1</span></h1>
+        <h1 class="logo-text">GRCC<span class="logo-highlight">F1</span>ESPORT</h1>
     </header>
 
     <div class="dashboard-container">
         <div class="grid-dashboard">
 
-            <a href="#" class="dash-btn">
-                <span class="status-dot dot-yellow"></span>
+            <a href="index.html" class="dash-btn">
+                <span class="status-dot dot-cyan"></span>
                 <div class="dash-icon">📅</div>
                 <h2 class="dash-title">Campionati</h2>
                 <p class="dash-desc">Seleziona la stagione attiva o le passate.</p>
@@ -155,21 +150,21 @@
                 <p class="dash-desc">I punti di ogni scuderia ufficiale della stagione.</p>
             </a>
 
-            <a href="#" class="dash-btn">
+            <a href="calendario.html" class="dash-btn">
                 <span class="status-dot dot-cyan"></span>
                 <div class="dash-icon">🏁</div>
                 <h2 class="dash-title">Calendario Gare</h2>
                 <p class="dash-desc">Le tappe della stagione, orari e i risultati dei GP.</p>
             </a>
 
-            <a href="#" class="dash-btn">
+            <a href="verbali.html" class="dash-btn">
                 <span class="status-dot dot-grey"></span>
                 <div class="dash-icon">📁</div>
                 <h2 class="dash-title">Archivio Verbali</h2>
                 <p class="dash-desc">Tutti i verbali emessi dai commissari con PDF.</p>
             </a>
 
-            <a href="#" class="dash-btn">
+            <a href="warning.html" class="dash-btn">
                 <span class="status-dot dot-red"></span>
                 <div class="dash-icon">⚠️</div>
                 <h2 class="dash-title">Albo Warning / Reprimende</h2>
