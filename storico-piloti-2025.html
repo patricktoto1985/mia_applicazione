@@ -5,54 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Classifica Piloti 2025 | GRCCF1ESPORT</title>
     <style>
-        :root { --f1-red: #e10600; --dark-bg: #0b0f19; --card-bg: #131a26; --accent-cyan: #00ffd1; --text-light: #ffffff; --text-muted: #8fa0b5; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--dark-bg); color: var(--text-light); margin: 0; padding: 15px; }
+        :root {
+            --f1-red: #e10600;
+            --dark-bg: #0b0f19;
+            --card-bg: #131a26;
+            --accent-cyan: #00ffd1;
+            --text-light: #ffffff;
+            --text-muted: #8fa0b5;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            margin: 0;
+            padding: 15px;
+        }
         .container { max-width: 900px; margin: 10px auto; }
-        .back-btn { display: inline-block; color: var(--accent-cyan); text-decoration: none; font-weight: bold; margin-bottom: 20px; border: 1px solid var(--accent-cyan); padding: 8px 16px; border-radius: 8px; transition: 0.2s; }
+        .back-btn {
+            display: inline-block;
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border: 1px solid var(--accent-cyan);
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
         .back-btn:hover { background-color: var(--accent-cyan); color: #000; }
         .card { background-color: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid #1f2c3f; }
-        h2 { color: var(--f1-red); margin-top: 0; text-transform: uppercase; border-bottom: 1px solid #1f2c3f; padding-bottom: 10px; }
+        h2 { color: var(--f1-red); margin-top: 0; text-transform: uppercase; border-bottom: 1px solid #1f2c3f; padding-bottom: 10px; margin-bottom: 5px; }
+        .status-text { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        
         .table-responsive { width: 100%; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #1f2c3f; }
-        th { color: var(--accent-cyan); text-transform: uppercase; font-size: 0.85rem; }
-        .pos { font-weight: bold; color: #ffb700; width: 50px; }
-        .num { color: var(--text-muted); font-family: monospace; width: 50px; }
-        .points { font-weight: bold; color: var(--accent-cyan); text-align: right; }
-        th.text-right, td.points { text-align: right; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #1f2c3f; font-size: 0.9rem; }
+        th { color: var(--accent-cyan); text-transform: uppercase; font-size: 0.8rem; }
+        
+        /* Stili specifici per colonne */
+        .pos-cell { font-weight: bold; color: #ffb700; width: 40px; text-align: center; }
+        .num-cell { color: var(--text-muted); font-family: monospace; width: 50px; text-align: center; }
+        .pilot-cell strong { font-weight: 700; color: #fff; }
+        .points-cell { font-weight: bold; color: var(--accent-cyan); text-align: right; width: 60px; font-size: 1rem; }
+        
+        /* Evidenzia il podio */
+        tr:nth-child(-n+3) .pos-cell { font-size: 1.1rem; }
+        
+        tr:hover { background-color: rgba(255,255,255,0.02); }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <a href="campionati.html" class="back-btn">⬅ Torna a Seleziona Stagione</a>
+        <a href="campionati.html" class="back-btn">⬅ Torna all'Archivio Storico</a>
+
         <div class="card">
-            <h2>Classifica Finale Piloti — Stagione 2025</h2>
+            <h2>Classifica Finale Piloti</h2>
+            <div class="status-text">F1 25 GRCC — Stagione Conclusa</div>
+            
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
-                            <th>Pos</th>
-                            <th>Num</th>
+                            <th style="text-align: center;">Pos</th>
+                            <th style="text-align: center;">Num</th>
                             <th>Pilota</th>
-                            <th class="text-right">Punti</th>
+                            <th style="text-align: right;">Punti</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td class="pos">1</td><td class="num">#1</td><td><strong>SICKMIRKO</strong></td><td class="points">535</td></tr>
-                        <tr><td class="pos">2</td><td class="num">#8</td><td>RAO-783</td><td class="points">321</td></tr>
-                        <tr><td class="pos">3</td><td class="num">#73</td><td>DAVIARCO1999</td><td class="points">321</td></tr>
-                        <tr><td class="pos">4</td><td class="num">#6</td><td>SALVOTD91</td><td class="points">273</td></tr>
-                        <tr><td class="pos">5</td><td class="num">#17</td><td>LRT_KURAMA</td><td class="points">253</td></tr>
-                        <tr><td class="pos">6</td><td class="num">#29</td><td>GIUMEND29</td><td class="points">223</td></tr>
-                        <tr><td class="pos">7</td><td class="num">#12</td><td>NXS_ODI</td><td class="points">193</td></tr>
-                        <tr><td class="pos">8</td><td class="num">#26</td><td>GRCC F1 VITTORIO</td><td class="points">142</td></tr>
-                        <tr><td class="pos">9</td><td class="num">#24</td><td>DANIELE251191</td><td class="points">137</td></tr>
-                        <tr><td class="pos">10</td><td class="num">#31</td><td>FRA3123</td><td class="points">115</td></tr>
-                        <tr><td class="pos">11</td><td class="num">#25</td><td>MIKYPOWER</td><td class="points">101</td></tr>
-                        <tr><td class="pos">12</td><td class="num">#19</td><td>KEIDIKID2</td><td class="points">101</td></tr>
-                        <tr><td class="pos">13</td><td class="num">#3</td><td>BENEZODOMENICO</td><td class="points">98</td></tr>
-                        <tr><td class="pos">14</td><td class="num">#5</td><td>ALESSANDROGIACA93</td><td class="points">90</td></tr>
-                        <tr><td class="pos">15</td><td class="num">#34</td><td>DAVIDE_G34</td><td class="points">82</td></tr>
+                        <tr><td class="pos-cell">1</td><td class="num-cell">#1</td><td class="pilot-cell"><strong>SICKMIRKO</strong></td><td class="points-cell">535</td></tr>
+                        <tr><td class="pos-cell">2</td><td class="num-cell">#8</td><td class="pilot-cell">RAO-783</td><td class="points-cell">321</td></tr>
+                        <tr><td class="pos-cell">3</td><td class="num-cell">#73</td><td class="pilot-cell">DAVIARCO1999</td><td class="points-cell">321</td></tr>
+                        <tr><td class="pos-cell">4</td><td class="num-cell">#6</td><td class="pilot-cell">SALVOTD91</td><td class="points-cell">273</td></tr>
+                        <tr><td class="pos-cell">5</td><td class="num-cell">#17</td><td class="pilot-cell">LRT_KURAMA</td><td class="points-cell">253</td></tr>
+                        <tr><td class="pos-cell">6</td><td class="num-cell">#29</td><td class="pilot-cell">GIUMEND29</td><td class="points-cell">223</td></tr>
+                        <tr><td class="pos-cell">7</td><td class="num-cell">#12</td><td class="pilot-cell">NXS_ODI</td><td class="points-cell">193</td></tr>
                     </tbody>
                 </table>
             </div>
