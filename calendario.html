@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario Gare | GRCCF1ESPORT</title>
+    <style>
+        :root {
+            --f1-red: #e10600;
+            --dark-bg: #0b0f19;
+            --card-bg: #131a26;
+            --accent-cyan: #00ffd1;
+            --text-light: #ffffff;
+            --text-muted: #8fa0b5;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            margin: 0;
+            padding: 15px;
+        }
+        .container { max-width: 900px; margin: 10px auto; }
+        .back-btn {
+            display: inline-block;
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border: 1px solid var(--accent-cyan);
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        .back-btn:hover { background-color: var(--accent-cyan); color: #000; }
+        .card { background-color: var(--card-bg); padding: 20px; border-radius: 16px; border: 1px solid #1f2c3f; }
+        h2 { color: var(--f1-red); margin-top: 0; text-transform: uppercase; border-bottom: 1px solid #1f2c3f; padding-bottom: 10px; margin-bottom: 5px; }
+        .status-text { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; min-width: 600px; }
+        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #1f2c3f; }
+        th { color: var(--accent-cyan); text-transform: uppercase; font-size: 0.85rem; }
+        tr:hover { background-color: rgba(255,255,255,0.01); }
+        
+        .round-num { color: var(--f1-red); font-weight: bold; width: 60px; }
+        .gp-name { font-weight: bold; }
+        .date-cell { color: var(--text-muted); font-style: italic; }
+        
+        .status-badge { font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; font-weight: bold; display: inline-block; }
+        .status-tbd { background-color: #222a36; color: #a0aec0; }
+        .sprint-badge { background-color: #ffb700; color: #000; margin-left: 8px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="index.html" class="back-btn">⬅ Torna al Race Control</a>
+
+        <div class="card">
+            <h2>Calendario Gare 2026</h2>
+            <div class="status-text">GRCCF1ESPORT — Programmazione in Fase di Definizione</div>
+            
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Round</th>
+                            <th>Grand Prix / Circuito</th>
+                            <th>Data Ufficiale</th>
+                            <th>Stato</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="round-num">R1</td>
+                            <td class="gp-name">🇦🇺 Australia — Albert Park</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R2</td>
+                            <td class="gp-name">🇨🇳 Cina — Shanghai <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R3</td>
+                            <td class="gp-name">🇯🇵 Giappone — Suzuka</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R4</td>
+                            <td class="gp-name">🇧🇭 Bahrain — Sakhir</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R5</td>
+                            <td class="gp-name">🇸🇦 Arabia Saudita — Jeddah</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R6</td>
+                            <td class="gp-name">🇺🇸 Miami — Miami International Autodrome <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R7</td>
+                            <td class="gp-name">🇮🇹 Emilia Romagna — Imola</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R8</td>
+                            <td class="gp-name">🇲🇨 Monaco — Monte Carlo</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R9</td>
+                            <td class="gp-name">🇪🇸 Spagna — Barcellona</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R10</td>
+                            <td class="gp-name">🇨🇦 Canada — Montréal</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R11</td>
+                            <td class="gp-name">🇦🇹 Austria — Red Bull Ring</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R12</td>
+                            <td class="gp-name">🇬🇧 Gran Bretagna — Silverstone</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R13</td>
+                            <td class="gp-name">🇧🇪 Belgio — Spa-Francorchamps <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R14</td>
+                            <td class="gp-name">🇭🇺 Ungheria — Hungaroring</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R15</td>
+                            <td class="gp-name">🇳🇱 Olanda — Zandvoort</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R16</td>
+                            <td class="gp-name">🇮🇹 Italia — Monza</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R17</td>
+                            <td class="gp-name">🇦🇿 Azerbaijan — Baku Street Circuit</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R18</td>
+                            <td class="gp-name">🇸🇬 Singapore — Marina Bay</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R19</td>
+                            <td class="gp-name">🇺🇸 Stati Uniti — Austin <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R20</td>
+                            <td class="gp-name">🇲🇽 Messico — Hermanos Rodríguez</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R21</td>
+                            <td class="gp-name">🇧🇷 San Paolo — Interlagos <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R22</td>
+                            <td class="gp-name">🇺🇸 Las Vegas — Las Vegas Strip</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R23</td>
+                            <td class="gp-name">🇶🇦 Qatar — Lusail <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R24</td>
+                            <td class="gp-name">🇦🇪 Abu Dhabi — Yas Marina</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
