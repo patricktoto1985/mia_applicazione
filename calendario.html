@@ -58,7 +58,6 @@
         .status-tbd { background-color: #222a36; color: #a0aec0; }
         .sprint-badge { background-color: #ffb700; color: #000; margin-left: 8px; }
 
-        /* PULSANTI DI PRESENZA */
         .btn-attendance {
             padding: 6px 12px;
             border: none;
@@ -73,7 +72,6 @@
         .btn-present { background-color: #00b060; color: #fff; margin-right: 5px; }
         .btn-absent { background-color: var(--f1-red); color: #fff; }
 
-        /* PANNELLO RESOCONTO AMMINISTRATORE */
         .summary-box {
             background-color: #1a2333;
             border: 1px solid var(--accent-cyan);
@@ -188,98 +186,72 @@
                                 <button class="btn-attendance btn-absent" onclick="registraPresenza('R5', 'ASSENTE')">Assente</button>
                             </td>
                         </tr>
+                        <tr>
+                            <td class="round-num">R6</td>
+                            <td class="gp-name">🇺🇸 Miami — Miami International Autodrome <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R6', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R6', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R7</td>
+                            <td class="gp-name">🇮🇹 Emilia Romagna — Imola</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R7', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R7', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R8</td>
+                            <td class="gp-name">🇲🇨 Monaco — Monte Carlo</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R8', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R8', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R9</td>
+                            <td class="gp-name">🇪🇸 Spagna — Barcellona</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R9', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R9', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R10</td>
+                            <td class="gp-name">🇨🇦 Canada — Montréal</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R10', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R10', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
-
-            <div class="summary-box">
-                <div class="summary-title">🕵️‍♂️ Race Control — Monitor Logistica Presenze</div>
-                <div style="margin-bottom: 12px; font-size: 0.85rem; color: var(--text-muted);">
-                    Seleziona un Round per vedere chi partecipa: 
-                    <select id="round-selector" onchange="mostraPilotiPerRound()" style="background-color: #0b0f19; color: #fff; border: 1px solid #1f2c3f; padding: 5px 10px; border-radius: 6px; margin-left: 5px; cursor: pointer; outline: none;">
-                        <option value="R1">Round 1 - Australia</option>
-                        <option value="R2">Round 2 - Cina</option>
-                        <option value="R3">Round 3 - Giappone</option>
-                        <option value="R4">Round 4 - Bahrain</option>
-                        <option value="R5">Round 5 - Arabia Saudita</option>
-                    </select>
-                </div>
-                
-                <div class="lists-grid">
-                    <div class="list-group">
-                        <h4 class="list-p">🟢 Presenti Confermati</h4>
-                        <div id="container-presenti"></div>
-                    </div>
-                    <div class="list-group">
-                        <h4 class="list-a">🔴 Assenti Giustificati</h4>
-                        <div id="container-assenti"></div>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
 
     <script>
-        // URL del tuo Web App Script di Google (Spiegato sotto come averlo in 1 minuto)
-        const SCRIPT_URL = "INSERISCI_QUI_IL_TUO_LINK_GOOGLE_SCRIPT";
-
         function registraPresenza(round, stato) {
-            const pilota = prompt("Inserisci il tuo ID PSN ufficiale per confermare:");
-            if (!pilota || pilota.trim() === "") {
-                alert("Operazione annullata. Devi inserire il tuo ID!");
-                return;
-            }
-
-            // Invia i dati al foglio Google centralizzato in background
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ round: round, pilota: pilota.toUpperCase().trim(), stato: stato })
-            }).then(() => {
-                alert(`Registrazione salvata con successo per ${pilota.toUpperCase()}!`);
-                caricaDatiDalFoglio(); // Ricarica la vista immediata
-            }).catch(err => console.error("Errore di rete: ", err));
+            if (!round || !stato) return;
+            var utente = sessionStorage.getItem('grcc_user') || 'pilota';
+            var chiave = 'grcc_attendance_' + utente;
+            var attendance = JSON.parse(localStorage.getItem(chiave) || '{}');
+            attendance[round] = stato;
+            localStorage.setItem(chiave, JSON.stringify(attendance));
+            alert('Presenza per ' + round + ' registrata come: ' + stato);
         }
-
-        function caricaDatiDalFoglio() {
-            // Chiamata GET per prendere i dati aggiornati di tutti i piloti
-            fetch(SCRIPT_URL)
-                .then(res => res.json())
-                .then(data => {
-                    window.databasePresenze = data;
-                    mostraPilotiPerRound();
-                }).catch(err => console.error("Impossibile caricare il database:", err));
-        }
-
-        function mostraPilotiPerRound() {
-            const roundSelezionato = document.getElementById('round-selector').value;
-            const containerPresenti = document.getElementById('container-presenti');
-            const containerAssenti = document.getElementById('container-assenti');
-            
-            containerPresenti.innerHTML = "";
-            containerAssenti.innerHTML = "";
-
-            if (!window.databasePresenze) return;
-
-            window.databasePresenze.forEach(riga => {
-                if (riga.round === roundSelezionato) {
-                    const span = document.createElement('span');
-                    span.className = 'pilot-tag';
-                    span.textContent = riga.pilota;
-                    
-                    if (riga.stato === 'PRESENTE') {
-                        containerPresenti.appendChild(span);
-                    } else if (riga.stato === 'ASSENTE') {
-                        containerAssenti.appendChild(span);
-                    }
-                }
-            });
-        }
-
-        // Carica il tabellone quando apri la pagina
-        window.onload = caricaDatiDalFoglio;
     </script>
 </body>
 </html>
