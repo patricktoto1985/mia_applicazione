@@ -58,6 +58,7 @@
         .status-tbd { background-color: #222a36; color: #a0aec0; }
         .sprint-badge { background-color: #ffb700; color: #000; margin-left: 8px; }
 
+        /* PULSANTI DI PRESENZA */
         .btn-attendance {
             padding: 6px 12px;
             border: none;
@@ -72,6 +73,7 @@
         .btn-present { background-color: #00b060; color: #fff; margin-right: 5px; }
         .btn-absent { background-color: var(--f1-red); color: #fff; }
 
+        /* PANNELLO RESOCONTO AMMINISTRATORE */
         .summary-box {
             background-color: #1a2333;
             border: 1px solid var(--accent-cyan);
@@ -121,7 +123,7 @@
         <a href="index.html" class="back-btn">⬅ Torna al Race Control</a>
 
         <div class="card">
-            <h2>Calendario Gare 2026</h2>
+            <h2>Calendario Gare Ufficiale 2026</h2>
             <div class="status-text">GRCCF1ESPORT — Gestione Presenze Griglia</div>
             
             <div class="table-responsive">
@@ -236,22 +238,256 @@
                                 <button class="btn-attendance btn-absent" onclick="registraPresenza('R10', 'ASSENTE')">Assente</button>
                             </td>
                         </tr>
+                        <tr>
+                            <td class="round-num">R11</td>
+                            <td class="gp-name">🇦🇹 Austria — Red Bull Ring</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R11', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R11', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R12</td>
+                            <td class="gp-name">🇬🇧 Gran Bretagna — Silverstone</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R12', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R12', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R13</td>
+                            <td class="gp-name">🇧🇪 Belgio — Spa-Francorchamps <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R13', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R13', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R14</td>
+                            <td class="gp-name">🇭🇺 Ungheria — Hungaroring</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R14', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R14', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R15</td>
+                            <td class="gp-name">🇳🇱 Olanda — Zandvoort</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R15', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R15', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R16</td>
+                            <td class="gp-name">🇮🇹 Italia — Monza</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R16', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R16', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R17</td>
+                            <td class="gp-name">🇦🇿 Azerbaijan — Baku Street Circuit</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R17', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R17', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R18</td>
+                            <td class="gp-name">🇸🇬 Singapore — Marina Bay</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R18', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R18', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R19</td>
+                            <td class="gp-name">🇺🇸 Stati Uniti — Austin <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R19', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R19', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R20</td>
+                            <td class="gp-name">🇲🇽 Messico — Hermanos Rodríguez</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R20', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R20', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R21</td>
+                            <td class="gp-name">🇧🇷 San Paolo — Interlagos <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R21', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R21', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R22</td>
+                            <td class="gp-name">🇺🇸 Las Vegas — Las Vegas Strip</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R22', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R22', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R23</td>
+                            <td class="gp-name">🇶🇦 Qatar — Lusail <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R23', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R23', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="round-num">R24</td>
+                            <td class="gp-name">🇦🇪 Abu Dhabi — Yas Marina</td>
+                            <td class="date-cell">Da definire</td>
+                            <td><span class="status-badge status-tbd">TBD</span></td>
+                            <td style="text-align: center;">
+                                <button class="btn-attendance btn-present" onclick="registraPresenza('R24', 'PRESENTE')">Presente</button>
+                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R24', 'ASSENTE')">Assente</button>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
+
+            <div class="summary-box">
+                <div class="summary-title">🕵️‍♂️ Race Control — Monitor Logistica Presenze</div>
+                <div style="margin-bottom: 12px; font-size: 0.85rem; color: var(--text-muted);">
+                    Seleziona un Round per vedere chi partecipa: 
+                    <select id="round-selector" onchange="mostraPilotiPerRound()" style="background-color: #0b0f19; color: #fff; border: 1px solid #1f2c3f; padding: 5px 10px; border-radius: 6px; margin-left: 5px; cursor: pointer; outline: none;">
+                        <option value="R1">Round 1 - Australia</option>
+                        <option value="R2">Round 2 - Cina</option>
+                        <option value="R3">Round 3 - Giappone</option>
+                        <option value="R4">Round 4 - Bahrain</option>
+                        <option value="R5">Round 5 - Arabia Saudita</option>
+                        <option value="R6">Round 6 - Miami</option>
+                        <option value="R7">Round 7 - Emilia Romagna</option>
+                        <option value="R8">Round 8 - Monaco</option>
+                        <option value="R9">Round 9 - Spagna</option>
+                        <option value="R10">Round 10 - Canada</option>
+                        <option value="R11">Round 11 - Austria</option>
+                        <option value="R12">Round 12 - Gran Bretagna</option>
+                        <option value="R13">Round 13 - Belgio</option>
+                        <option value="R14">Round 14 - Ungheria</option>
+                        <option value="R15">Round 15 - Olanda</option>
+                        <option value="R16">Round 16 - Italia</option>
+                        <option value="R17">Round 17 - Azerbaijan</option>
+                        <option value="R18">Round 18 - Singapore</option>
+                        <option value="R19">Round 19 - Stati Uniti</option>
+                        <option value="R20">Round 20 - Messico</option>
+                        <option value="R21">Round 21 - San Paolo</option>
+                        <option value="R22">Round 22 - Las Vegas</option>
+                        <option value="R23">Round 23 - Qatar</option>
+                        <option value="R24">Round 24 - Abu Dhabi</option>
+                    </select>
+                </div>
+                
+                <div class="lists-grid">
+                    <div class="list-group">
+                        <h4 class="list-p">🟢 Presenti Confermati</h4>
+                        <div id="container-presenti"></div>
+                    </div>
+                    <div class="list-group">
+                        <h4 class="list-a">🔴 Assenti Giustificati</h4>
+                        <div id="container-assenti"></div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <script>
+        // Incolla qui il link generato dal passaggio "Apps Script" di Google Sheets
+        const SCRIPT_URL = "INSERISCI_QUI_IL_TUO_LINK_GOOGLE_SCRIPT";
+
         function registraPresenza(round, stato) {
-            if (!round || !stato) return;
-            var utente = sessionStorage.getItem('grcc_user') || 'pilota';
-            var chiave = 'grcc_attendance_' + utente;
-            var attendance = JSON.parse(localStorage.getItem(chiave) || '{}');
-            attendance[round] = stato;
-            localStorage.setItem(chiave, JSON.stringify(attendance));
-            alert('Presenza per ' + round + ' registrata come: ' + stato);
+            const pilota = prompt("Inserisci il tuo ID PSN ufficiale per confermare:");
+            if (!pilota || pilota.trim() === "") {
+                alert("Operazione annullata. Devi inserire il tuo ID!");
+                return;
+            }
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ round: round, pilota: pilota.toUpperCase().trim(), stato: stato })
+            }).then(() => {
+                alert(`Registrazione salvata con successo per ${pilota.toUpperCase()}!`);
+                caricaDatiDalFoglio();
+            }).catch(err => console.error("Errore di rete: ", err));
         }
+
+        function caricaDatiDalFoglio() {
+            if(SCRIPT_URL === "INSERISCI_QUI_IL_TUO_LINK_GOOGLE_SCRIPT") return;
+            
+            fetch(SCRIPT_URL)
+                .then(res => res.json())
+                .then(data => {
+                    window.databasePresenze = data;
+                    mostraPilotiPerRound();
+                }).catch(err => console.error("Impossibile caricare il database:", err));
+        }
+
+        function mostraPilotiPerRound() {
+            const roundSelezionato = document.getElementById('round-selector').value;
+            const containerPresenti = document.getElementById('container-presenti');
+            const containerAssenti = document.getElementById('container-assenti');
+            
+            containerPresenti.innerHTML = "";
+            containerAssenti.innerHTML = "";
+
+            if (!window.databasePresenze) return;
+
+            window.databasePresenze.forEach(riga => {
+                if (riga.round === roundSelezionato) {
+                    const span = document.createElement('span');
+                    span.className = 'pilot-tag';
+                    span.textContent = riga.pilota;
+                    
+                    if (riga.stato === 'PRESENTE') {
+                        containerPresenti.appendChild(span);
+                    } else if (riga.stato === 'ASSENTE') {
+                        containerAssenti.appendChild(span);
+                    }
+                }
+            });
+        }
+
+        window.onload = caricaDatiDalFoglio;
     </script>
 </body>
 </html>
