@@ -138,25 +138,46 @@
     </div>
 
     <script>
-        // LA PASSWORD ATTUALE È: GRCC2026
-        const SECURITY_KEY = "GRCC2026"; 
+        // 1. DEFINIZIONE DELLE PASSWORD
+        const PASS_ADMIN = "ADMIN2026";  // Password Direzione Gara
+        const PASS_PILOTI = "GRCC2026"; // Password per i piloti
 
+        // 2. FUNZIONE DI VERIFICA AL CLICK DEL PULSANTE
         function checkPassword() {
             const input = document.getElementById('group-pass').value;
             const errorText = document.getElementById('login-error');
-            
-            if(input === SECURITY_KEY) {
+
+            if (input === PASS_ADMIN) {
                 sessionStorage.setItem('grcc_authenticated', 'true');
+                sessionStorage.setItem('grcc_role', 'DIREZIONE GARA');
                 document.getElementById('login-overlay').style.display = 'none';
-            } else {
+                aggiornaScrittaRuolo();
+            } 
+            else if (input === PASS_PILOTI) {
+                sessionStorage.setItem('grcc_authenticated', 'true');
+                sessionStorage.setItem('grcc_role', 'PILOTA');
+                document.getElementById('login-overlay').style.display = 'none';
+                aggiornaScrittaRuolo();
+            } 
+            else {
                 errorText.style.display = 'block';
                 document.getElementById('group-pass').value = '';
             }
         }
 
-        // Se l'utente si è già autenticato in questa sessione, bypassa la schermata
-        if(sessionStorage.getItem('grcc_authenticated') === 'true') {
+        // 3. FUNZIONE PER AGGIORNARE LA SCRITTA IN BASSO
+        function aggiornaScrittaRuolo() {
+            const ruolo = sessionStorage.getItem('grcc_role') || "PILOTA";
+            const elementoRuolo = document.getElementById("user-role-text");
+            if (elementoRuolo) {
+                elementoRuolo.textContent = ruolo;
+            }
+        }
+
+        // 4. CONTROLLO DI PERSISTENZA AL CARICAMENTO DELLA PAGINA
+        if (sessionStorage.getItem('grcc_authenticated') === 'true') {
             document.getElementById('login-overlay').style.display = 'none';
+            window.addEventListener('DOMContentLoaded', aggiornaScrittaRuolo);
         }
     </script>
     <header>
