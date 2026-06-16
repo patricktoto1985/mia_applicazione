@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archivio Verbali | GRCCF1ESPORT</title>
+    
+    <script>
+        if (sessionStorage.getItem('grcc_authenticated') !== 'true') {
+            window.location.href = 'index.html';
+        }
+    </script>
+
+    <style>
+        :root {
+            --f1-red: #e10600;
+            --dark-bg: #0b0f19;
+            --card-bg: #131a26;
+            --accent-cyan: #00ffd1;
+            --text-light: #ffffff;
+            --text-muted: #8fa0b5;
+            --pdf-color: #ff4a4a;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            margin: 0;
+            padding: 15px;
+        }
+        .container { max-width: 900px; margin: 10px auto; }
+        
+        .back-btn {
+            display: inline-block;
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border: 1px solid var(--accent-cyan);
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        .back-btn:hover { background-color: var(--accent-cyan); color: #000; }
+        
+        .card { background-color: var(--card-bg); padding: 25px; border-radius: 16px; border: 1px solid #1f2c3f; margin-bottom: 25px; }
+        h2 { color: var(--f1-red); margin-top: 0; text-transform: uppercase; border-bottom: 1px solid #1f2c3f; padding-bottom: 10px; margin-bottom: 5px; }
+        .status-text { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* STRUTTURA ROUND */
+        .round-block {
+            background: #0b0f19;
+            border: 1px solid #1f2c3f;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .round-title {
+            color: var(--accent-cyan);
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #1f2c3f;
+            padding-bottom: 8px;
+        }
+
+        /* LISTA DOCUMENTI */
+        .document-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .document-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #131a26;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid #24344d;
+            transition: 0.2s;
+        }
+        .document-item:hover {
+            border-color: var(--f1-red);
+            transform: translateX(5px);
+        }
+        .doc-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .pdf-icon {
+            color: var(--pdf-color);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .doc-name {
+            font-weight: 500;
+            color: #fff;
+        }
+        .doc-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        
+        /* PULSANTE SCARICA */
+        .download-btn {
+            background-color: transparent;
+            color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan);
+            padding: 6px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .download-btn:hover {
+            background-color: var(--accent-cyan);
+            color: #000;
+        }
+        
+        /* STATO VUOTO */
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="index.html" class="back-btn">⬅ Torna al Race Control</a>
+
+        <div class="card">
+            <h2>Archivio Verbali Ufficiali</h2>
+            <div class="status-text">GRCCF1ESPORT — Raccolta Documenti e Decisioni Integrali in PDF</div>
+            
+            <div class="round-block">
+                <div class="round-title">🏁 Round 1 — GP d'Australia (Melbourne)</div>
+                <div class="document-list">
+                    
+                    <div class="document-item">
+                        <div class="doc-info">
+                            <div class="pdf-icon">📄</div>
+                            <div>
+                                <div class="doc-name">Verbale Decisioni Post-Gara - Rev 1.0</div>
+                                <div class="doc-date">Pubblicato il: 16/06/2026</div>
+                            </div>
+                        </div>
+                        <a href="assets/verbali/round1_decisioni.pdf" target="_blank" class="download-btn">Apri PDF</a>
+                    </div>
+
+                    <div class="document-item">
+                        <div class="doc-info">
+                            <div class="pdf-icon">📄</div>
+                            <div>
+                                <div class="doc-name">Classifica Ufficiale Convalidata dei Commissari</div>
+                                <div class="doc-date">Pubblicato il: 16/06/2026</div>
+                            </div>
+                        </div>
+                        <a href="assets/verbali/round1_classifica_finale.pdf" target="_blank" class="download-btn">Apri PDF</a>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="round-block">
+                <div class="round-title">🏁 Round 2 — GP della Cina (Shanghai)</div>
+                <div class="empty-state">
+                    🕭 Nessun verbale emesso per questo evento. La sessione non è ancora stata disputata.
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
