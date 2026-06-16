@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+    <script>
+        // Controlla subito se l'utente ha la sessione attiva, altrimenti blocca il caricamento
+        if(sessionStorage.getItem('grcc_authenticated') === 'true') {
+            document.documentElement.classList.add('auth-passed');
+        }
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GRCCF1ESPORT | Race Control</title>
@@ -14,7 +20,7 @@
             --text-muted: #8fa0b5;
         }
 
-        body {
+        body{
             font-family: 'Segoe UI', Roboto, sans-serif;
             background-color: var(--dark-bg);
             color: var(--text-light);
@@ -120,7 +126,39 @@
     </style>
 </head>
 <body>
+<div id="login-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #0b0f19; z-index: 99999; display: flex; justify-content: center; align-items: center; font-family: 'Segoe UI', sans-serif;">
+        <div style="background-color: #131a26; padding: 40px; border-radius: 16px; border: 1px solid #1f2c3f; text-align: center; max-width: 360px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <h2 style="color: #e10600; margin-top: 0; text-transform: uppercase; letter-spacing: 1px; font-size: 1.6rem; font-weight: bold;">Area Riservata</h2>
+            <p style="color: #8fa0b5; font-size: 0.9rem; margin-bottom: 25px;">Inserisci la chiave d'accesso del gruppo per entrare nel portale GRCC F1.</p>
+            
+            <input type="password" id="group-pass" placeholder="Password..." style="width: 100%; padding: 12px; background-color: #0b0f19; border: 1px solid #1f2c3f; border-radius: 8px; color: #fff; font-size: 1rem; text-align: center; box-sizing: border-box; margin-bottom: 20px; outline: none; transition: 0.2s;">
+            <button onclick="checkPassword()" style="width: 100%; padding: 12px; background-color: #e10600; border: none; border-radius: 8px; color: #fff; font-size: 1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s;">Accedi</button>
+            <p id="login-error" style="color: #ff3b30; font-size: 0.85rem; margin-top: 15px; display: none; font-weight: bold;">❌ Password errata! Riprova.</p>
+        </div>
+    </div>
 
+    <script>
+        // LA PASSWORD ATTUALE È: GRCC2026
+        const SECURITY_KEY = "GRCC2026"; 
+
+        function checkPassword() {
+            const input = document.getElementById('group-pass').value;
+            const errorText = document.getElementById('login-error');
+            
+            if(input === SECURITY_KEY) {
+                sessionStorage.setItem('grcc_authenticated', 'true');
+                document.getElementById('login-overlay').style.display = 'none';
+            } else {
+                errorText.style.display = 'block';
+                document.getElementById('group-pass').value = '';
+            }
+        }
+
+        // Se l'utente si è già autenticato in questa sessione, bypassa la schermata
+        if(sessionStorage.getItem('grcc_authenticated') === 'true') {
+            document.getElementById('login-overlay').style.display = 'none';
+        }
+    </script>
     <header>
         <div class="status-bar">SISTEMA DI CONTROLLO > <span class="status-online">GRCC RACE CONTROL</span></div>
         <h1 class="logo-text">GRCC<span class="logo-highlight">F1ESPORT</span></h1>
