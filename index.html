@@ -307,14 +307,29 @@
         </div>
 
             <p style="margin: 0 0 10px 0; font-size: 0.9rem; color: var(--text-muted);">
-                Connesso come <span id="user-role-text" style="color: white; font-weight: bold;">DIREZIONE GARA</span>
-            </p>
+            Connesso come <span id="user-role-text" style="color: white; font-weight: bold;">DIREZIONE GARA</span>
+        </p>
 
-            <p style="margin: 0; font-size: 0.75rem; color: #56667a; letter-spacing: 0.5px; text-transform: uppercase;">
+        <button onclick="logout()" style="margin-bottom: 15px; padding: 6px 15px; background-color: #dc3545; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: background 0.2s;">
+            🚪 ESCI
+        </button>
+
+        <p style="margin: 0; font-size: 0.75rem; color: #56667a; letter-spacing: 0.5px; text-transform: uppercase;">
                 Produced by <span style="color: var(--accent-cyan); font-weight: bold;">Toto'F1</span>
             </p>
-        </div>
-        
+            
+        </div> </div> <script>
+        function logout() {
+            // Svuota la sessione per bloccare l'accesso alle pagine protette
+            sessionStorage.removeItem('grcc_authenticated');
+            sessionStorage.removeItem('grcc_role');
+            
+            // Ricarica la pagina per mostrare subito la schermata di login "Area Riservata"
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>
 
 
         
