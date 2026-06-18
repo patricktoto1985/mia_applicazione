@@ -274,7 +274,7 @@
                 <p class="dash-desc">Le tappe della stagione, orari e i risultati dei GP.</p>
             </a>
 
-            <a href="verbali.html" class="dash-btn">
+            <a onclick="controllaAccessoVerbali()" class="dash-btn">
                 <span class="status-dot dot-grey"></span>
                 <div class="dash-icon">📁</div>
                 <h2 class="dash-title">Archivio Verbali</h2>
@@ -335,12 +335,22 @@
             
         </div> </div> <script>
         function logout() {
-            // Svuota la sessione per bloccare l'accesso alle pagine protette
             sessionStorage.removeItem('grcc_authenticated');
             sessionStorage.removeItem('grcc_role');
-            
-            // Ricarica la pagina per mostrare subito la schermata di login "Area Riservata"
             window.location.reload();
+        }
+
+        // FUNZIONE PER BLOCCARE I PILOTI DALL'ARCHIVIO VERBALI
+        function controllaAccessoVerbali() {
+            const ruolo = sessionStorage.getItem('grcc_role');
+
+            if (ruolo === 'DIREZIONE GARA') {
+                // Se è l'admin, lo lascia passare alla pagina dei verbali
+                window.location.href = 'verbali.html';
+            } else {
+                // Se è un pilota (o non è loggato correttamente), mostra il blocco
+                alert('⚠️ ACCESSO NEGATO: L\'Archivio Verbali è riservato esclusivamente alla Direzione Gara.');
+            }
         }
     </script>
 </body>
