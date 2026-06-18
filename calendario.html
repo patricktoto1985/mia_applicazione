@@ -261,7 +261,7 @@
 </tr>
 <tr>
     <td class="round-num">R3</td>
-    <td class="gp-name">JP Giappone — Suzuka <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+    <td class="gp-name">JP Giappone — Suzuka</td>
     <td class="date-cell">Da definire</td>
     <td>
         <span class="status-badge status-tbd">TBD</span>
@@ -295,7 +295,7 @@
 </tr>
                         <tr>
     <td class="round-num">R4</td>
-    <td class="gp-name">BH Barhain — Barhain <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+    <td class="gp-name">BH Barhain — Barhain</td>
     <td class="date-cell">Da definire</td>
     <td>
         <span class="status-badge status-tbd">TBD</span>
@@ -329,7 +329,7 @@
 </tr>
                         <tr>
     <td class="round-num">R5</td>
-    <td class="gp-name">SA Arabia Saudita — Jeddah <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+    <td class="gp-name">SA Arabia Saudita — Jeddah</td>
     <td class="date-cell">Da definire</td>
     <td>
         <span class="status-badge status-tbd">TBD</span>
@@ -397,7 +397,7 @@
 </tr>
                         <tr>
     <td class="round-num">R7</td>
-    <td class="gp-name">IT Emilia Romagna — Imola <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+    <td class="gp-name">IT Emilia Romagna — Imola</td>
     <td class="date-cell">Da definire</td>
     <td>
         <span class="status-badge status-tbd">TBD</span>
@@ -431,7 +431,7 @@
 </tr>
                         <tr>
     <td class="round-num">R8</td>
-    <td class="gp-name">MC Monaco — Monte Carlo <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+    <td class="gp-name">MC Monaco — Monte Carlo</td>
     <td class="date-cell">Da definire</td>
     <td>
         <span class="status-badge status-tbd">TBD</span>
@@ -464,55 +464,175 @@
     </td>
 </tr>
                         <tr>
-                            <td class="round-num">R10</td>
-                            <td class="gp-name">🇨🇦 Canada — Montréal</td>
-                            <td class="date-cell">Da definire</td>
-                            <td><span class="status-badge status-tbd">TBD</span></td>
-                            <td style="text-align: center;">
-                                <button class="btn-attendance btn-present" onclick="registraPresenza('R10', 'PRESENTE')">Presente</button>
-                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R10', 'ASSENTE')">Assente</button>
-                            </td>
-                        </tr>
+    <td class="round-num">R9</td>
+    <td class="gp-name">SP Spagna — Barcellona</td>
+    <td class="date-cell">Da definire</td>
+    <td>
+        <span class="status-badge status-tbd">TBD</span>
+        <button onclick="toggleRisultati('r9')" style="background: #1a1f2c; border: 1px solid var(--accent-cyan); color: var(--accent-cyan); padding: 2px 6px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; margin-top: 5px; display: block;">Risultati 🏁</button>
+    </td>
+    <td style="text-align: center;">
+        <button class="btn-attendance btn-present" onclick="registraPresenza('R9', 'PRESENTE')">Presente</button>
+        <button class="btn-attendance btn-absent" onclick="registraPresenza('R9', 'ASSENTE')">Assente</button>
+    </td>
+</tr>
+<tr id="risultati-r9" style="display: none; background: #131722;">
+    <td colspan="5" style="padding: 15px; border-left: 3px solid var(--accent-cyan);">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 12px;">
+            <div>
+                <label style="color: var(--accent-cyan); font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 4px;">⏱️ GIRO DI POLE:</label>
+                <input type="text" id="pole-r9" style="background:#1a1f2c; border:1px solid #333; color:#fff; padding:6px; width:100%; border-radius:4px;" placeholder="Nessun dato" disabled>
+            </div>
+            <div>
+                <label style="color: #ffcc00; font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 4px;">⚡ GIRO VELOCE:</label>
+                <input type="text" id="veloce-r9" style="background:#1a1f2c; border:1px solid #333; color:#fff; padding:6px; width:100%; border-radius:4px;" placeholder="Nessun dato" disabled>
+            </div>
+        </div>
+        <div>
+            <label style="color: #fff; font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 4px;">🏆 ORDINE D'ARRIVO:</label>
+            <textarea id="arrivo-r9" rows="3" style="background:#1a1f2c; border:1px solid #333; color:#fff; padding:6px; width:100%; border-radius:4px; resize:vertical; font-family:inherit;" placeholder="Nessun dato" disabled></textarea>
+        </div>
+        <button id="btn-salva-r9" onclick="salvaRisultati('r9', 'Barcellona')" style="display: none; margin-top: 10px; background: var(--f1-red); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+            Salva Dati
+        </button>
+    </td>
+</tr>
                         <tr>
-                            <td class="round-num">R11</td>
-                            <td class="gp-name">🇦🇹 Austria — Red Bull Ring</td>
-                            <td class="date-cell">Da definire</td>
-                            <td><span class="status-badge status-tbd">TBD</span></td>
-                            <td style="text-align: center;">
-                                <button class="btn-attendance btn-present" onclick="registraPresenza('R11', 'PRESENTE')">Presente</button>
-                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R11', 'ASSENTE')">Assente</button>
-                            </td>
-                        </tr>
+    <td class="round-num">R10</td>
+    <td class="gp-name">CA Canada — Montréal <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+    <td class="date-cell">Da definire</td>
+    <td>
+        <span class="status-badge status-tbd">TBD</span>
+        <button onclick="toggleRisultati('r10')" style="background: #1a1f2c; border: 1px solid var(--accent-cyan); color: var(--accent-cyan); padding: 2px 6px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; margin-top: 5px; display: block;">Risultati 🏁</button>
+    </td>
+    <td style="text-align: center;">
+        <button class="btn-attendance btn-present" onclick="registraPresenza('R10', 'PRESENTE')">Presente</button>
+        <button class="btn-attendance btn-absent" onclick="registraPresenza('R10', 'ASSENTE')">Assente</button>
+    </td>
+</tr>
+<tr id="risultati-r10" style="display: none; background: #131722;">
+    <td colspan="5" style="padding: 15px; border-left: 3px solid var(--accent-cyan);">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 12px;">
+            <div>
+                <label style="color: var(--accent-cyan); font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 4px;">⏱️ GIRO DI POLE:</label>
+                <input type="text" id="pole-r10" style="background:#1a1f2c; border:1px solid #333; color:#fff; padding:6px; width:100%; border-radius:4px;" placeholder="Nessun dato" disabled>
+            </div>
+            <div>
+                <label style="color: #ffcc00; font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 4px;">⚡ GIRO VELOCE:</label>
+                <input type="text" id="veloce-r10" style="background:#1a1f2c; border:1px solid #333; color:#fff; padding:6px; width:100%; border-radius:4px;" placeholder="Nessun dato" disabled>
+            </div>
+        </div>
+        <div>
+            <label style="color: #fff; font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 4px;">🏆 ORDINE D'ARRIVO:</label>
+            <textarea id="arrivo-r10" rows="3" style="background:#1a1f2c; border:1px solid #333; color:#fff; padding:6px; width:100%; border-radius:4px; resize:vertical; font-family:inherit;" placeholder="Nessun dato" disabled></textarea>
+        </div>
+        <button id="btn-salva-r10" onclick="salvaRisultati('r10', 'Montréal')" style="display: none; margin-top: 10px; background: var(--f1-red); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+            Salva Dati
+        </button>
+    </td>
+</tr>
                         <tr>
-                            <td class="round-num">R12</td>
-                            <td class="gp-name">🇬🇧 Gran Bretagna — Silverstone</td>
-                            <td class="date-cell">Da definire</td>
-                            <td><span class="status-badge status-tbd">TBD</span></td>
-                            <td style="text-align: center;">
-                                <button class="btn-attendance btn-present" onclick="registraPresenza('R12', 'PRESENTE')">Presente</button>
-                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R12', 'ASSENTE')">Assente</button>
-                            </td>
-                        </tr>
+    <td class="round-num">R11</td>
+    <td class="gp-name">AT Austria — Red Bull Ring</td>
+    <td class="date-cell">Da definire</td>
+    <td>
+        <span class="status-badge status-tbd">TBD</span>
+        <button onclick="toggleRisultati('r11')" style="background: #1a1f2c; border: 1px solid var(--accent-cyan); color: var(--accent-cyan); padding: 2px 6px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; margin-top: 5px; display: block;">Risultati 🏁</button>
+    </td>
+    <td style="text-align: center;">
+        <button class="btn-attendance btn-present" onclick="registraPresenza('R11', 'PRESENTE')">Presente</button>
+        <button class="btn-attendance btn-absent" onclick="registraPresenza('R11', 'ASSENTE')">Assente</button>
+    </td>
+</tr>
+<tr id="risultati-r11" style="display: none; background: #131722;">
+    <td colspan="5" style="padding: 15px; border-left: 3px solid var(--accent-cyan);">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 12px;">
+            <div>
+                <label style="color: var(--accent-cyan); font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 4px;">⏱️ GIRO DI POLE:</label>
+                <input type="text" id="pole-r11" style="background:#1a1f2c; border:1px solid #333; color:#fff; padding:6px; width:100%; border-radius:4px;" placeholder="Nessun dato" disabled>
+            </div>
+            <div>
+                <label style="color: #ffcc00; font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 4px;">⚡ GIRO VELOCE:</label>
+                <input type="text" id="veloce-r11" style="background:#1a1f2c; border:1px solid #333; color:#fff; padding:6px; width:100%; border-radius:4px;" placeholder="Nessun dato" disabled>
+            </div>
+        </div>
+        <div>
+            <label style="color: #fff; font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 4px;">🏆 ORDINE D'ARRIVO:</label>
+            <textarea id="arrivo-r11" rows="3" style="background:#1a1f2c; border:1px solid #333; color:#fff; padding:6px; width:100%; border-radius:4px; resize:vertical; font-family:inherit;" placeholder="Nessun dato" disabled></textarea>
+        </div>
+        <button id="btn-salva-r11" onclick="salvaRisultati('r11', 'Red Bull Ring')" style="display: none; margin-top: 10px; background: var(--f1-red); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+            Salva Dati
+        </button>
+    </td>
+</tr>
                         <tr>
-                            <td class="round-num">R13</td>
-                            <td class="gp-name">🇧🇪 Belgio — Spa-Francorchamps <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
-                            <td class="date-cell">Da definire</td>
-                            <td><span class="status-badge status-tbd">TBD</span></td>
-                            <td style="text-align: center;">
-                                <button class="btn-attendance btn-present" onclick="registraPresenza('R13', 'PRESENTE')">Presente</button>
-                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R13', 'ASSENTE')">Assente</button>
-                            </td>
-                        </tr>
+    <td class="round-num">R12</td>
+    <td class="gp-name">GB Gran Bretagna — Silverstone <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+    <td class="date-cell">Da definire</td>
+    <td>
+        <span class="status-badge status-tbd">TBD</span>
+        <button onclick="toggleRisultati('r12')" style="background: #1a1f2c; border: 1px solid var(--accent-cyan); color: var(--accent-cyan); padding: 2px 6px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; margin-top: 5px; display: block;">Risultati 🏁</button>
+    </td>
+    <td style="text-align: center;">
+        <button class="btn-attendance btn-present" onclick="registraPresenza('R12', 'PRESENTE')">Presente</button>
+        <button class="btn-attendance btn-absent" onclick="registraPresenza('R12', 'ASSENTE')">Assente</button>
+    </td>
+</tr>
+<tr id="risultati-r12" style="display: none; background: #131722;">
+    <td colspan="5" style="padding: 15px; border-left: 3px solid var(--accent-cyan);">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 12px;">
+            <div>
+                <label style="color: var(--accent-cyan); font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 4px;">⏱️ GIRO DI POLE:</label>
+                <input type="text" id="pole-r12" style="background:#1a1f2c; border:1px solid #333; color:#fff; padding:6px; width:100%; border-radius:4px;" placeholder="Nessun dato" disabled>
+            </div>
+            <div>
+                <label style="color: #ffcc00; font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 4px;">⚡ GIRO VELOCE:</label>
+                <input type="text" id="veloce-r12" style="background:#1a1f2c; border:1px solid #333; color:#fff; padding:6px; width:100%; border-radius:4px;" placeholder="Nessun dato" disabled>
+            </div>
+        </div>
+        <div>
+            <label style="color: #fff; font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 4px;">🏆 ORDINE D'ARRIVO:</label>
+            <textarea id="arrivo-r12" rows="3" style="background:#1a1f2c; border:1px solid #333; color:#fff; padding:6px; width:100%; border-radius:4px; resize:vertical; font-family:inherit;" placeholder="Nessun dato" disabled></textarea>
+        </div>
+        <button id="btn-salva-r12" onclick="salvaRisultati('r12', 'Silverstone')" style="display: none; margin-top: 10px; background: var(--f1-red); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+            Salva Dati
+        </button>
+    </td>
+</tr>
                         <tr>
-                            <td class="round-num">R14</td>
-                            <td class="gp-name">🇭🇺 Ungheria — Hungaroring</td>
-                            <td class="date-cell">Da definire</td>
-                            <td><span class="status-badge status-tbd">TBD</span></td>
-                            <td style="text-align: center;">
-                                <button class="btn-attendance btn-present" onclick="registraPresenza('R14', 'PRESENTE')">Presente</button>
-                                <button class="btn-attendance btn-absent" onclick="registraPresenza('R14', 'ASSENTE')">Assente</button>
-                            </td>
-                        </tr>
+    <td class="round-num">R13</td>
+    <td class="gp-name">BE Belgio — Spa-Francorchamps <span class="status-badge sprint-badge">⚡ SPRINT</span></td>
+    <td class="date-cell">Da definire</td>
+    <td>
+        <span class="status-badge status-tbd">TBD</span>
+        <button onclick="toggleRisultati('r13')" style="background: #1a1f2c; border: 1px solid var(--accent-cyan); color: var(--accent-cyan); padding: 2px 6px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; margin-top: 5px; display: block;">Risultati 🏁</button>
+    </td>
+    <td style="text-align: center;">
+        <button class="btn-attendance btn-present" onclick="registraPresenza('R13', 'PRESENTE')">Presente</button>
+        <button class="btn-attendance btn-absent" onclick="registraPresenza('R13', 'ASSENTE')">Assente</button>
+    </td>
+</tr>
+<tr id="risultati-r13" style="display: none; background: #131722;">
+    <td colspan="5" style="padding: 15px; border-left: 3px solid var(--accent-cyan);">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 12px;">
+            <div>
+                <label style="color: var(--accent-cyan); font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 4px;">⏱️ GIRO DI POLE:</label>
+                <input type="text" id="pole-r3" style="background:#1a1f2c; border:1px solid #333; color:#fff; padding:6px; width:100%; border-radius:4px;" placeholder="Nessun dato" disabled>
+            </div>
+            <div>
+                <label style="color: #ffcc00; font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 4px;">⚡ GIRO VELOCE:</label>
+                <input type="text" id="veloce-r13" style="background:#1a1f2c; border:1px solid #333; color:#fff; padding:6px; width:100%; border-radius:4px;" placeholder="Nessun dato" disabled>
+            </div>
+        </div>
+        <div>
+            <label style="color: #fff; font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 4px;">🏆 ORDINE D'ARRIVO:</label>
+            <textarea id="arrivo-r13" rows="3" style="background:#1a1f2c; border:1px solid #333; color:#fff; padding:6px; width:100%; border-radius:4px; resize:vertical; font-family:inherit;" placeholder="Nessun dato" disabled></textarea>
+        </div>
+        <button id="btn-salva-r13" onclick="salvaRisultati('r13', 'Spa-Francorchamps')" style="display: none; margin-top: 10px; background: var(--f1-red); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+            Salva Dati
+        </button>
+    </td>
+</tr>
                         <tr>
                             <td class="round-num">R15</td>
                             <td class="gp-name">🇳🇱 Olanda — Zandvoort</td>
