@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regolamento Campionato | GRCCF1ESPORT</title>
+    
+    <script>
+        if (sessionStorage.getItem('grcc_authenticated') !== 'true') {
+            window.location.href = 'index.html';
+        }
+    </script>
+
+    <style>
+        :root {
+            --f1-red: #e10600;
+            --dark-bg: #0b0f19;
+            --card-bg: #131a26;
+            --accent-cyan: #00ffd1;
+            --text-light: #ffffff;
+            --text-muted: #8fa0b5;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            margin: 0;
+            padding: 15px;
+        }
+        .container { max-width: 900px; margin: 10px auto; }
+        
+        .back-btn {
+            display: inline-block;
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border: 1px solid var(--accent-cyan);
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        .back-btn:hover { background-color: var(--accent-cyan); color: #000; }
+        
+        .card { background-color: var(--card-bg); padding: 25px; border-radius: 16px; border: 1px solid #1f2c3f; margin-bottom: 25px; }
+        h2 { color: var(--f1-red); margin-top: 0; text-transform: uppercase; border-bottom: 1px solid #1f2c3f; padding-bottom: 10px; }
+        
+        .pdf-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: #0b0f19;
+            border: 2px dashed #1f2c3f;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background-color: var(--f1-red);
+            color: white;
+            text-decoration: none;
+            padding: 14px 28px;
+            font-weight: bold;
+            border-radius: 8px;
+            text-transform: uppercase;
+            font-size: 1rem;
+            transition: 0.2s;
+            box-shadow: 0 4px 15px rgba(225, 6, 0, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+        .btn-download:hover { background-color: #b80500; transform: translateY(-2px); }
+
+        /* BOX CARICAMENTO DIREZIONE GARA */
+        .admin-upload-box {
+            background: rgba(0, 255, 209, 0.05);
+            border: 1px solid var(--accent-cyan);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: none; /* Gestito da JS */
+        }
+        .admin-upload-box h3 { color: var(--accent-cyan); margin-top: 0; text-transform: uppercase; font-size: 1.1rem; }
+        
+        .file-input-wrapper {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        input[type="file"] {
+            background: #0b0f19;
+            padding: 10px;
+            border: 1px solid #1f2c3f;
+            border-radius: 6px;
+            color: #fff;
+            flex-grow: 1;
+        }
+        .btn-save-pdf {
+            background: var(--accent-cyan);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+        .btn-save-pdf:hover { background: #00ccaa; }
+
+        .preview-frame {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #1f2c3f;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="index.html" class="back-btn">⬅ Torna al Race Control</a>
+
+        <div id="adminPanel" class="admin-upload-box">
+            <h3>🛠️ Pannello Amministratore: Aggiorna Regolamento</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Seleziona il nuovo file PDF del regolamento per renderlo disponibile a tutti i piloti.</p>
+            
+            <div class="file-input-wrapper">
+                <input type="file" id="pdfFile" accept="application/pdf">
+                <button onclick="caricaRegolamento()" class="btn-save-pdf">Pubblica PDF 🚀</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Regolamento Ufficiale GRCC</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">
+                Consulta il regolamento sportivo e tecnico del campionato. Ogni pilota è tenuto a conoscere le norme comportamentali in pista e fuori pista.
+            </p>
+
+            <div class="pdf-container" id="noPdfMessage">
+                <span style="font-size: 3rem; margin-bottom: 15px;">📄</span>
+                <h3 style="margin: 0 0 10px 0; color: #fff;">Visualizza il Regolamento</h3>
+                <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;" id="pdfStatusText">Nessun file caricato al momento.</p>
+                <a id="downloadLink" href="#" target="_blank" rel="noopener noreferrer" class="btn-download" style="display: none;" download>
+                    Apri / Scarica Regolamento PDF
+                </a>
+            </div>
+
+            <iframe id="pdfPreview" class="preview-frame" src=""></iframe>
+        </div>
+    </div>
+
+    <script>
+        const ruoloUtente = sessionStorage.getItem('grcc_role');
+
+        window.onload = function() {
+            // Mostra il pannello di upload solo se l'utente è Direzione Gara
+            if (ruoloUtente === 'DIREZIONE GARA') {
+                document.getElementById('adminPanel').style.display = 'block';
+            }
+
+            // Controlla se c'è un regolamento salvato nel localStorage
+            checkRegolamentoEsistente();
+        };
+
+        function caricaRegolamento() {
+            const fileInput = document.getElementById('pdfFile');
+            
+            if (fileInput.files.length === 0) {
+                alert("Seleziona prima un file PDF!");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            
+            if (file.type !== "application/pdf") {
+                alert("Puoi caricare esclusivamente file in formato PDF!");
+                return;
+            }
+
+            // Usiamo FileReader per convertire il PDF in una stringa Base64 per salvarla nel LocalStorage (funziona offline senza server)
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result;
+                
+                try {
+                    localStorage.setItem('grcc_regolamento_pdf', base64Data);
+                    localStorage.setItem('grcc_regolamento_name', file.name);
+                    alert("✅ Regolamento aggiornato con successo!");
+                    checkRegolamentoEsistente();
+                } catch (error) {
+                    // Gestione errore spazio LocalStorage (limite ~5MB)
+                    alert("⚠️ Il file è troppo pesante per la memoria locale. Ti consigliamo di inserire un PDF inferiore a 4MB, oppure di caricare il file direttamente nella cartella del progetto rinominandolo 'regolamento.pdf'.");
+                }
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        function checkRegolamentoEsistente() {
+            const savedPdf = localStorage.getItem('grcc_regolamento_pdf');
+            const savedName = localStorage.getItem('grcc_regolamento_name');
+            
+            const statusText = document.getElementById('pdfStatusText');
+            const downloadLink = document.getElementById('downloadLink');
+            const pdfPreview = document.getElementById('pdfPreview');
+
+            // 1. Controllo se è stato caricato tramite pannello di controllo (LocalStorage)
+            if (savedPdf) {
+                statusText.innerText = `Documento attivo: ${savedName}`;
+                downloadLink.href = savedPdf;
+                downloadLink.setAttribute('download', savedName || 'regolamento.pdf');
+                downloadLink.style.display = 'inline-flex';
+                pdfPreview.src = savedPdf;
+                pdfPreview.style.display = 'block';
+            } else {
+                // 2. Fallback automatico: controlla se hai inserito un file chiamato "regolamento.pdf" nella stessa cartella
+                statusText.innerText = "Clicca sotto per aprire il file regolamento.pdf ufficiale.";
+                downloadLink.href = "regolamento.pdf"; // Punta al file locale nella cartella
+                downloadLink.setAttribute('download', 'regolamento.pdf');
+                downloadLink.style.display = 'inline-flex';
+                pdfPreview.src = "regolamento.pdf";
+                pdfPreview.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
