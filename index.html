@@ -304,34 +304,29 @@
 
         </div>
 
-        <div class="footer-info" style="text-align: center; margin-top: 40px; padding-bottom: 20px;">
+        <div style="margin-top: 50px; display: flex; flex-direction: column; align-items: center; gap: 25px; padding: 20px 10px; width: 100%; box-sizing: border-box;">
             
-            <div class="social-links" style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px;">
-                <a href="https://www.facebook.com/profile.php?id=61552370532570" target="_blank" style="color: #1877F2; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center;">
-                    <i class="fab fa-facebook" style="margin-right: 6px; font-size: 1.1rem;"></i> Facebook
-                </a>
-                <a href="https://www.twitch.tv/grccf1esport" target="_blank" style="color: #a970ff; text-decoration: none; font-weight: bold; font-size: 1rem; display: inline-flex; align-items: center;">
-                    <i class="fab fa-twitch" style="margin-right: 6px; font-size: 1.1rem;"></i> Twitch
-                </a>
-                <a href="https://www.tiktok.com/@grccf1esport?_r=1&_t=ZN-97Fxw3hYo0E" target="_blank" style="color: #00f2fe; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center;">
-                    <i class="fab fa-tiktok" style="margin-right: 6px; font-size: 1.1rem;"></i> TikTok
-                </a>
-                <a href="https://discord.gg/gCZH63yU" target="_blank" style="color: #5865F2; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center;">
-                    <i class="fab fa-discord" style="margin-right: 6px; font-size: 1.1rem;"></i> Discord
-                </a>
+            <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-weight: bold; font-size: 0.95rem;">
+                <a href="https://www.facebook.com/profile.php?id=61552370532570" target="_blank" style="color: #1877F2; text-decoration: none; display: flex; align-items: center; gap: 6px;"><i class="fab fa-facebook"></i> Facebook</a>
+                <a href="https://www.twitch.tv/grccf1esport" target="_blank" style="color: #a970ff; text-decoration: none; display: flex; align-items: center; gap: 6px;"><i class="fab fa-twitch"></i> Twitch</a>
+                <a href="https://www.tiktok.com/@grccf1esport?_r=1&_t=ZN_97Fxm3hYo8E" target="_blank" style="color: #00f2fe; text-decoration: none; display: flex; align-items: center; gap: 6px;"><i class="fab fa-tiktok"></i> TikTok</a>
+                <a href="https://discord.gg/pC7H63yU" target="_blank" style="color: #5865F2; text-decoration: none; display: flex; align-items: center; gap: 6px;"><i class="fab fa-discord"></i> Discord</a>
             </div>
 
-            <p style="margin: 0 0 10px 0; font-size: 0.9rem; color: var(--text-muted);">
-            Connesso come <span id="user-role-text" style="color: white; font-weight: bold;">DIREZIONE GARA</span>
-        </p>
+            <div style="text-align: center; background: rgba(19, 26, 38, 0.8); padding: 20px; border-radius: 14px; border: 1px solid #1f2c3f; width: 100%; max-width: 340px; box-sizing: border-box; backdrop-filter: blur(5px);">
+                <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px; letter-spacing: 0.5px;">
+                    CONNESSO COME: <strong style="color: #fff; text-transform: uppercase; font-size: 0.95rem; display: block; margin-top: 4px;" id="user-role-text">DIREZIONE GARA</strong>
+                </div>
+                <button onclick="logout()" style="background: #dc3545; color: white; border: none; padding: 12px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; width: 100%; font-size: 0.9rem; transition: 0.2s; letter-spacing: 0.5px;">
+                    🚪 ESCI
+                </button>
+            </div>
 
-        <button onclick="logout()" style="margin-bottom: 15px; padding: 6px 15px; background-color: #dc3545; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: background 0.2s;">
-            🚪 ESCI
-        </button>
+            <div style="color: #56667a; font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; margin-top: 5px;">
+                PRODUCED BY <span style="color: var(--accent-cyan); font-weight: bold;">TOTO'F1</span>
+            </div>
 
-        <p style="margin: 0; font-size: 0.75rem; color: #56667a; letter-spacing: 0.5px; text-transform: uppercase;">
-                Produced by <span style="color: var(--accent-cyan); font-weight: bold;">Toto'F1</span>
-            </p>
+        </div>
             
         </div> </div> <script>
         function logout() {
