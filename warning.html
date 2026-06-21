@@ -77,6 +77,24 @@
         .sanzione-decisione { background-color: rgba(225, 6, 0, 0.1); border: 1px solid var(--f1-red); color: #ff4d4d; padding: 4px 8px; border-radius: 5px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; }
         .sanzione-motivazione { font-size: 0.9rem; color: var(--text-muted); line-height: 1.4; }
         .sanzione-motivazione strong { color: #fff; }
+        .sanzione-motivazione strong { color: #fff; }
+
+        /* ====================================================
+           INCOLLA GLI STILI DEL FORM RECLAMI QUI SOTTO:
+        ==================================================== */
+        label { display: block; margin-top: 12px; font-weight: bold; color: var(--text-muted); font-size: 0.9rem; }
+        select, input, textarea, button.submit-btn {
+            width: 100%; padding: 10px; margin-top: 5px; background: #0b0f19; border: 1px solid #1f2c3f; color: #fff; border-radius: 8px; box-sizing: border-box; font-family: inherit;
+        }
+        select:focus, input:focus, textarea:focus { border-color: var(--accent-cyan); outline: none; }
+        button.submit-btn { background: var(--warning-orange); color: #000; border: none; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.2s; }
+        button.submit-btn:hover { background: #e0b000; }
+        .complaint-list { margin-top: 15px; }
+        .complaint-item { background-color: #0b0f19; border: 1px solid #1f2c3f; border-left: 4px solid var(--warning-orange); border-radius: 8px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .complaint-info { flex-grow: 1; padding-right: 15px; }
+        .video-link { color: var(--accent-cyan); text-decoration: none; font-weight: bold; display: inline-block; margin-top: 8px; }
+        .video-link:hover { text-decoration: underline; }
+        .btn-delete { background: var(--f1-red); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -264,6 +282,68 @@
         </div>
 
         <div class="card">
+            <h3 style="color: var(--warning-orange);">⚠️ Presenta un Reclamo / Segnalazione Incidente</h3>
+            <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px; font-style: italic;">
+                Inserisci i dettagli dell'accaduto e la clip video da far esaminare ai commissari di gara.
+            </div>
+            
+            <form id="incidentForm" onsubmit="salvaReclamo(event)">
+                <label for="selectRound">Seleziona il GP / Round dell'incidente:</label>
+                <select id="selectRound" onchange="mostraReclami()" required>
+                    <option value="R1">Round 1 - Australia</option>
+                    <option value="R2">Round 2 - Cina</option>
+                    <option value="R3">Round 3 - Giappone</option>
+                    <option value="R4">Round 4 - Bahrain</option>
+                    <option value="R5">Round 5 - Arabia Saudita</option>
+                    <option value="R6">Round 6 - Miami</option>
+                    <option value="R7">Round 7 - Canada</option>
+                    <option value="R8">Round 8 - Monaco</option>
+                    <option value="R9">Round 9 - Barcellona</option>
+                    <option value="R10">Round 10 - Austria</option>
+                    <option value="R11">Round 11 - Gran Bretagna</option>
+                    <option value="R12">Round 12 - Belgio</option>
+                    <option value="R13">Round 13 - Ungheria</option>
+                    <option value="R14">Round 14 - Olanda</option>
+                    <option value="R15">Round 15 - Italia</option>
+                    <option value="R16">Round 16 - Spagna</option>
+                    <option value="R17">Round 17 - Azerbaijan</option>
+                    <option value="R18">Round 18 - Singapore</option>
+                    <option value="R19">Round 19 - Stati Uniti</option>
+                    <option value="R20">Round 20 - Messico</option>
+                    <option value="R21">Round 21 - San Paolo</option>
+                    <option value="R22">Round 22 - Las Vegas</option>
+                    <option value="R23">Round 23 - Qatar</option>
+                    <option value="R24">Round 24 - Abu Dhabi</option>
+                </select>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label for="reporterName">Tuo Nome / Gamertag:</label>
+                        <input type="text" id="reporterName" placeholder="Chi segnala" required>
+                    </div>
+                    <div>
+                        <label for="reportedName">Pilota Coinvolto / Segnalato:</label>
+                        <input type="text" id="reportedName" placeholder="Contro chi" required>
+                    </div>
+                </div>
+
+                <label for="incidentDesc">Descrizione dinamica (es. Giro, Curva, dinamica):</label>
+                <textarea id="incidentDesc" rows="3" placeholder="Descrivi brevemente l'accaduto..." required></textarea>
+
+                <label for="videoUrl">Link del Video / Clip (YouTube, OneDrive, Twitch, ecc.):</label>
+                <input type="url" id="videoUrl" placeholder="https://..." required>
+
+                <button type="submit" class="submit-btn">Invia Reclamo alla Direzione Gara 📁</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>📁 Investigazioni e Segnalazioni Ricevute</h3>
+            <div id="listaReclami" class="complaint-list"></div>
+        </div>
+        
+
+
             <h3>⚖️ Registro Sanzioni Ufficiali Direzione Gara</h3>
             <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; font-style: italic;">
                 Ultimi provvedimenti applicati dai commissari dopo l'analisi dei replay e delle segnalazioni video:
