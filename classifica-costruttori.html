@@ -85,56 +85,52 @@
                             <th class="th-punti" style="width: 20%">Punti</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td class="team-cell"><span class="team-name alpine">Alpine F1 Team</span></td>
-                            <td class="punti">0</td>
-                        </tr>
-                        <tr>
-                            <td class="team-cell"><span class="team-name aston">Aston Martin</span></td>
-                            <td class="punti">0</td>
-                        </tr>
-                        <tr>
-                            <td class="team-cell"><span class="team-name audi">Audi Sport</span></td>
-                            <td class="punti">0</td>
-                        </tr>
-                        <tr>
-                            <td class="team-cell"><span class="team-name cadillac">Cadillac Racing</span></td>
-                            <td class="punti">0</td>
-                        </tr>
-                        <tr>
-                            <td class="team-cell"><span class="team-name ferrari">Ferrari HP</span></td>
-                            <td class="punti">0</td>
-                        </tr>
-                        <tr>
-                            <td class="team-cell"><span class="team-name haas">Haas F1 Team</span></td>
-                            <td class="punti">0</td>
-                        </tr>
-                        <tr>
-                            <td class="team-cell"><span class="team-name mclaren">McLaren F1 Team</span></td>
-                            <td class="punti">0</td>
-                        </tr>
-                        <tr>
-                            <td class="team-cell"><span class="team-name mercedes">Mercedes-AMG</span></td>
-                            <td class="punti">0</td>
-                        </tr>
-                        <tr>
-                            <td class="team-cell"><span class="team-name rb">Racing Bulls</span></td>
-                            <td class="punti">0</td>
-                        </tr>
-                        <tr>
-                            <td class="team-cell"><span class="team-name redbull">Red Bull Racing</span></td>
-                            <td class="punti">0</td>
-                        </tr>
-                        <tr>
-                            <td class="team-cell"><span class="team-name williams">Williams Racing</span></td>
-                            <td class="punti">0</td>
-                        </tr>
+                    <tbody id="costruttori-table-body">
+                        <tr id="costruttori-loading"><td colspan="3" style="text-align:center;">Caricamento classifica...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+    const sheetId = '1oZJvdapQMAWUMNP7tujD2r2IubN3DjC5vjufjSYELUc';
+    const sheetNameCostruttori = 'Costruttori'; 
+    const urlCostruttori = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetNameCostruttori}`;
+
+    fetch(urlCostruttori)
+        .then(res => res.text())
+        .then(data => {
+            const temp = data.substring(data.indexOf('{'), data.lastIndexOf('}') + 1);
+            const json = JSON.parse(temp);
+            const rows = json.table.rows;
+
+            const tableBody = document.getElementById("costruttori-table-body");
+            if (tableBody) {
+                tableBody.innerHTML = ""; 
+            }
+
+            rows.forEach((row) => {
+                const pos = row.c[0] ? row.c[0].v : '';
+                const scuderia = row.c[1] ? row.c[1].v : '';
+                const punti = row.c[2] ? row.c[2].v : '0';
+
+                const tr = document.createElement("tr");
+
+                // Generiamo la classe del team in minuscolo e senza spazi per mantenere i tuoi stili CSS dell'app
+                tr.innerHTML = `
+                    <td class="team-cell"><span class="team-name ${scuderia.toLowerCase().replace(/\s+/g, '')}">${scuderia}</span></td>
+                    <td class="punti">${punti}</td>
+                `;
+
+                if (tableBody) {
+                    tableBody.appendChild(tr);
+                }
+            });
+        })
+        .catch(err => console.error("Errore caricamento costruttori applicazione:", err));
+});
+</script>
 </body>
 </html>
