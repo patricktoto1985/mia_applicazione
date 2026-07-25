@@ -4,65 +4,222 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendario Gare | GRCCF1ESPORT</title>
-    
+
     <script>
-        // 1. Controllo di sicurezza: se l'utente non è loggato, torna alla home
         if (sessionStorage.getItem('grcc_authenticated') !== 'true') {
             window.location.href = 'index.html';
         }
 
-        // 2. Gestione dei risultati al caricamento della pagina
-        window.onload = function() {
-            const ruolo = sessionStorage.getItem('grcc_role');
-            const totaleRound = 24;
+        const GRCC_DRIVERS = [{"name": "SICKMIRKO", "team": "Ferrari"}, {"name": "MIKYPOWER", "team": "Ferrari"}, {"name": "SALVOTD91", "team": "Mercedes"}, {"name": "MKI-110", "team": "Mercedes"}, {"name": "RAO-783", "team": "Red Bull"}, {"name": "BENE20DOMENICO", "team": "Red Bull"}, {"name": "LRT_KURAMA", "team": "McLaren"}, {"name": "FRA319153", "team": "McLaren"}, {"name": "LIVLONELY", "team": "Aston Martin"}, {"name": "GIUMEND29", "team": "Aston Martin"}, {"name": "TOTO'F1", "team": "Audi"}, {"name": "DANIELE251191", "team": "Audi"}, {"name": "NXS_ODI", "team": "Cadillac"}, {"name": "KEIDIKID2", "team": "Cadillac"}, {"name": "GRCC F1 VITTORIO", "team": "Racing Bulls"}, {"name": "LILLUPAZZU", "team": "Racing Bulls"}, {"name": "CONDE785", "team": "Alpine"}, {"name": "PEPPEFLE_IRT", "team": "Alpine"}, {"name": "ICEANT16", "team": "Williams"}, {"name": "DAVIARCO1999", "team": "Haas"}, {"name": "BRA_FOSY89", "team": "Haas"}];
+        const F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
+        const resultCache = {};
 
-            for (let i = 1; i <= totaleRound; i++) {
-                const idRound = 'r' + i;
+        function isRaceControl() {
+            return sessionStorage.getItem('grcc_role') === 'DIREZIONE GARA';
+        }
 
-                // Carica i dati salvati nel localStorage se esistono
-                if (localStorage.getItem(`pole-${idRound}`)) {
-                    document.getElementById(`pole-${idRound}`).value = localStorage.getItem(`pole-${idRound}`);
-                }
-                if (localStorage.getItem(`veloce-${idRound}`)) {
-                    document.getElementById(`veloce-${idRound}`).value = localStorage.getItem(`veloce-${idRound}`);
-                }
-                if (localStorage.getItem(`arrivo-${idRound}`)) {
-                    document.getElementById(`arrivo-${idRound}`).value = localStorage.getItem(`arrivo-${idRound}`);
-                }
-
-                // Se l'utente è DIREZIONE GARA, sblocca i campi e mostra il tasto Salva
-                if (ruolo === 'DIREZIONE GARA') {
-                    if (document.getElementById(`pole-${idRound}`)) document.getElementById(`pole-${idRound}`).disabled = false;
-                    if (document.getElementById(`veloce-${idRound}`)) document.getElementById(`veloce-${idRound}`).disabled = false;
-                    if (document.getElementById(`arrivo-${idRound}`)) document.getElementById(`arrivo-${idRound}`).disabled = false;
-                    if (document.getElementById(`btn-salva-${idRound}`)) document.getElementById(`btn-salva-${idRound}`).style.display = 'inline-block';
-                }
-            }
-        };
-
-        // Funzione per mostrare/nascondere la tendina dei risultati
         function toggleRisultati(idRound) {
-            const sezione = document.getElementById(`risultati-${idRound}`);
-            if (sezione.style.display === 'none' || sezione.style.display === '') {
-                sezione.style.display = 'block';
-            } else {
-                sezione.style.display = 'none';
+            const section = document.getElementById(`risultati-${idRound}`);
+            if (!section) return;
+            const opening = section.style.display === 'none' || section.style.display === '';
+            section.style.display = opening ? 'table-row' : 'none';
+            if (opening) renderResultEditor(idRound);
+        }
+
+        function getGpName(idRound) {
+            const resultRow = document.getElementById(`risultati-${idRound}`);
+            const mainRow = resultRow?.previousElementSibling;
+            return mainRow?.querySelector('.gp-name')?.textContent
+                ?.replace('⚡ SPRINT','').replace(/^[A-Z]{2}\s+/,'').trim() || idRound.toUpperCase();
+        }
+
+        function driverOptions(selected='') {
+            return '<option value="">Seleziona pilota</option>' +
+                GRCC_DRIVERS.map(d => `<option value="${d.name}" ${d.name===selected?'selected':''}>${d.name} · ${d.team}</option>`).join('');
+        }
+
+        function renderResultEditor(idRound) {
+            const row = document.getElementById(`risultati-${idRound}`);
+            const cell = row?.querySelector('td');
+            if (!cell || cell.dataset.editorReady === '1') return;
+            cell.dataset.editorReady = '1';
+
+            const readonly = !isRaceControl();
+            const rows = Array.from({length: GRCC_DRIVERS.length}, (_,i) => `
+                <div class="race-result-row" data-index="${i}">
+                    <div class="position-box">${i+1}°</div>
+                    <select class="result-driver" ${readonly?'disabled':''}>${driverOptions()}</select>
+                    <select class="result-status" ${readonly?'disabled':''}>
+                        <option value="CLASSIFICATO">Classificato</option>
+                        <option value="DNF">DNF</option>
+                        <option value="DNS">DNS</option>
+                        <option value="DSQ">DSQ</option>
+                    </select>
+                    <input class="result-points" type="number" min="0" step="1" value="${F1_POINTS[i]||0}" ${readonly?'disabled':''}>
+                </div>`).join('');
+
+            cell.innerHTML = `
+                <div class="results-editor">
+                    <div class="results-editor-head">
+                        <div>
+                            <div class="results-kicker">RISULTATI UFFICIALI</div>
+                            <h3>${idRound.toUpperCase()} · ${getGpName(idRound)}</h3>
+                        </div>
+                        <div class="online-pill">● GOOGLE SHEETS</div>
+                    </div>
+
+                    <div class="special-awards">
+                        <label>🟣 Pole position
+                            <select class="pole-driver" ${readonly?'disabled':''}>${driverOptions()}</select>
+                        </label>
+                        <label>⚡ Giro veloce
+                            <select class="fastest-driver" ${readonly?'disabled':''}>${driverOptions()}</select>
+                        </label>
+                    </div>
+
+                    <div class="race-result-header">
+                        <span>POS</span><span>PILOTA / TEAM</span><span>STATO</span><span>PUNTI</span>
+                    </div>
+                    <div class="race-result-list">${rows}</div>
+
+                    <div class="extra-race-data">
+                        <label>Durata gara<input class="race-duration" placeholder="Es. 1:28:45.321" ${readonly?'disabled':''}></label>
+                        <label>Meteo
+                            <select class="race-weather" ${readonly?'disabled':''}>
+                                <option value="">Non indicato</option><option>Asciutto</option><option>Variabile</option><option>Pioggia</option>
+                            </select>
+                        </label>
+                        <label>Safety Car<input class="race-sc" type="number" min="0" value="0" ${readonly?'disabled':''}></label>
+                        <label>Virtual Safety Car<input class="race-vsc" type="number" min="0" value="0" ${readonly?'disabled':''}></label>
+                        <label>Bandiere rosse<input class="race-red" type="number" min="0" value="0" ${readonly?'disabled':''}></label>
+                    </div>
+                    <label class="notes-label">Note Direzione Gara
+                        <textarea class="race-notes" rows="3" placeholder="Penalità, decisioni o annotazioni..." ${readonly?'disabled':''}></textarea>
+                    </label>
+
+                    <div class="result-actions">
+                        ${readonly ? '<span class="read-only-note">Visualizzazione sola lettura</span>' :
+                        `<button class="publish-results-btn" onclick="salvaRisultati('${idRound}', getGpName('${idRound}'))">PUBBLICA RISULTATI</button>
+                         <button class="reset-results-btn" onclick="resetResultForm('${idRound}')">SVUOTA CAMPI</button>`}
+                    </div>
+                </div>`;
+
+            loadRoundResults(idRound);
+        }
+
+        function collectResults(idRound, gpName) {
+            const row = document.getElementById(`risultati-${idRound}`);
+            const seen = new Set();
+            const results = [...row.querySelectorAll('.race-result-row')].map((r,i) => {
+                const pilota = r.querySelector('.result-driver').value;
+                if (pilota && seen.has(pilota)) throw new Error(`Il pilota ${pilota} è stato inserito più di una volta.`);
+                if (pilota) seen.add(pilota);
+                const info = GRCC_DRIVERS.find(d=>d.name===pilota);
+                return {
+                    posizione:i+1,
+                    pilota,
+                    team:info?.team||'',
+                    punti:Number(r.querySelector('.result-points').value)||0,
+                    stato:r.querySelector('.result-status').value
+                };
+            }).filter(r=>r.pilota);
+
+            if (!results.length) throw new Error('Inserisci almeno un pilota nella classifica.');
+            if (!results.some(r=>r.posizione===1 && r.stato==='CLASSIFICATO')) throw new Error('Devi indicare il vincitore classificato.');
+
+            return {
+                action:'results_save',
+                round:Number(idRound.replace('r','')),
+                gp:gpName,
+                pole:row.querySelector('.pole-driver').value,
+                giroVeloce:row.querySelector('.fastest-driver').value,
+                durata:row.querySelector('.race-duration').value.trim(),
+                meteo:row.querySelector('.race-weather').value,
+                safetyCar:Number(row.querySelector('.race-sc').value)||0,
+                virtualSafetyCar:Number(row.querySelector('.race-vsc').value)||0,
+                bandiereRosse:Number(row.querySelector('.race-red').value)||0,
+                note:row.querySelector('.race-notes').value.trim(),
+                risultati:results
+            };
+        }
+
+        async function salvaRisultati(idRound, nomePista) {
+            if (!isRaceControl()) return;
+            try {
+                const payload = collectResults(idRound, nomePista);
+                if (!confirm(`Pubblicare i risultati ufficiali di ${nomePista}?\n\nLe classifiche e le schede pilota verranno aggiornate.`)) return;
+                const btn = document.querySelector(`#risultati-${idRound} .publish-results-btn`);
+                if(btn) { btn.disabled=true; btn.textContent='PUBBLICAZIONE...'; }
+                await fetch(SCRIPT_URL, {
+                    method:'POST',
+                    mode:'no-cors',
+                    headers:{'Content-Type':'text/plain;charset=utf-8'},
+                    body:JSON.stringify(payload)
+                });
+                await new Promise(r=>setTimeout(r,1400));
+                resultCache[idRound] = payload;
+                alert('✅ Risultati pubblicati su Google Sheets.');
+                await loadRoundResults(idRound, true);
+            } catch(err) {
+                alert('❌ ' + err.message);
+            } finally {
+                const btn = document.querySelector(`#risultati-${idRound} .publish-results-btn`);
+                if(btn) { btn.disabled=false; btn.textContent='PUBBLICA RISULTATI'; }
             }
         }
 
-        // Funzione per salvare i dati della pista specifica
-        function salvaRisultati(idRound, nomePista) {
-            const pole = document.getElementById(`pole-${idRound}`).value;
-            const veloce = document.getElementById(`veloce-${idRound}`).value;
-            const arrivo = document.getElementById(`arrivo-${idRound}`).value;
-
-            localStorage.setItem(`pole-${idRound}`, pole);
-            localStorage.setItem(`veloce-${idRound}`, veloce);
-            localStorage.setItem(`arrivo-${idRound}`, arrivo);
-
-            alert(`✅ Risultati del Round ${idRound.toUpperCase()} (${nomePista}) salvati con successo!`);
+        async function loadRoundResults(idRound, force=false) {
+            const round = Number(idRound.replace('r',''));
+            try {
+                let data = resultCache[idRound];
+                if (!data || force) {
+                    const res = await fetch(`${SCRIPT_URL}?action=results_round&round=${round}&_=${Date.now()}`, {cache:'no-store'});
+                    data = await res.json();
+                    resultCache[idRound] = data;
+                }
+                if (!data || !Array.isArray(data.risultati)) return;
+                populateResultForm(idRound, data);
+            } catch(err) {
+                console.warn('Risultati non ancora disponibili:', err);
+            }
         }
+
+        function populateResultForm(idRound, data) {
+            const row = document.getElementById(`risultati-${idRound}`);
+            if (!row) return;
+            row.querySelector('.pole-driver').value = data.pole || '';
+            row.querySelector('.fastest-driver').value = data.giroVeloce || '';
+            row.querySelector('.race-duration').value = data.durata || '';
+            row.querySelector('.race-weather').value = data.meteo || '';
+            row.querySelector('.race-sc').value = data.safetyCar || 0;
+            row.querySelector('.race-vsc').value = data.virtualSafetyCar || 0;
+            row.querySelector('.race-red').value = data.bandiereRosse || 0;
+            row.querySelector('.race-notes').value = data.note || '';
+
+            const resultRows = [...row.querySelectorAll('.race-result-row')];
+            resultRows.forEach((r,i)=>{
+                const saved = data.risultati[i];
+                r.querySelector('.result-driver').value = saved?.pilota || '';
+                r.querySelector('.result-status').value = saved?.stato || 'CLASSIFICATO';
+                r.querySelector('.result-points').value = saved?.punti ?? (F1_POINTS[i]||0);
+            });
+        }
+
+        function resetResultForm(idRound) {
+            if(!confirm('Svuotare i campi non ancora pubblicati?')) return;
+            const row=document.getElementById(`risultati-${idRound}`);
+            row.dataset.editorReady='';
+            renderResultEditor(idRound);
+        }
+
+        document.addEventListener('change', e=>{
+            if(e.target.classList.contains('result-status')) {
+                const r=e.target.closest('.race-result-row');
+                if(['DNF','DNS','DSQ'].includes(e.target.value)) r.querySelector('.result-points').value=0;
+            }
+        });
     </script>
+
 
     <style>
         :root {
@@ -168,6 +325,26 @@
             margin: 3px;
             font-weight: 500;
         }
+    
+        /* EDITOR RISULTATI ONLINE */
+        .results-editor{background:linear-gradient(145deg,#111827,#090d15);border:1px solid #273449;border-radius:16px;padding:18px}
+        .results-editor-head{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:15px}
+        .results-editor-head h3{margin:3px 0 0;font-size:1.25rem}.results-kicker{color:var(--accent-cyan);font-size:.7rem;font-weight:900;letter-spacing:2px}
+        .online-pill{font-size:.68rem;color:#00e676;border:1px solid rgba(0,230,118,.35);padding:7px 10px;border-radius:999px}
+        .special-awards,.extra-race-data{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:15px}
+        .special-awards label,.extra-race-data label,.notes-label{font-size:.72rem;color:var(--text-muted);font-weight:800;text-transform:uppercase}
+        .special-awards select,.extra-race-data select,.extra-race-data input,.notes-label textarea,
+        .result-driver,.result-status,.result-points{width:100%;margin-top:5px;background:#0b1019;color:#fff;border:1px solid #2b3748;border-radius:7px;padding:9px}
+        .race-result-header,.race-result-row{display:grid;grid-template-columns:55px minmax(220px,1fr) 135px 80px;gap:8px;align-items:center}
+        .race-result-header{padding:7px 8px;color:var(--accent-cyan);font-size:.68rem;font-weight:900}
+        .race-result-row{padding:7px 8px;border-top:1px solid rgba(255,255,255,.055)}
+        .position-box{text-align:center;font-weight:1000;font-size:1rem;color:#fff}
+        .race-result-row:nth-child(-n+3) .position-box{color:#ffcc00}
+        .notes-label{display:block;margin-top:12px}.result-actions{display:flex;gap:10px;align-items:center;margin-top:15px}
+        .publish-results-btn,.reset-results-btn{border:0;border-radius:8px;padding:11px 16px;font-weight:900;cursor:pointer}
+        .publish-results-btn{background:var(--f1-red);color:#fff}.reset-results-btn{background:#263244;color:#fff}.read-only-note{color:var(--text-muted)}
+        @media(max-width:760px){.race-result-header{display:none}.race-result-row{grid-template-columns:42px 1fr}.result-status,.result-points{grid-column:2}.results-editor-head{align-items:flex-start;flex-direction:column}}
+
     </style>
 </head>
 <body>
@@ -1116,7 +1293,7 @@
             });
         }
 
-        window.onload = caricaDatiDalFoglio;
+        window.addEventListener('DOMContentLoaded', caricaDatiDalFoglio);
     </script>
 </body>
 </html>
