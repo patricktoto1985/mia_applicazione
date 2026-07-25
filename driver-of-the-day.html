@@ -37,7 +37,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;ba
     <h1>Driver <span>of the Day</span></h1>
     <div class="gp-name" id="gpName">Gran Premio d'Australia</div>
     <div class="status" id="statusBadge"><span class="status-dot"></span><span id="statusText">Votazione aperta</span></div>
-    <p class="hero-copy">Scegli il pilota che ha fatto la differenza in pista. Il voto è definitivo e può essere espresso una sola volta da questo dispositivo.</p>
+    <p class="hero-copy">Scegli il pilota che ha fatto la differenza in pista. Il voto è definitivo e può essere espresso una sola volta dal pilota autenticato.</p>
   </div>
 </section>
 <main class="wrap">
@@ -48,7 +48,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;ba
     <div class="grid" id="driverGrid"></div>
   </section>
   <section class="admin" id="adminPanel">
-    <div class="admin-top"><div><h3><i class="fa-solid fa-shield-halved"></i> Pannello Direzione Gara</h3><p style="color:var(--muted);margin:5px 0 0">Gestione locale della votazione</p></div><div class="admin-actions"><button class="admin-btn open" onclick="setVoting(true)">Apri</button><button class="admin-btn close" onclick="setVoting(false)">Chiudi</button><button class="admin-btn reset" onclick="resetVoting()">Azzera</button></div></div>
+    <div class="admin-top"><div><h3><i class="fa-solid fa-shield-halved"></i> Pannello Direzione Gara</h3><p style="color:var(--muted);margin:5px 0 0">Gestione online sincronizzata con Google Sheets</p></div><div class="admin-actions"><button class="admin-btn open" onclick="setVoting(true)">Apri</button><button class="admin-btn close" onclick="setVoting(false)">Chiudi</button></div></div>
     <div class="results" id="results"></div>
   </section><div style="text-align:center"><a class="dotd-link" href="classifica-dotd.html"><i class="fa-solid fa-chart-column"></i> Classifica Driver of the Day</a></div>
 </main>
@@ -57,9 +57,13 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;ba
 <script>
 const ROUND=1;
 const HERO_IMAGE='assets/gp/australia.jpg';
-const heroProbe=new Image();heroProbe.onerror=()=>document.documentElement.style.setProperty('--hero-image','linear-gradient(135deg,#2b070a,#080b12)');heroProbe.src=HERO_IMAGE;
 const GP_NAME="Gran Premio d'Australia";
-const KEY=`grcc_dotd_round_${ROUND}`;
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbz30o3f7QkmijHWpQgwInJMIcIujmO_F070OwXhqbKnQidHdJC4iLa-rQZy0WzsN9buuA/exec";
+
+const heroProbe=new Image();
+heroProbe.onerror=()=>document.documentElement.style.setProperty('--hero-image','linear-gradient(135deg,#2b070a,#080b12)');
+heroProbe.src=HERO_IMAGE;
+
 const drivers=[
 {name:'LIVLONELY',number:69,team:'Aston Martin Aramco',img:'LIVLONELY.png',color:'#006f62'},
 {name:'GIUMEND29',number:29,team:'Aston Martin Aramco',img:'MENDOLIA.jpeg',color:'#006f62'},
@@ -83,23 +87,160 @@ const drivers=[
 {name:'LILLUPAZZU',number:84,team:'Visa Cash App RB',img:'LILLUPAZZU.png',color:'#6692ff'},
 {name:'ICEANT16',number:35,team:'Williams Racing',img:'ICEANT16.jpeg',color:'#64c4ff'}
 ];
+
 let selected=null;
-function getState(){return JSON.parse(localStorage.getItem(KEY)||'null')||{open:true,votes:{},voted:false,choice:null}}
-function saveState(s){localStorage.setItem(KEY,JSON.stringify(s))}
-function isAdmin(){return sessionStorage.getItem('grcc_role')==='DIREZIONE GARA'}
-function render(){const s=getState();document.getElementById('gpName').textContent=GP_NAME;document.getElementById('rolePill').textContent=isAdmin()?'DIREZIONE GARA':'PILOTA';document.getElementById('adminPanel').classList.toggle('show',isAdmin());const badge=document.getElementById('statusBadge');badge.classList.toggle('closed',!s.open);document.getElementById('statusText').textContent=s.open?'Votazione aperta':'Votazione chiusa';document.getElementById('driverCount').textContent=drivers.length;
- const grid=document.getElementById('driverGrid');grid.innerHTML='';drivers.forEach(d=>{const card=document.createElement('article');card.className='driver-card'+((!s.open||s.voted)?' disabled':'');card.style.setProperty('--team',d.color);card.style.animationDelay=(Math.min(drivers.indexOf(d),12)*45)+'ms';card.innerHTML=`<div class="shine"></div><div class="check"><i class="fa-solid fa-check"></i></div><img class="driver-img" src="${d.img}" alt="${d.name}"><div class="number">#${d.number}</div><div class="driver-info"><h3 class="driver-name">${d.name}</h3><div class="team">${d.team}</div></div>`;card.onclick=()=>selectDriver(d,card);grid.appendChild(card)});
- document.getElementById('votedMessage').classList.toggle('show',s.voted);if(s.voted){document.getElementById('votedText').textContent=`Hai votato ${s.choice}. Grazie per aver partecipato.`}document.getElementById('votingArea').style.display=(s.voted||!s.open)?'none':'block';document.getElementById('voteDock').classList.remove('show');renderResults();renderWinner();}
-function selectDriver(d,card){selected=d;document.getElementById('driverGrid').classList.add('has-selection');document.querySelectorAll('.driver-card').forEach(c=>c.classList.remove('selected'));card.classList.add('selected');document.getElementById('dockNumber').textContent='#'+d.number;document.getElementById('dockName').textContent=d.name;document.getElementById('voteDock').classList.add('show')}
-function openConfirm(){if(!selected)return;document.getElementById('modalImg').src=selected.img;document.getElementById('modalName').textContent=selected.name;document.getElementById('modalTeam').textContent=selected.team;document.getElementById('modal').classList.add('show')}
+let state={open:false,loading:true,winner:null};
+const pilot=sessionStorage.getItem('grcc_pilot');
+const isAdmin=()=>sessionStorage.getItem('grcc_role')==='DIREZIONE GARA';
+const voteKey=`grcc_dotd_voted_${ROUND}_${pilot||'none'}`;
+
+if(sessionStorage.getItem('grcc_authenticated')!=='true') window.location.href='index.html';
+if(!isAdmin()&&!pilot){
+  alert('Sessione pilota non riconosciuta. Effettua nuovamente il login.');
+  window.location.href='index.html';
+}
+
+async function apiGet(action,extra={}){
+  const params=new URLSearchParams({action,...extra,_:Date.now()});
+  const res=await fetch(`${SCRIPT_URL}?${params.toString()}`,{cache:'no-store'});
+  if(!res.ok) throw new Error('Errore server');
+  return res.json();
+}
+async function apiPost(payload){
+  await fetch(SCRIPT_URL,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(payload)
+  });
+}
+async function loadState(){
+  try{
+    const data=await apiGet('dotd_state',{round:ROUND});
+    state.loading=false;
+    state.open=data.stato==='APERTA';
+    state.winner=data.vincitore?{name:data.vincitore,team:data.team||'',votes:Number(data.voti||0)}:null;
+    render();
+  }catch(err){
+    state.loading=false;
+    document.getElementById('statusText').textContent='Server non raggiungibile';
+    document.getElementById('statusBadge').classList.add('closed');
+    document.getElementById('votingArea').style.display='none';
+    console.error(err);
+  }
+}
+function render(){
+  const alreadyVoted=!isAdmin()&&localStorage.getItem(voteKey)==='true';
+  document.getElementById('gpName').textContent=GP_NAME;
+  document.getElementById('rolePill').textContent=isAdmin()?'DIREZIONE GARA':pilot;
+  document.getElementById('adminPanel').classList.toggle('show',isAdmin());
+
+  const badge=document.getElementById('statusBadge');
+  badge.classList.toggle('closed',!state.open);
+  document.getElementById('statusText').textContent=state.loading?'Caricamento...':state.open?'Votazione aperta':'Votazione chiusa';
+  document.getElementById('driverCount').textContent=drivers.length;
+
+  const grid=document.getElementById('driverGrid');
+  grid.innerHTML='';
+  drivers.forEach((d,index)=>{
+    const card=document.createElement('article');
+    card.className='driver-card'+((!state.open||alreadyVoted||isAdmin())?' disabled':'');
+    card.style.setProperty('--team',d.color);
+    card.style.animationDelay=(Math.min(index,12)*45)+'ms';
+    card.innerHTML=`<div class="shine"></div><div class="check"><i class="fa-solid fa-check"></i></div><img class="driver-img" src="${d.img}" alt="${d.name}"><div class="number">#${d.number}</div><div class="driver-info"><h3 class="driver-name">${d.name}</h3><div class="team">${d.team}</div></div>`;
+    card.onclick=()=>selectDriver(d,card);
+    grid.appendChild(card);
+  });
+
+  document.getElementById('votedMessage').classList.toggle('show',alreadyVoted);
+  if(alreadyVoted){
+    const choice=localStorage.getItem(voteKey+'_choice')||'';
+    document.getElementById('votedText').textContent=`Voto registrato da ${pilot}${choice?` per ${choice}`:''}. Grazie per aver partecipato.`;
+  }
+  document.getElementById('votingArea').style.display=(!isAdmin()&&state.open&&!alreadyVoted)?'block':'none';
+  document.getElementById('voteDock').classList.remove('show');
+  renderWinner();
+  renderAdminInfo();
+}
+function selectDriver(d,card){
+  selected=d;
+  document.getElementById('driverGrid').classList.add('has-selection');
+  document.querySelectorAll('.driver-card').forEach(c=>c.classList.remove('selected'));
+  card.classList.add('selected');
+  document.getElementById('dockNumber').textContent='#'+d.number;
+  document.getElementById('dockName').textContent=d.name;
+  document.getElementById('voteDock').classList.add('show');
+}
+function openConfirm(){
+  if(!selected)return;
+  document.getElementById('modalImg').src=selected.img;
+  document.getElementById('modalName').textContent=selected.name;
+  document.getElementById('modalTeam').textContent=`${selected.team} · Voto espresso da ${pilot}`;
+  document.getElementById('modal').classList.add('show');
+}
 function closeConfirm(){document.getElementById('modal').classList.remove('show')}
-function launchConfetti(){const colors=['#ffd166','#e10600','#ffffff','#00ffd1'];for(let i=0;i<90;i++){const c=document.createElement('span');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=colors[Math.floor(Math.random()*colors.length)];c.style.setProperty('--drift',(Math.random()*240-120)+'px');c.style.animationDelay=(Math.random()*.7)+'s';c.style.transform='rotate('+Math.random()*360+'deg)';document.body.appendChild(c);setTimeout(()=>c.remove(),3400)}}function confirmVote(){const s=getState();if(!s.open||s.voted)return closeConfirm();s.votes[selected.name]=(s.votes[selected.name]||0)+1;s.voted=true;s.choice=selected.name;saveState(s);closeConfirm();render();launchConfetti();window.scrollTo({top:370,behavior:'smooth'})}
-function setVoting(open){if(!isAdmin())return;const s=getState();s.open=open;saveState(s);render()}
-function resetVoting(){if(!isAdmin()||!confirm('Vuoi davvero azzerare voti e blocco voto di questo dispositivo?'))return;saveState({open:true,votes:{},voted:false,choice:null});render()}
-function renderResults(){const s=getState();const box=document.getElementById('results');if(!box)return;const max=Math.max(1,...Object.values(s.votes));box.innerHTML=drivers.map(d=>{const v=s.votes[d.name]||0;return `<div class="result-row"><div class="result-name">${d.name}</div><div class="bar"><span style="width:${v/max*100}%"></span></div><div class="result-votes">${v}</div></div>`}).join('');requestAnimationFrame(()=>document.querySelectorAll('.bar span').forEach(el=>el.style.width=el.getAttribute('style').match(/width:([^;]+)/)[1]))}
-function renderWinner(){const s=getState();const box=document.getElementById('winnerBox');box.classList.remove('show');if(s.open)return;const entries=Object.entries(s.votes).sort((a,b)=>b[1]-a[1]);if(!entries.length)return;const [name,votes]=entries[0];const d=drivers.find(x=>x.name===name);box.innerHTML=`<div class="trophy"><i class="fa-solid fa-trophy"></i></div><img src="${d.img}" alt="${d.name}"><p>Driver of the Day</p><h2>${d.name}</h2><div style="color:#cbd5e1;font-weight:800">${d.team} · ${votes} ${votes===1?'voto':'voti'}</div>`;box.classList.add('show')}
-document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeConfirm()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeConfirm()});
-render();
+function launchConfetti(){
+  const colors=['#ffd166','#e10600','#ffffff','#00ffd1'];
+  for(let i=0;i<90;i++){
+    const c=document.createElement('span');
+    c.className='confetti';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.setProperty('--drift',(Math.random()*240-120)+'px');
+    c.style.animationDelay=(Math.random()*.7)+'s';
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),3400);
+  }
+}
+async function confirmVote(){
+  if(!selected||!state.open||isAdmin())return closeConfirm();
+  const button=document.querySelector('.modal .confirm');
+  button.disabled=true;button.textContent='Invio...';
+  try{
+    await apiPost({action:'dotd_vote',round:ROUND,pilota:selected.name,dispositivo:pilot,votante:pilot});
+    localStorage.setItem(voteKey,'true');
+    localStorage.setItem(voteKey+'_choice',selected.name);
+    closeConfirm();render();launchConfetti();
+    window.scrollTo({top:370,behavior:'smooth'});
+  }catch(err){
+    alert('Non è stato possibile inviare il voto. Controlla la connessione.');
+  }finally{
+    button.disabled=false;button.textContent='Conferma';
+  }
+}
+async function setVoting(open){
+  if(!isAdmin())return;
+  const action=open?'dotd_open':'dotd_close';
+  if(!open&&!confirm('Chiudere la votazione e proclamare il vincitore?'))return;
+  try{
+    await apiPost({action,round:ROUND});
+    await new Promise(r=>setTimeout(r,1400));
+    await loadState();
+  }catch(err){
+    alert('Operazione non riuscita. Controlla la connessione.');
+  }
+}
+function renderAdminInfo(){
+  const box=document.getElementById('results');
+  if(!box||!isAdmin())return;
+  box.innerHTML=state.open
+    ?`<div style="color:#cbd5e1;padding:12px 0"><i class="fa-solid fa-lock"></i> I risultati restano nascosti finché la votazione è aperta.</div>`
+    :state.winner
+      ?`<div class="result-row"><div class="result-name">${state.winner.name}</div><div class="bar"><span style="width:100%"></span></div><div class="result-votes">${state.winner.votes}</div></div>`
+      :`<div style="color:#94a3b8;padding:12px 0">Nessun voto registrato.</div>`;
+}
+function renderWinner(){
+  const box=document.getElementById('winnerBox');
+  box.classList.remove('show');
+  if(state.open||!state.winner)return;
+  const d=drivers.find(x=>x.name===state.winner.name)||{name:state.winner.name,team:state.winner.team||'Pilota GRCC',img:'assets/pilota.png'};
+  box.innerHTML=`<div class="trophy"><i class="fa-solid fa-trophy"></i></div><img src="${d.img}" alt="${d.name}"><p>Driver of the Day</p><h2>${d.name}</h2><div style="color:#cbd5e1;font-weight:800">${d.team} · ${state.winner.votes} ${state.winner.votes===1?'voto':'voti'}</div>`;
+  box.classList.add('show');
+}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeConfirm()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeConfirm()});
+loadState();
+setInterval(loadState,30000);
 </script>
 </body>
 </html>

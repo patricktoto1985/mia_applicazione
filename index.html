@@ -178,6 +178,33 @@
             <h2 style="color: #e10600; margin-top: 0; text-transform: uppercase; letter-spacing: 1px; font-size: 1.6rem; font-weight: bold;">Area Riservata</h2>
             <p style="color: #8fa0b5; font-size: 0.9rem; margin-bottom: 25px;">Inserisci la chiave d'accesso del gruppo per entrare nel portale GRCC F1.</p>
             
+            <select id="pilot-select" style="width: 100%; padding: 12px; background-color: #0b0f19; border: 1px solid #1f2c3f; border-radius: 8px; color: #fff; font-size: 1rem; text-align: center; box-sizing: border-box; margin-bottom: 12px; outline: none;">
+                <option value="">— Seleziona il tuo ID pilota —</option>
+                <option value="SICKMIRKO">SICKMIRKO</option>
+                <option value="MIKYPOWER">MIKYPOWER</option>
+                <option value="SALVOTD91">SALVOTD91</option>
+                <option value="MKI-110">MKI-110</option>
+                <option value="RAO-783">RAO-783</option>
+                <option value="BENE20DOMENICO">BENE20DOMENICO</option>
+                <option value="LRT_KURAMA">LRT_KURAMA</option>
+                <option value="FRA319153">FRA319153</option>
+                <option value="LIVLONELY">LIVLONELY</option>
+                <option value="GIUMEND29">GIUMEND29</option>
+                <option value="TOTO'F1">TOTO'F1</option>
+                <option value="DANIELE251191">DANIELE251191</option>
+                <option value="NXS_ODI">NXS_ODI</option>
+                <option value="KEIDIKID2">KEIDIKID2</option>
+                <option value="GRCC F1 VITTORIO">GRCC F1 VITTORIO</option>
+                <option value="LILLUPAZZU">LILLUPAZZU</option>
+                <option value="CONDE785">CONDE785</option>
+                <option value="PEPPEFLE_IRT">PEPPEFLE_IRT</option>
+                <option value="ICEANT16">ICEANT16</option>
+                <option value="DAVIARCO1999">DAVIARCO1999</option>
+                <option value="BRA_FOSY89">BRA_FOSY89</option>
+            </select>
+            <div style="color:#8fa0b5;font-size:.76rem;margin:-3px 0 13px;line-height:1.35;">
+                La Direzione Gara può lasciare vuoto questo campo e usare la password amministratore.
+            </div>
             <input type="password" id="group-pass" placeholder="Password..." style="width: 100%; padding: 12px; background-color: #0b0f19; border: 1px solid #1f2c3f; border-radius: 8px; color: #fff; font-size: 1rem; text-align: center; box-sizing: border-box; margin-bottom: 20px; outline: none; transition: 0.2s;">
             <button onclick="checkPassword()" style="width: 100%; padding: 12px; background-color: #e10600; border: none; border-radius: 8px; color: #fff; font-size: 1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s;">Accedi</button>
             <p id="login-error" style="color: #ff3b30; font-size: 0.85rem; margin-top: 15px; display: none; font-weight: bold;">❌ Password errata! Riprova.</p>
@@ -192,21 +219,33 @@
         // 2. FUNZIONE DI VERIFICA AL CLICK DEL PULSANTE
         function checkPassword() {
             const input = document.getElementById('group-pass').value;
+            const pilota = document.getElementById('pilot-select').value;
             const errorText = document.getElementById('login-error');
+
+            errorText.style.display = 'none';
 
             if (input === PASS_ADMIN) {
                 sessionStorage.setItem('grcc_authenticated', 'true');
                 sessionStorage.setItem('grcc_role', 'DIREZIONE GARA');
+                sessionStorage.removeItem('grcc_pilot');
                 document.getElementById('login-overlay').style.display = 'none';
                 aggiornaScrittaRuolo();
-            } 
+            }
             else if (input === PASS_PILOTI) {
+                if (!pilota) {
+                    errorText.textContent = '❌ Seleziona prima il tuo ID pilota.';
+                    errorText.style.display = 'block';
+                    return;
+                }
+
                 sessionStorage.setItem('grcc_authenticated', 'true');
                 sessionStorage.setItem('grcc_role', 'PILOTA');
+                sessionStorage.setItem('grcc_pilot', pilota);
                 document.getElementById('login-overlay').style.display = 'none';
                 aggiornaScrittaRuolo();
-            } 
+            }
             else {
+                errorText.textContent = '❌ Password errata! Riprova.';
                 errorText.style.display = 'block';
                 document.getElementById('group-pass').value = '';
             }
@@ -215,9 +254,12 @@
         // 3. FUNZIONE PER AGGIORNARE LA SCRITTA IN BASSO
         function aggiornaScrittaRuolo() {
             const ruolo = sessionStorage.getItem('grcc_role') || "PILOTA";
+            const pilota = sessionStorage.getItem('grcc_pilot');
             const elementoRuolo = document.getElementById("user-role-text");
             if (elementoRuolo) {
-                elementoRuolo.textContent = ruolo;
+                elementoRuolo.textContent = ruolo === 'PILOTA' && pilota
+                    ? `PILOTA · ${pilota}`
+                    : ruolo;
             }
         }
 
@@ -245,19 +287,6 @@
 
     <div class="dashboard-container">
         <div class="grid-dashboard">
-
-            <a href="driver-of-the-day.html" class="dash-btn">
-    <span class="status-dot dot-yellow"></span>
-
-    <i class="fas fa-trophy dash-icon"
-       style="color:#ffb700;"></i>
-
-    <h3 class="dash-title">Driver of the Day</h3>
-
-    <p class="dash-desc">
-        Vota il protagonista del Gran Premio
-    </p>
-</a>
 
             <a href="campionati.html" class="dash-btn">
                 <span class="status-dot dot-cyan"></span>
@@ -345,6 +374,7 @@
         function logout() {
             sessionStorage.removeItem('grcc_authenticated');
             sessionStorage.removeItem('grcc_role');
+            sessionStorage.removeItem('grcc_pilot');
             window.location.reload();
         }
 
