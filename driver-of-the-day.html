@@ -48,7 +48,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;ba
     <div class="grid" id="driverGrid"></div>
   </section>
   <section class="admin" id="adminPanel">
-    <div class="admin-top"><div><h3><i class="fa-solid fa-shield-halved"></i> Pannello Direzione Gara</h3><p style="color:var(--muted);margin:5px 0 0">Gestione online sincronizzata con Google Sheets</p></div><div class="admin-actions"><button class="admin-btn open" onclick="setVoting(true)">Apri</button><button class="admin-btn close" onclick="setVoting(false)">Chiudi</button></div></div>
+    <div class="admin-top"><div><h3><i class="fa-solid fa-shield-halved"></i> Pannello Direzione Gara</h3><p style="color:var(--muted);margin:5px 0 0">Gestione online sincronizzata con Google Sheets</p></div><div class="admin-actions"><button class="admin-btn open" onclick="setVoting(true)">Apri</button><button class="admin-btn close" onclick="setVoting(false)">Chiudi</button><button class="admin-btn reset" onclick="resetVotingOnline()"><i class="fa-solid fa-trash-can"></i> Azzera</button></div></div>
     <div class="results" id="results"></div>
   </section><div style="text-align:center"><a class="dotd-link" href="classifica-dotd.html"><i class="fa-solid fa-chart-column"></i> Classifica Driver of the Day</a></div>
 </main>
@@ -220,6 +220,52 @@ async function setVoting(open){
     alert('Operazione non riuscita. Controlla la connessione.');
   }
 }
+
+async function resetVotingOnline(){
+  if(!isAdmin()) return;
+
+  if(!confirm(
+    "Vuoi davvero azzerare completamente la votazione del Round " + ROUND +
+    "? Verranno cancellati tutti i voti e il vincitore."
+  )) return;
+
+  const resetBtn = document.querySelector(".admin-btn.reset");
+  const oldText = resetBtn ? resetBtn.innerHTML : "";
+
+  if(resetBtn){
+    resetBtn.disabled = true;
+    resetBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Azzeramento...';
+  }
+
+  try{
+    await apiPost({
+      action:"dotd_reset",
+      round:ROUND
+    });
+
+    // Cancella anche i blocchi locali di questo browser per tutti i piloti del Round.
+    Object.keys(localStorage).forEach(key=>{
+      if(key.startsWith(`grcc_dotd_voted_${ROUND}_`)){
+        localStorage.removeItem(key);
+      }
+    });
+
+    await new Promise(resolve=>setTimeout(resolve,1500));
+    selected = null;
+    document.getElementById("driverGrid")?.classList.remove("has-selection");
+    await loadState();
+    alert("✅ Votazione azzerata. Il Round è di nuovo APERTO.");
+  }catch(error){
+    console.error(error);
+    alert("❌ Non è stato possibile azzerare la votazione.");
+  }finally{
+    if(resetBtn){
+      resetBtn.disabled = false;
+      resetBtn.innerHTML = oldText;
+    }
+  }
+}
+
 function renderAdminInfo(){
   const box=document.getElementById('results');
   if(!box||!isAdmin())return;
