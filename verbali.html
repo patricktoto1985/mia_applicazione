@@ -11,8 +11,11 @@
             window.location.href = 'index.html';
         }
         
-        // 2. Controlla se l'utente loggato è la Direzione Gara. Se è un pilota, lo rimanda indietro.
-        if (sessionStorage.getItem('grcc_role') !== 'DIREZIONE GARA') {
+        // 2. Consenti l'accesso sia alla Direzione Gara pura sia ai piloti con doppio ruolo admin.
+        const ruolo = sessionStorage.getItem('grcc_role');
+        const isAdmin = sessionStorage.getItem('grcc_admin') === 'true';
+
+        if (ruolo !== 'DIREZIONE GARA' && !isAdmin) {
             alert('⚠️ ACCESSO NEGATO: Questa pagina è riservata esclusivamente alla Direzione Gara.');
             window.location.href = 'index.html';
         }
