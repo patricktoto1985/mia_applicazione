@@ -286,6 +286,7 @@
             if (!pilota && input === PASS_ADMIN) {
                 sessionStorage.setItem('grcc_authenticated', 'true');
                 sessionStorage.setItem('grcc_role', 'DIREZIONE GARA');
+                sessionStorage.setItem('grcc_admin', 'true');
                 sessionStorage.removeItem('grcc_pilot');
                 document.getElementById('login-overlay').style.display = 'none';
                 aggiornaScrittaRuolo();
@@ -320,6 +321,14 @@
                 sessionStorage.setItem('grcc_authenticated', 'true');
                 sessionStorage.setItem('grcc_role', 'PILOTA');
                 sessionStorage.setItem('grcc_pilot', pilota);
+
+                const pilotiAdmin = ['RAO-783', 'CONDE785', "TOTO'F1", 'GRCC F1 VITTORIO'];
+                if (pilotiAdmin.includes(pilota)) {
+                    sessionStorage.setItem('grcc_admin', 'true');
+                } else {
+                    sessionStorage.removeItem('grcc_admin');
+                }
+
                 document.getElementById('login-overlay').style.display = 'none';
                 aggiornaScrittaRuolo();
 
@@ -395,6 +404,8 @@
             if (elementoRuolo) {
                 if (ruolo === 'PILOTA' && pilota === 'GIANLUCA MAFEZZONI') {
                     elementoRuolo.textContent = 'COMMENTATORE · GIANLUCA MAFEZZONI';
+                } else if (ruolo === 'PILOTA' && pilota && sessionStorage.getItem('grcc_admin') === 'true') {
+                    elementoRuolo.textContent = `PILOTA · ${pilota} | DIREZIONE GARA`;
                 } else {
                     elementoRuolo.textContent = ruolo === 'PILOTA' && pilota
                         ? `PILOTA · ${pilota}`
@@ -576,11 +587,12 @@
         function aggiornaVisibilitaGestioneAccount() {
             const btn = document.getElementById('account-management-btn');
             if (!btn) return;
-            btn.style.display = sessionStorage.getItem('grcc_role') === 'DIREZIONE GARA' ? 'flex' : 'none';
+            const isAdmin = sessionStorage.getItem('grcc_role') === 'DIREZIONE GARA' || sessionStorage.getItem('grcc_admin') === 'true';
+            btn.style.display = isAdmin ? 'flex' : 'none';
         }
 
         function apriGestioneAccount() {
-            if (sessionStorage.getItem('grcc_role') !== 'DIREZIONE GARA') {
+            if (sessionStorage.getItem('grcc_role') !== 'DIREZIONE GARA' && sessionStorage.getItem('grcc_admin') !== 'true') {
                 alert('Accesso riservato alla Direzione Gara.');
                 return;
             }
@@ -594,7 +606,7 @@
         }
 
         async function resetAccountDaApp() {
-            if (sessionStorage.getItem('grcc_role') !== 'DIREZIONE GARA') {
+            if (sessionStorage.getItem('grcc_role') !== 'DIREZIONE GARA' && sessionStorage.getItem('grcc_admin') !== 'true') {
                 alert('Accesso riservato alla Direzione Gara.');
                 return;
             }
@@ -655,6 +667,7 @@
             sessionStorage.removeItem('grcc_authenticated');
             sessionStorage.removeItem('grcc_role');
             sessionStorage.removeItem('grcc_pilot');
+            sessionStorage.removeItem('grcc_admin');
             window.location.reload();
         }
 
@@ -662,7 +675,7 @@
         function controllaAccessoVerbali() {
             const ruolo = sessionStorage.getItem('grcc_role');
 
-            if (ruolo === 'DIREZIONE GARA') {
+            if (ruolo === 'DIREZIONE GARA' || sessionStorage.getItem('grcc_admin') === 'true') {
                 // Se è l'admin, lo lascia passare alla pagina dei verbali
                 window.location.href = 'verbali.html';
             } else {
