@@ -176,7 +176,7 @@
 <div id="login-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #0b0f19; z-index: 99999; display: flex; justify-content: center; align-items: center; font-family: 'Segoe UI', sans-serif;">
         <div style="background-color: #131a26; padding: 40px; border-radius: 16px; border: 1px solid #1f2c3f; text-align: center; max-width: 360px; width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
             <h2 style="color: #e10600; margin-top: 0; text-transform: uppercase; letter-spacing: 1px; font-size: 1.6rem; font-weight: bold;">Area Riservata</h2>
-            <p style="color: #8fa0b5; font-size: 0.9rem; margin-bottom: 25px;">Inserisci la chiave d'accesso del gruppo per entrare nel portale GRCC F1.</p>
+            <p style="color: #8fa0b5; font-size: 0.9rem; margin-bottom: 25px;">Seleziona il tuo profilo e inserisci la tua password personale.</p>
             
             <select id="pilot-select" style="width: 100%; padding: 12px; background-color: #0b0f19; border: 1px solid #1f2c3f; border-radius: 8px; color: #fff; font-size: 1rem; text-align: center; box-sizing: border-box; margin-bottom: 12px; outline: none;">
                 <option value="">— Seleziona il tuo ID pilota —</option>
@@ -204,38 +204,116 @@
                 <option value="GIANLUCA MAFEZZONI">GIANLUCA MAFEZZONI</option>
             </select>
             <div style="color:#8fa0b5;font-size:.76rem;margin:-3px 0 13px;line-height:1.35;">
-                La Direzione Gara può lasciare vuoto questo campo e usare la password amministratore.
+                La Direzione Gara può lasciare vuoto il campo pilota. Al primo accesso usa “Crea password personale”.
             </div>
-            <input type="password" id="group-pass" placeholder="Password..." style="width: 100%; padding: 12px; background-color: #0b0f19; border: 1px solid #1f2c3f; border-radius: 8px; color: #fff; font-size: 1rem; text-align: center; box-sizing: border-box; margin-bottom: 20px; outline: none; transition: 0.2s;">
-            <button onclick="checkPassword()" style="width: 100%; padding: 12px; background-color: #e10600; border: none; border-radius: 8px; color: #fff; font-size: 1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s;">Accedi</button>
+            <input type="password" id="group-pass" placeholder="Password personale..." style="width: 100%; padding: 12px; background-color: #0b0f19; border: 1px solid #1f2c3f; border-radius: 8px; color: #fff; font-size: 1rem; text-align: center; box-sizing: border-box; margin-bottom: 12px; outline: none; transition: 0.2s;">
+            <button id="login-btn" onclick="checkPassword()" style="width: 100%; padding: 12px; background-color: #e10600; border: none; border-radius: 8px; color: #fff; font-size: 1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s;">Accedi</button>
+
+            <button onclick="mostraAttivazione()" style="width: 100%; margin-top: 10px; padding: 10px; background: transparent; border: 1px solid #00ffd1; border-radius: 8px; color: #00ffd1; font-size: .86rem; font-weight: bold; cursor: pointer;">
+                Primo accesso / Crea password personale
+            </button>
+
+            <div id="activation-box" style="display:none; margin-top:15px; padding-top:15px; border-top:1px solid #1f2c3f;">
+                <div style="color:#8fa0b5;font-size:.78rem;line-height:1.4;margin-bottom:10px;">
+                    Inserisci il codice di attivazione personale ricevuto dalla Direzione Gara e scegli una password di almeno 8 caratteri.
+                </div>
+                <input type="text" id="activation-code" placeholder="Codice di attivazione" autocomplete="one-time-code"
+                    style="width:100%;padding:11px;background:#0b0f19;border:1px solid #1f2c3f;border-radius:8px;color:#fff;text-align:center;box-sizing:border-box;margin-bottom:8px;">
+                <input type="password" id="new-password" placeholder="Nuova password"
+                    style="width:100%;padding:11px;background:#0b0f19;border:1px solid #1f2c3f;border-radius:8px;color:#fff;text-align:center;box-sizing:border-box;margin-bottom:8px;">
+                <input type="password" id="new-password-2" placeholder="Ripeti nuova password"
+                    style="width:100%;padding:11px;background:#0b0f19;border:1px solid #1f2c3f;border-radius:8px;color:#fff;text-align:center;box-sizing:border-box;margin-bottom:10px;">
+                <button id="activate-btn" onclick="attivaAccount()" style="width:100%;padding:11px;background:#00ffd1;border:none;border-radius:8px;color:#06120f;font-weight:900;cursor:pointer;text-transform:uppercase;">
+                    Crea password
+                </button>
+            </div>
+
             <p id="login-error" style="color: #ff3b30; font-size: 0.85rem; margin-top: 15px; display: none; font-weight: bold;">❌ Password errata! Riprova.</p>
+            <p id="login-success" style="color:#00ffd1;font-size:.85rem;margin-top:15px;display:none;font-weight:bold;"></p>
         </div>
     </div>
 
     <script>
-        // 1. DEFINIZIONE DELLE PASSWORD
-        const PASS_ADMIN = "ADMIN2026";  // Password Direzione Gara
-        const PASS_PILOTI = "GRCC2026"; // Password per i piloti
+        // 1. CONFIGURAZIONE ACCESSI
+        const PASS_ADMIN = "ADMIN2026";  // Direzione Gara
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz30o3f7QkmijHWpQgwInJMIcIujmO_F070OwXhqbKnQidHdJC4iLa-rQZy0WzsN9buuA/exec";
 
-        // 2. FUNZIONE DI VERIFICA AL CLICK DEL PULSANTE
-        function checkPassword() {
-            const input = document.getElementById('group-pass').value;
+        function mostraMessaggio(testo, ok = false) {
+            const errore = document.getElementById('login-error');
+            const successo = document.getElementById('login-success');
+            errore.style.display = 'none';
+            successo.style.display = 'none';
+
+            if (ok) {
+                successo.textContent = testo;
+                successo.style.display = 'block';
+            } else {
+                errore.textContent = testo;
+                errore.style.display = 'block';
+            }
+        }
+
+        function mostraAttivazione() {
+            const box = document.getElementById('activation-box');
+            box.style.display = box.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function postAccount(payload) {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            });
+
+            const text = await response.text();
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                throw new Error('Risposta non valida dal server.');
+            }
+        }
+
+        // 2. LOGIN DIREZIONE GARA / PILOTA
+        async function checkPassword() {
+            const input = document.getElementById('group-pass').value.trim();
             const pilota = document.getElementById('pilot-select').value;
-            const errorText = document.getElementById('login-error');
+            const btn = document.getElementById('login-btn');
 
-            errorText.style.display = 'none';
+            document.getElementById('login-error').style.display = 'none';
+            document.getElementById('login-success').style.display = 'none';
 
-            if (input === PASS_ADMIN) {
+            // Direzione Gara: mantiene l'accesso amministratore esistente.
+            if (!pilota && input === PASS_ADMIN) {
                 sessionStorage.setItem('grcc_authenticated', 'true');
                 sessionStorage.setItem('grcc_role', 'DIREZIONE GARA');
                 sessionStorage.removeItem('grcc_pilot');
                 document.getElementById('login-overlay').style.display = 'none';
                 aggiornaScrittaRuolo();
+                return;
             }
-            else if (input === PASS_PILOTI) {
-                if (!pilota) {
-                    errorText.textContent = '❌ Seleziona prima il tuo ID pilota.';
-                    errorText.style.display = 'block';
+
+            if (!pilota) {
+                mostraMessaggio('❌ Seleziona il tuo ID pilota oppure lascia vuoto solo per la Direzione Gara.');
+                return;
+            }
+
+            if (!input) {
+                mostraMessaggio('❌ Inserisci la tua password personale.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Accesso...';
+
+            try {
+                const result = await postAccount({
+                    action: 'account_login',
+                    pilota: pilota,
+                    password: input
+                });
+
+                if (!result.success) {
+                    mostraMessaggio('❌ ' + (result.message || 'Accesso non riuscito.'));
                     return;
                 }
 
@@ -244,11 +322,68 @@
                 sessionStorage.setItem('grcc_pilot', pilota);
                 document.getElementById('login-overlay').style.display = 'none';
                 aggiornaScrittaRuolo();
+
+            } catch (err) {
+                mostraMessaggio('❌ Errore di collegamento. Riprova.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Accedi';
             }
-            else {
-                errorText.textContent = '❌ Password errata! Riprova.';
-                errorText.style.display = 'block';
-                document.getElementById('group-pass').value = '';
+        }
+
+        // Primo accesso: attivazione con codice personale + scelta password.
+        async function attivaAccount() {
+            const pilota = document.getElementById('pilot-select').value;
+            const codice = document.getElementById('activation-code').value.trim();
+            const password = document.getElementById('new-password').value;
+            const password2 = document.getElementById('new-password-2').value;
+            const btn = document.getElementById('activate-btn');
+
+            if (!pilota) {
+                mostraMessaggio('❌ Seleziona prima il tuo ID.');
+                return;
+            }
+            if (!codice) {
+                mostraMessaggio('❌ Inserisci il codice di attivazione.');
+                return;
+            }
+            if (password.length < 8) {
+                mostraMessaggio('❌ La password deve avere almeno 8 caratteri.');
+                return;
+            }
+            if (password !== password2) {
+                mostraMessaggio('❌ Le due password non coincidono.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Creazione...';
+
+            try {
+                const result = await postAccount({
+                    action: 'account_activate',
+                    pilota: pilota,
+                    activationCode: codice,
+                    password: password
+                });
+
+                if (!result.success) {
+                    mostraMessaggio('❌ ' + (result.message || 'Attivazione non riuscita.'));
+                    return;
+                }
+
+                document.getElementById('group-pass').value = password;
+                document.getElementById('activation-box').style.display = 'none';
+                document.getElementById('activation-code').value = '';
+                document.getElementById('new-password').value = '';
+                document.getElementById('new-password-2').value = '';
+                mostraMessaggio('✅ Password creata. Ora puoi premere ACCEDI.', true);
+
+            } catch (err) {
+                mostraMessaggio('❌ Errore di collegamento. Riprova.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Crea password';
             }
         }
 
