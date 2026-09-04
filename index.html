@@ -401,6 +401,7 @@
                         : ruolo;
                 }
             }
+            aggiornaVisibilitaGestioneAccount();
         }
 
         // 4. CONTROLLO DI PERSISTENZA AL CARICAMENTO DELLA PAGINA
@@ -427,6 +428,13 @@
 
     <div class="dashboard-container">
         <div class="grid-dashboard">
+
+            <a id="account-management-btn" onclick="apriGestioneAccount()" class="dash-btn" style="display:none;">
+                <span class="status-dot dot-red"></span>
+                <div class="dash-icon">🔐</div>
+                <h2 class="dash-title">Gestione Account</h2>
+                <p class="dash-desc">Reset password e nuovo codice di attivazione piloti.</p>
+            </a>
 
             <a href="campionati.html" class="dash-btn">
                 <span class="status-dot dot-cyan"></span>
@@ -517,7 +525,132 @@
 
         </div>
             
-        </div> </div> <script>
+        </div>
+
+        <div id="account-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.78); z-index:99998; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;">
+            <div style="width:100%; max-width:420px; background:#131a26; border:1px solid #1f2c3f; border-radius:16px; padding:22px; box-shadow:0 20px 50px rgba(0,0,0,.5);">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:15px; margin-bottom:15px;">
+                    <h2 style="margin:0; color:#e10600; font-size:1.25rem;">Gestione Account</h2>
+                    <button onclick="chiudiGestioneAccount()" style="background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;">✕</button>
+                </div>
+
+                <div style="color:#8fa0b5;font-size:.82rem;line-height:1.4;margin-bottom:12px;">
+                    Seleziona un utente e genera un nuovo codice di attivazione. La password attuale verrà azzerata.
+                </div>
+
+                <select id="reset-user-select" style="width:100%;padding:12px;background:#0b0f19;border:1px solid #1f2c3f;border-radius:8px;color:#fff;box-sizing:border-box;margin-bottom:12px;">
+                    <option value="">— Seleziona utente —</option>
+                    <option value="SICKMIRKO">SICKMIRKO</option>
+                    <option value="MIKYPOWER">MIKYPOWER</option>
+                    <option value="SALVOTD91">SALVOTD91</option>
+                    <option value="MKI-110">MKI-110</option>
+                    <option value="RAO-783">RAO-783</option>
+                    <option value="BENE20DOMENICO">BENE20DOMENICO</option>
+                    <option value="LRT_KURAMA">LRT_KURAMA</option>
+                    <option value="FRA319153">FRA319153</option>
+                    <option value="LIVLONELY">LIVLONELY</option>
+                    <option value="GIUMEND29">GIUMEND29</option>
+                    <option value="TOTO'F1">TOTO'F1</option>
+                    <option value="DANIELE251191">DANIELE251191</option>
+                    <option value="NXS_ODI">NXS_ODI</option>
+                    <option value="KEIDIKID2">KEIDIKID2</option>
+                    <option value="GRCC F1 VITTORIO">GRCC F1 VITTORIO</option>
+                    <option value="LILLUPAZZU">LILLUPAZZU</option>
+                    <option value="CONDE785">CONDE785</option>
+                    <option value="PEPPEFLE_IRT">PEPPEFLE_IRT</option>
+                    <option value="ICEANT16">ICEANT16</option>
+                    <option value="DAVIARCO1999">DAVIARCO1999</option>
+                    <option value="BRA_FOSY89">BRA_FOSY89</option>
+                    <option value="GIANLUCA MAFEZZONI">GIANLUCA MAFEZZONI</option>
+                </select>
+
+                <button id="reset-account-btn" onclick="resetAccountDaApp()" style="width:100%;padding:12px;background:#e10600;border:none;border-radius:8px;color:#fff;font-weight:900;cursor:pointer;text-transform:uppercase;">
+                    Reset password
+                </button>
+
+                <div id="reset-result" style="display:none;margin-top:14px;padding:12px;border-radius:8px;background:#0b0f19;border:1px solid #1f2c3f;font-size:.88rem;line-height:1.45;"></div>
+            </div>
+        </div>
+
+        </div> <script>
+        function aggiornaVisibilitaGestioneAccount() {
+            const btn = document.getElementById('account-management-btn');
+            if (!btn) return;
+            btn.style.display = sessionStorage.getItem('grcc_role') === 'DIREZIONE GARA' ? 'flex' : 'none';
+        }
+
+        function apriGestioneAccount() {
+            if (sessionStorage.getItem('grcc_role') !== 'DIREZIONE GARA') {
+                alert('Accesso riservato alla Direzione Gara.');
+                return;
+            }
+            const modal = document.getElementById('account-modal');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function chiudiGestioneAccount() {
+            const modal = document.getElementById('account-modal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function resetAccountDaApp() {
+            if (sessionStorage.getItem('grcc_role') !== 'DIREZIONE GARA') {
+                alert('Accesso riservato alla Direzione Gara.');
+                return;
+            }
+
+            const pilota = document.getElementById('reset-user-select').value;
+            const btn = document.getElementById('reset-account-btn');
+            const resultBox = document.getElementById('reset-result');
+
+            if (!pilota) {
+                resultBox.style.display = 'block';
+                resultBox.style.color = '#ff6b6b';
+                resultBox.textContent = 'Seleziona prima un utente.';
+                return;
+            }
+
+            if (!confirm(`Reset della password di ${pilota}? Verrà generato un nuovo codice di attivazione.`)) {
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Reset in corso...';
+            resultBox.style.display = 'none';
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'account_reset',
+                        pilota: pilota,
+                        adminKey: PASS_ADMIN
+                    })
+                });
+
+                const data = await response.json();
+
+                resultBox.style.display = 'block';
+                if (data.success) {
+                    resultBox.style.color = '#00ffd1';
+                    resultBox.innerHTML = `✅ Password azzerata.<br><strong>Nuovo codice:</strong> ${data.activationCode}`;
+                } else {
+                    resultBox.style.color = '#ff6b6b';
+                    resultBox.textContent = '❌ ' + (data.message || 'Reset non riuscito.');
+                }
+            } catch (err) {
+                resultBox.style.display = 'block';
+                resultBox.style.color = '#ff6b6b';
+                resultBox.textContent = '❌ Errore di collegamento.';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Reset password';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', aggiornaVisibilitaGestioneAccount);
+
         function logout() {
             sessionStorage.removeItem('grcc_authenticated');
             sessionStorage.removeItem('grcc_role');
