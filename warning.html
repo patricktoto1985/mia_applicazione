@@ -94,7 +94,7 @@
         .complaint-info { flex-grow: 1; padding-right: 15px; }
         .video-link { color: var(--accent-cyan); text-decoration: none; font-weight: bold; display: inline-block; margin-top: 8px; }
         .video-link:hover { text-decoration: underline; }
-        .btn-delete { background: var(--f1-red); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+        .btn-delete { background: var(--f1-red); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem; white-space: nowrap; }
     
         .video-upload-box{margin-top:12px;padding:15px;border:1px dashed #38506d;border-radius:10px;background:#0b0f19}
         .video-or{text-align:center;color:var(--text-muted);font-weight:bold;margin:12px 0}
@@ -537,11 +537,52 @@ async function caricaReclamiDirezioneGara() {
                     <div class="complaint-desc">${escapeHtml(r.descrizione)}</div>
                     ${r.video ? `<a class="video-link" href="${escapeAttr(r.video)}" target="_blank" rel="noopener">🎬 Guarda video / clip</a>` : ''}
                 </div>
+                <button class="btn-delete" type="button" onclick="cancellaReclamoDG(${Number.isFinite(r.riga) ? r.riga : 0}, '${escapeJs(r.segnalante)}', '${escapeJs(r.segnalato)}')">🗑 Elimina</button>
             </div>
         `).join('');
     } catch(err) {
         lista.innerHTML = `<div class="empty-box">❌ ${escapeHtml(err.message)}</div>`;
     }
+}
+
+async function cancellaReclamoDG(riga, segnalante, segnalato) {
+    if (!utenteDirezioneGara()) {
+        alert('Operazione riservata alla Direzione Gara.');
+        return;
+    }
+    if (!riga || riga < 2) {
+        alert('Reclamo non valido.');
+        return;
+    }
+
+    const ok = confirm(`Eliminare definitivamente il reclamo di ${segnalante} contro ${segnalato}?`);
+    if (!ok) return;
+
+    try {
+        const res = await fetch(RECLAMI_SCRIPT_URL, {
+            method: 'POST',
+            headers: {'Content-Type':'text/plain;charset=utf-8'},
+            body: JSON.stringify({
+                action: 'complaint_delete',
+                row: riga
+            })
+        });
+
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'Eliminazione non riuscita');
+
+        alert('✅ Reclamo eliminato.');
+        await caricaReclamiDirezioneGara();
+    } catch (err) {
+        alert('❌ ' + err.message);
+    }
+}
+
+function escapeJs(v) {
+    return String(v ?? '')
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/\r?\n/g, ' ');
 }
 
 function escapeHtml(v) {
