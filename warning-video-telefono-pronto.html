@@ -95,7 +95,14 @@
         .video-link { color: var(--accent-cyan); text-decoration: none; font-weight: bold; display: inline-block; margin-top: 8px; }
         .video-link:hover { text-decoration: underline; }
         .btn-delete { background: var(--f1-red); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
-    </style>
+    
+        .video-upload-box{margin-top:12px;padding:15px;border:1px dashed #38506d;border-radius:10px;background:#0b0f19}
+        .video-or{text-align:center;color:var(--text-muted);font-weight:bold;margin:12px 0}
+        .file-status{margin-top:8px;color:var(--accent-cyan);font-size:.85rem}
+        .upload-progress{display:none;margin-top:10px;color:var(--warning-orange);font-weight:bold}
+        input[readonly]{opacity:.8;cursor:not-allowed}
+
+</style>
 </head>
 <body>
 
@@ -331,9 +338,17 @@
                 <textarea id="incidentDesc" rows="3" placeholder="Descrivi brevemente l'accaduto..." required></textarea>
 
                 <label for="videoUrl">Link del Video / Clip (YouTube, OneDrive, Twitch, ecc.):</label>
-                <input type="url" id="videoUrl" placeholder="https://..." required>
+                <input type="url" id="videoUrl" placeholder="https://...">
 
-                <button type="submit" class="submit-btn">Invia Reclamo alla Direzione Gara 📁</button>
+                <div class="video-or">— OPPURE —</div>
+                <div class="video-upload-box">
+                    <label for="videoFile" style="margin-top:0;">📱 Carica video dal telefono / dispositivo:</label>
+                    <input type="file" id="videoFile" accept="video/*" onchange="aggiornaVideoSelezionato()">
+                    <div id="fileStatus" class="file-status">Nessun video selezionato.</div>
+                    <div id="uploadProgress" class="upload-progress">⏳ Invio in corso... non chiudere la pagina.</div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitComplaint">Invia Reclamo alla Direzione Gara 📁</button>
             </form>
         </div>
 
@@ -373,6 +388,101 @@
 
         </div>
     </div>
+
+
+<script>
+/* GRCC - Reclami online + video da telefono */
+const RECLAMI_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz30o3f7QkmijHWpQgwInJMIcIujmO_F070OwXhqbKnQidHdJC4iLa-rQZy0WzsN9buuA/exec';
+
+document.addEventListener('DOMContentLoaded', () => {
+    const reporter = document.getElementById('reporterName');
+    const pilot = sessionStorage.getItem('grcc_pilot') || '';
+    if (reporter && pilot) {
+        reporter.value = pilot;
+        reporter.readOnly = true;
+    }
+});
+
+function aggiornaVideoSelezionato() {
+    const file = document.getElementById('videoFile').files[0];
+    document.getElementById('fileStatus').textContent = file
+        ? `🎬 ${file.name} · ${(file.size/1024/1024).toFixed(1)} MB`
+        : 'Nessun video selezionato.';
+}
+
+function leggiFileBase64(file) {
+    return new Promise((resolve,reject)=>{
+        const reader=new FileReader();
+        reader.onload=()=>resolve(String(reader.result).split(',')[1]);
+        reader.onerror=reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+async function salvaReclamo(event) {
+    event.preventDefault();
+
+    const link = document.getElementById('videoUrl').value.trim();
+    const file = document.getElementById('videoFile').files[0];
+
+    if (!link && !file) {
+        alert('Inserisci un link oppure scegli un video dal telefono.');
+        return;
+    }
+    if (RECLAMI_SCRIPT_URL.includes('INCOLLA_QUI')) {
+        alert("Prima inserisci nel file warning.html l'URL del Web App Apps Script.");
+        return;
+    }
+
+    // Upload Base64 via Apps Script: adatto a clip brevi.
+    const MAX_MB = 10;
+    if (file && file.size > MAX_MB*1024*1024) {
+        alert(`La clip supera ${MAX_MB} MB. Per video più grandi usa il link Drive/YouTube/Twitch.`);
+        return;
+    }
+
+    const btn=document.getElementById('submitComplaint');
+    const progress=document.getElementById('uploadProgress');
+    btn.disabled=true;
+    btn.textContent='INVIO IN CORSO...';
+    progress.style.display='block';
+
+    try {
+        const payload = {
+            action:'complaint_submit',
+            round:document.getElementById('selectRound').value,
+            reporter:document.getElementById('reporterName').value.trim(),
+            reported:document.getElementById('reportedName').value.trim(),
+            description:document.getElementById('incidentDesc').value.trim(),
+            videoUrl:link,
+            fileName:file ? file.name : '',
+            mimeType:file ? (file.type || 'video/mp4') : '',
+            base64:file ? await leggiFileBase64(file) : ''
+        };
+
+        const res=await fetch(RECLAMI_SCRIPT_URL,{
+            method:'POST',
+            headers:{'Content-Type':'text/plain;charset=utf-8'},
+            body:JSON.stringify(payload)
+        });
+        const data=await res.json();
+        if(!data.success) throw new Error(data.message || 'Invio non riuscito');
+
+        alert('✅ Reclamo inviato alla Direzione Gara.');
+        document.getElementById('reportedName').value='';
+        document.getElementById('incidentDesc').value='';
+        document.getElementById('videoUrl').value='';
+        document.getElementById('videoFile').value='';
+        aggiornaVideoSelezionato();
+    } catch(err) {
+        alert('❌ '+err.message);
+    } finally {
+        btn.disabled=false;
+        btn.textContent='Invia Reclamo alla Direzione Gara 📁';
+        progress.style.display='none';
+    }
+}
+</script>
 
 </body>
 </html>
