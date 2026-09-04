@@ -201,6 +201,7 @@
                 <option value="ICEANT16">ICEANT16</option>
                 <option value="DAVIARCO1999">DAVIARCO1999</option>
                 <option value="BRA_FOSY89">BRA_FOSY89</option>
+                <option value="GIANLUCA MAFEZZONI">GIANLUCA MAFEZZONI</option>
             </select>
             <div style="color:#8fa0b5;font-size:.76rem;margin:-3px 0 13px;line-height:1.35;">
                 La Direzione Gara può lasciare vuoto questo campo e usare la password amministratore.
@@ -257,9 +258,13 @@
             const pilota = sessionStorage.getItem('grcc_pilot');
             const elementoRuolo = document.getElementById("user-role-text");
             if (elementoRuolo) {
-                elementoRuolo.textContent = ruolo === 'PILOTA' && pilota
-                    ? `PILOTA · ${pilota}`
-                    : ruolo;
+                if (ruolo === 'PILOTA' && pilota === 'GIANLUCA MAFEZZONI') {
+                    elementoRuolo.textContent = 'COMMENTATORE · GIANLUCA MAFEZZONI';
+                } else {
+                    elementoRuolo.textContent = ruolo === 'PILOTA' && pilota
+                        ? `PILOTA · ${pilota}`
+                        : ruolo;
+                }
             }
         }
 
