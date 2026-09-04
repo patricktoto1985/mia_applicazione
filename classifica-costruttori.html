@@ -75,7 +75,7 @@
 
         <div class="card">
             <h2>Classifica Mondiale Costruttori</h2>
-            <div class="status-text">GRCCF1ESPORTS -Stagione 2026 — Punteggio Team</div>
+            <div class="status-text">GRCCF1ESPORTS — Stagione 2026/27 — Classifica non ancora iniziata</div>
             
             <div class="table-responsive">
                 <table>
@@ -95,41 +95,17 @@
 
     <script>
 document.addEventListener("DOMContentLoaded", function() {
-    const sheetId = '1oZJvdapQMAWUMNP7tujD2r2IubN3DjC5vjufjSYELUc';
-    const sheetNameCostruttori = 'Costruttori'; 
-    const urlCostruttori = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetNameCostruttori}`;
+    const tableBody = document.getElementById("costruttori-table-body");
 
-    fetch(urlCostruttori)
-        .then(res => res.text())
-        .then(data => {
-            const temp = data.substring(data.indexOf('{'), data.lastIndexOf('}') + 1);
-            const json = JSON.parse(temp);
-            const rows = json.table.rows;
-
-            const tableBody = document.getElementById("costruttori-table-body");
-            if (tableBody) {
-                tableBody.innerHTML = ""; 
-            }
-
-            rows.forEach((row) => {
-                const pos = row.c[0] ? row.c[0].v : '';
-                const scuderia = row.c[1] ? row.c[1].v : '';
-                const punti = row.c[2] ? row.c[2].v : '0';
-
-                const tr = document.createElement("tr");
-
-                // Generiamo la classe del team in minuscolo e senza spazi per mantenere i tuoi stili CSS dell'app
-                tr.innerHTML = `
-                    <td class="team-cell"><span class="team-name ${scuderia.toLowerCase().replace(/\s+/g, '')}">${scuderia}</span></td>
-                    <td class="punti">${punti}</td>
-                `;
-
-                if (tableBody) {
-                    tableBody.appendChild(tr);
-                }
-            });
-        })
-        .catch(err => console.error("Errore caricamento costruttori applicazione:", err));
+    if (tableBody) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="2" style="text-align:center; padding:30px 15px; color:var(--text-muted); font-style:italic;">
+                    Campionato non ancora iniziato — nessuna scuderia inserita in classifica.
+                </td>
+            </tr>
+        `;
+    }
 });
 </script>
 </body>
