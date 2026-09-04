@@ -204,7 +204,7 @@
                 <option value="GIANLUCA MAFEZZONI">GIANLUCA MAFEZZONI</option>
             </select>
             <div style="color:#8fa0b5;font-size:.76rem;margin:-3px 0 13px;line-height:1.35;">
-                La Direzione Gara può lasciare vuoto il campo pilota. Al primo accesso usa “Crea password personale”.
+                Seleziona il tuo profilo. Al primo accesso usa “Crea password personale”.
             </div>
             <input type="password" id="group-pass" placeholder="Password personale..." style="width: 100%; padding: 12px; background-color: #0b0f19; border: 1px solid #1f2c3f; border-radius: 8px; color: #fff; font-size: 1rem; text-align: center; box-sizing: border-box; margin-bottom: 12px; outline: none; transition: 0.2s;">
             <button id="login-btn" onclick="checkPassword()" style="width: 100%; padding: 12px; background-color: #e10600; border: none; border-radius: 8px; color: #fff; font-size: 1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s;">Accedi</button>
@@ -235,7 +235,6 @@
 
     <script>
         // 1. CONFIGURAZIONE ACCESSI
-        const PASS_ADMIN = "ADMIN2026";  // Direzione Gara
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz30o3f7QkmijHWpQgwInJMIcIujmO_F070OwXhqbKnQidHdJC4iLa-rQZy0WzsN9buuA/exec";
 
         function mostraMessaggio(testo, ok = false) {
@@ -282,19 +281,8 @@
             document.getElementById('login-error').style.display = 'none';
             document.getElementById('login-success').style.display = 'none';
 
-            // Direzione Gara: mantiene l'accesso amministratore esistente.
-            if (!pilota && input === PASS_ADMIN) {
-                sessionStorage.setItem('grcc_authenticated', 'true');
-                sessionStorage.setItem('grcc_role', 'DIREZIONE GARA');
-                sessionStorage.setItem('grcc_admin', 'true');
-                sessionStorage.removeItem('grcc_pilot');
-                document.getElementById('login-overlay').style.display = 'none';
-                aggiornaScrittaRuolo();
-                return;
-            }
-
             if (!pilota) {
-                mostraMessaggio('❌ Seleziona il tuo ID pilota oppure lascia vuoto solo per la Direzione Gara.');
+                mostraMessaggio('❌ Seleziona il tuo profilo.');
                 return;
             }
 
@@ -322,11 +310,12 @@
                 sessionStorage.setItem('grcc_role', 'PILOTA');
                 sessionStorage.setItem('grcc_pilot', pilota);
 
-                const pilotiAdmin = ['RAO-783', 'CONDE785', "TOTO'F1", 'GRCC F1 VITTORIO'];
-                if (pilotiAdmin.includes(pilota)) {
+                if (result.isAdmin === true) {
                     sessionStorage.setItem('grcc_admin', 'true');
+                    sessionStorage.setItem('grcc_admin_token', result.adminToken || '');
                 } else {
                     sessionStorage.removeItem('grcc_admin');
+                    sessionStorage.removeItem('grcc_admin_token');
                 }
 
                 document.getElementById('login-overlay').style.display = 'none';
@@ -637,7 +626,7 @@
                     body: JSON.stringify({
                         action: 'account_reset',
                         pilota: pilota,
-                        adminKey: PASS_ADMIN
+                        adminToken: sessionStorage.getItem('grcc_admin_token') || ''
                     })
                 });
 
@@ -668,6 +657,7 @@
             sessionStorage.removeItem('grcc_role');
             sessionStorage.removeItem('grcc_pilot');
             sessionStorage.removeItem('grcc_admin');
+            sessionStorage.removeItem('grcc_admin_token');
             window.location.reload();
         }
 
