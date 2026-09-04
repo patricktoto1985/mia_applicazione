@@ -84,7 +84,14 @@
         }
         .video-link { color: var(--accent-cyan); text-decoration: none; font-weight: bold; }
         .video-link:hover { text-decoration: underline; }
-    </style>
+    
+        .video-upload-box{margin-top:12px;padding:15px;border:1px dashed #38506d;border-radius:8px;background:#0b0f19}
+        .video-or{text-align:center;color:var(--text-muted);font-weight:bold;margin:12px 0}
+        .file-status{margin-top:8px;color:var(--accent-cyan);font-size:.85rem}
+        .upload-progress{display:none;margin-top:10px;color:#ffb700;font-weight:bold}
+        input[readonly]{opacity:.8;cursor:not-allowed}
+
+</style>
 </head>
 <body>
 
@@ -93,7 +100,7 @@
 
         <div class="card">
             <h2>🎬 Condividi i tuoi Highlights</h2>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Incolla il link del tuo video (YouTube, Twitch clip, TikTok o OneDrive/Drive) per mostrarlo alla community.</p>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Incolla il link del tuo video oppure carica direttamente una clip dal telefono per mostrarla alla community.</p>
             
             <form id="highlightForm" onsubmit="salvaVideo(event)">
                 <label for="selectRound">Seleziona il GP / Round:</label>
@@ -128,9 +135,18 @@
                 <input type="text" id="pilotName" placeholder="Es. Nome Pilota" required>
 
                 <label for="videoUrl">Link del Video / Clip:</label>
-                <input type="url" id="videoUrl" placeholder="https://www.youtube.com/watch?v=..." required>
+                <input type="url" id="videoUrl" placeholder="https://www.youtube.com/watch?v=...">
 
-                <button type="submit" class="submit-btn">Pubblica Highlight 🚀</button>
+                <div class="video-or">— OPPURE —</div>
+
+                <div class="video-upload-box">
+                    <label for="videoFile" style="margin-top:0;">📱 Carica video dal telefono / dispositivo:</label>
+                    <input type="file" id="videoFile" accept="video/*" onchange="aggiornaVideoSelezionato()">
+                    <div id="fileStatus" class="file-status">Nessun video selezionato.</div>
+                    <div id="uploadProgress" class="upload-progress">⏳ Caricamento in corso... non chiudere la pagina.</div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitHighlight">Pubblica Highlight 🚀</button>
             </form>
         </div>
 
@@ -142,60 +158,132 @@
     </div>
 
     <script>
-        // Carica i video del primo round all'avvio della pagina
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz30o3f7QkmijHWpQgwInJMIcIujmO_F070OwXhqbKnQidHdJC4iLa-rQZy0WzsN9buuA/exec';
+
         window.onload = function() {
+            const pilot = sessionStorage.getItem('grcc_pilot') || '';
+            const pilotInput = document.getElementById('pilotName');
+            if (pilot) {
+                pilotInput.value = pilot;
+                pilotInput.readOnly = true;
+            }
             mostraVideoCaricati();
         };
 
-        // Funzione per salvare il video nel localStorage
-        function salvaVideo(event) {
+        function aggiornaVideoSelezionato() {
+            const file = document.getElementById('videoFile').files[0];
+            document.getElementById('fileStatus').textContent = file
+                ? `🎬 ${file.name} · ${(file.size/1024/1024).toFixed(1)} MB`
+                : 'Nessun video selezionato.';
+        }
+
+        function leggiFileBase64(file) {
+            return new Promise((resolve,reject)=>{
+                const reader = new FileReader();
+                reader.onload = () => resolve(String(reader.result).split(',')[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function salvaVideo(event) {
             event.preventDefault();
 
             const round = document.getElementById('selectRound').value;
-            const nome = document.getElementById('pilotName').value;
-            const url = document.getElementById('videoUrl').value;
+            const nome = document.getElementById('pilotName').value.trim();
+            const link = document.getElementById('videoUrl').value.trim();
+            const file = document.getElementById('videoFile').files[0];
 
-            // Recupera la lista video esistente per quel round o ne crea una nuova
-            let videoSalvati = JSON.parse(localStorage.getItem(`highlights-${round}`)) || [];
-
-            // Aggiunge il nuovo video all'elenco
-            videoSalvati.push({ pilota: nome, link: url });
-
-            // Salva nuovamente nel localStorage
-            localStorage.setItem(`highlights-${round}`, JSON.stringify(videoSalvati));
-
-            // Resetta i campi di testo
-            document.getElementById('pilotName').value = '';
-            document.getElementById('videoUrl').value = '';
-
-            alert('✅ Video aggiunto con successo agli highlights!');
-            mostraVideoCaricati();
-        }
-
-        // Funzione per stampare a schermo i video filtrati per il round selezionato
-        function mostraVideoCaricati() {
-            const round = document.getElementById('selectRound').value;
-            const contenitore = document.getElementById('listaVideo');
-            contenitore.innerHTML = ''; // Svuota la lista precedente
-
-            let videoSalvati = JSON.parse(localStorage.getItem(`highlights-${round}`)) || [];
-
-            if (videoSalvati.length === 0) {
-                contenitore.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">Nessun highlight caricato per questo round.</p>';
+            if (!link && !file) {
+                alert('Inserisci un link oppure scegli un video dal telefono.');
                 return;
             }
 
-            videoSalvati.forEach(video => {
-                const item = document.createElement('div');
-                item.className = 'video-item';
-                item.innerHTML = `
-                    <div>
-                        <strong style="color: #fff;">${video.pilota}</strong>
+            const MAX_MB = 10;
+            if (file && file.size > MAX_MB * 1024 * 1024) {
+                alert(`La clip supera ${MAX_MB} MB. Per video più grandi usa un link Drive/YouTube/Twitch.`);
+                return;
+            }
+
+            const btn = document.getElementById('submitHighlight');
+            const progress = document.getElementById('uploadProgress');
+            btn.disabled = true;
+            btn.textContent = 'PUBBLICAZIONE...';
+            progress.style.display = 'block';
+
+            try {
+                const payload = {
+                    action: 'highlight_submit',
+                    round,
+                    pilota: nome,
+                    videoUrl: link,
+                    fileName: file ? file.name : '',
+                    mimeType: file ? (file.type || 'video/mp4') : '',
+                    base64: file ? await leggiFileBase64(file) : ''
+                };
+
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type':'text/plain;charset=utf-8'},
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message || 'Pubblicazione non riuscita');
+
+                document.getElementById('videoUrl').value = '';
+                document.getElementById('videoFile').value = '';
+                aggiornaVideoSelezionato();
+
+                alert('✅ Highlight pubblicato con successo!');
+                await mostraVideoCaricati();
+
+            } catch(err) {
+                alert('❌ ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Pubblica Highlight 🚀';
+                progress.style.display = 'none';
+            }
+        }
+
+        async function mostraVideoCaricati() {
+            const round = document.getElementById('selectRound').value;
+            const contenitore = document.getElementById('listaVideo');
+            contenitore.innerHTML = '<p style="color:var(--text-muted);">Caricamento...</p>';
+
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=highlights_list&round=${encodeURIComponent(round)}&_=${Date.now()}`, {cache:'no-store'});
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message || 'Errore lettura highlights');
+
+                const videoSalvati = Array.isArray(data.highlights) ? data.highlights : [];
+                if (!videoSalvati.length) {
+                    contenitore.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">Nessun highlight caricato per questo round.</p>';
+                    return;
+                }
+
+                contenitore.innerHTML = videoSalvati.map(video => `
+                    <div class="video-item">
+                        <div>
+                            <strong style="color:#fff;">${escapeHtml(video.pilota)}</strong>
+                        </div>
+                        <a href="${escapeAttr(video.link)}" target="_blank" rel="noopener" class="video-link">Guarda Video 🎥</a>
                     </div>
-                    <a href="${video.link}" target="_blank" class="video-link">Guarda Video 🎥</a>
-                `;
-                contenitore.innerHTML += item.outerHTML;
-            });
+                `).join('');
+
+            } catch(err) {
+                contenitore.innerHTML = `<p style="color:#ff6b6b;">❌ ${escapeHtml(err.message)}</p>`;
+            }
+        }
+
+        function escapeHtml(v) {
+            return String(v ?? '').replace(/[&<>"']/g, c => ({
+                '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+            })[c]);
+        }
+
+        function escapeAttr(v) {
+            return escapeHtml(v);
         }
     </script>
 </body>
