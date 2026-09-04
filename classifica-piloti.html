@@ -86,7 +86,7 @@
 
         <div class="card">
             <h2>Classifica Assoluta Piloti</h2>
-            <div class="status-text">GRCCF1ESPORTS -Stagione 2026 — Griglia Iscritti Ufficiali</div>
+            <div class="status-text">GRCCF1ESPORTS — Stagione 2026/27 — Classifica non ancora iniziata</div>
             
             <div class="table-responsive">
                 <table>
@@ -108,46 +108,17 @@
 
     <script>
 document.addEventListener("DOMContentLoaded", function() {
-    const sheetId = '1oZJvdapQMAWUMNP7tujD2r2IubN3DjC5vjufjSYELUc';
-    const sheetNamePiloti = 'Foglio 1';
-    const urlPiloti = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetNamePiloti}`;
+    const tableBody = document.getElementById("piloti-table-body");
 
-    fetch(urlPiloti)
-        .then(res => res.text())
-        .then(data => {
-            const temp = data.substring(data.indexOf('{'), data.lastIndexOf('}') + 1);
-            const json = JSON.parse(temp);
-            const rows = json.table.rows;
-
-            const tableBody = document.getElementById("piloti-table-body");
-            if (tableBody) {
-                tableBody.innerHTML = ""; 
-            }
-
-            rows.forEach((row) => {
-                const pos = row.c[0] ? row.c[0].v : '';
-                const pilota = row.c[1] ? row.c[1].v : '';
-                const scuderia = row.c[2] ? row.c[2].v : '';
-                const punti = row.c[3] ? row.c[3].v : '0';
-
-                // Nota bene: Adattiamo i percorsi delle immagini per la cartella dell'applicazione
-                const logoPath = `assets/GRCCF1ESPORT/assets/${scuderia.toLowerCase().replace(/\s+/g, '')}.png`;
-
-                const tr = document.createElement("tr");
-
-                tr.innerHTML = `
-                    <td class="race-num">${pos}</td>
-                    <td class="pilot-name"><strong>${pilota}</strong></td>
-                    <td class="team-cell"><span class="team ${scuderia.toLowerCase().replace(/\s+/g, '')}">${scuderia}</span></td>
-                    <td class="punti">${punti}</td>
-                `;
-
-                if (tableBody) {
-                    tableBody.appendChild(tr);
-                }
-            });
-        })
-        .catch(err => console.error("Errore caricamento piloti applicazione:", err));
+    if (tableBody) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align:center; padding:30px 15px; color:var(--text-muted); font-style:italic;">
+                    Campionato non ancora iniziato — nessun pilota inserito in classifica.
+                </td>
+            </tr>
+        `;
+    }
 });
 </script>
 </body>
