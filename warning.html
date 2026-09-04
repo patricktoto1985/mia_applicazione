@@ -102,6 +102,13 @@
         .upload-progress{display:none;margin-top:10px;color:var(--warning-orange);font-weight:bold}
         input[readonly]{opacity:.8;cursor:not-allowed}
 
+
+        .dg-only { display:none; }
+        .complaint-meta { color:var(--text-muted); font-size:.82rem; margin-top:4px; }
+        .complaint-desc { margin-top:8px; line-height:1.45; }
+        .status-da-esaminare { color:var(--warning-orange); font-weight:bold; }
+        .empty-box { color:var(--text-muted); padding:14px; text-align:center; border:1px dashed #1f2c3f; border-radius:8px; }
+
 </style>
 </head>
 <body>
@@ -352,9 +359,14 @@
             </form>
         </div>
 
-        <div class="card">
-            <h3>📁 Investigazioni e Segnalazioni Ricevute</h3>
-            <div id="listaReclami" class="complaint-list"></div>
+        <div class="card dg-only" id="dgReclamiCard">
+            <h3>📁 Investigazioni e Segnalazioni Ricevute — Direzione Gara</h3>
+            <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">
+                Questa sezione è visibile solo alla Direzione Gara.
+            </div>
+            <div id="listaReclami" class="complaint-list">
+                <div class="empty-box">Caricamento reclami...</div>
+            </div>
         </div>
         
 
@@ -400,6 +412,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (reporter && pilot) {
         reporter.value = pilot;
         reporter.readOnly = true;
+    }
+
+    if (utenteDirezioneGara()) {
+        caricaReclamiDirezioneGara();
     }
 });
 
@@ -482,6 +498,61 @@ async function salvaReclamo(event) {
         progress.style.display='none';
     }
 }
+
+function utenteDirezioneGara() {
+    const role = (sessionStorage.getItem('grcc_role') || '').toLowerCase().trim();
+    return role === 'dg' ||
+           role === 'direzione gara' ||
+           role === 'direzione_gara' ||
+           role.includes('direzione');
+}
+
+async function caricaReclamiDirezioneGara() {
+    const card = document.getElementById('dgReclamiCard');
+    const lista = document.getElementById('listaReclami');
+    if (!card || !lista || !utenteDirezioneGara()) return;
+
+    card.style.display = 'block';
+    lista.innerHTML = '<div class="empty-box">Caricamento reclami...</div>';
+
+    try {
+        const url = RECLAMI_SCRIPT_URL + '?action=complaint_list&t=' + Date.now();
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data.success) throw new Error(data.message || 'Impossibile leggere i reclami');
+        const reclami = Array.isArray(data.reclami) ? data.reclami : [];
+
+        if (!reclami.length) {
+            lista.innerHTML = '<div class="empty-box">Nessun reclamo ricevuto.</div>';
+            return;
+        }
+
+        lista.innerHTML = reclami.map(r => `
+            <div class="complaint-item">
+                <div class="complaint-info">
+                    <div><strong>${escapeHtml(r.round)}</strong> · <span class="status-da-esaminare">${escapeHtml(r.stato || 'DA ESAMINARE')}</span></div>
+                    <div class="complaint-meta">${escapeHtml(r.dataOra || '')}</div>
+                    <div style="margin-top:8px;"><strong>${escapeHtml(r.segnalante)}</strong> → <strong>${escapeHtml(r.segnalato)}</strong></div>
+                    <div class="complaint-desc">${escapeHtml(r.descrizione)}</div>
+                    ${r.video ? `<a class="video-link" href="${escapeAttr(r.video)}" target="_blank" rel="noopener">🎬 Guarda video / clip</a>` : ''}
+                </div>
+            </div>
+        `).join('');
+    } catch(err) {
+        lista.innerHTML = `<div class="empty-box">❌ ${escapeHtml(err.message)}</div>`;
+    }
+}
+
+function escapeHtml(v) {
+    return String(v ?? '').replace(/[&<>"']/g, c => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+    })[c]);
+}
+function escapeAttr(v) {
+    return escapeHtml(v);
+}
+
 </script>
 
 </body>
