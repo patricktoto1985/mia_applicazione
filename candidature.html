@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Candidature | GRCC F1 ESPORTS</title>
+<style>
+:root{--red:#e10600;--bg:#0b0f19;--card:#131a26;--cyan:#00ffd1;--muted:#8fa0b5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#fff;font-family:'Segoe UI',Arial,sans-serif}
+header{padding:22px 18px;border-bottom:1px solid #1f2c3f;background:#0d131e;position:sticky;top:0;z-index:5}
+.header-inner{max-width:1050px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+h1{margin:0;font-size:1.35rem}.accent{color:var(--red)}
+.back{color:var(--cyan);text-decoration:none;font-weight:800}
+main{max-width:1050px;margin:24px auto;padding:0 16px}
+.intro{color:var(--muted);margin-bottom:18px}
+#status{padding:18px;background:var(--card);border:1px solid #1f2c3f;border-radius:14px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid #1f2c3f;border-radius:16px;padding:18px}
+.card-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px}
+.name{font-size:1.15rem;font-weight:900}.tag{color:var(--cyan);font-weight:800;font-size:.9rem}
+.badge{padding:5px 9px;border-radius:999px;background:#222c3a;font-size:.72rem;font-weight:900}
+.row{margin:7px 0;color:#dce5ef;font-size:.9rem}.row b{color:var(--muted)}
+.exp{margin-top:12px;padding:10px;background:#0b0f19;border-radius:9px;white-space:pre-wrap;font-size:.88rem}
+label{display:block;color:var(--muted);font-size:.78rem;margin:12px 0 5px}
+select,textarea{width:100%;background:#0b0f19;color:#fff;border:1px solid #2a394d;border-radius:8px;padding:10px}
+textarea{min-height:72px;resize:vertical}
+button{width:100%;margin-top:11px;padding:11px;border:0;border-radius:8px;background:var(--red);color:#fff;font-weight:900;cursor:pointer}
+button:disabled{opacity:.55;cursor:wait}
+.empty{text-align:center;padding:35px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header><div class="header-inner">
+<div><h1>GRCC <span class="accent">CANDIDATURE</span></h1></div>
+<a class="back" href="index.html">← Race Control</a>
+</div></header>
+<main>
+<p class="intro">Area riservata alla Direzione Gara. Qui puoi consultare e aggiornare le candidature ricevute dal sito ufficiale.</p>
+<div id="status">Caricamento candidature...</div>
+<div id="cards" class="grid" style="display:none"></div>
+</main>
+
+<script>
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbz30o3f7QkmijHWpQgwInJMIcIujmO_F070OwXhqbKnQidHdJC4iLa-rQZy0WzsN9buuA/exec";
+
+function isAdmin(){
+ return sessionStorage.getItem('grcc_authenticated')==='true' &&
+   (sessionStorage.getItem('grcc_role')==='DIREZIONE GARA' || sessionStorage.getItem('grcc_admin')==='true') &&
+   !!sessionStorage.getItem('grcc_admin_token');
+}
+if(!isAdmin()){
+ alert('Accesso riservato alla Direzione Gara.');
+ location.href='index.html';
+}
+
+function esc(v){
+ return String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+}
+async function post(payload){
+ const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+ const t=await r.text();
+ try{return JSON.parse(t)}catch(e){throw new Error('Risposta server non valida');}
+}
+async function load(){
+ const status=document.getElementById('status'), cards=document.getElementById('cards');
+ try{
+   const data=await post({action:'candidatura_list',adminToken:sessionStorage.getItem('grcc_admin_token')||''});
+   if(!data.success) throw new Error(data.message||'Accesso non autorizzato');
+   const list=data.candidature||[];
+   if(!list.length){status.innerHTML='<div class="empty">Nessuna candidatura presente.</div>';return;}
+   status.style.display='none'; cards.style.display='grid';
+   cards.innerHTML=list.map(c=>`
+    <article class="card" data-row="${Number(c.riga)}">
+      <div class="card-top"><div><div class="name">${esc(c.nome)}</div><div class="tag">${esc(c.gamertag)}</div></div><span class="badge">${esc(c.stato||'Nuova')}</span></div>
+      <div class="row"><b>Data:</b> ${esc(c.dataOra)}</div>
+      <div class="row"><b>Piattaforma:</b> ${esc(c.piattaforma)}</div>
+      <div class="row"><b>Difficoltà IA:</b> ${esc(c.difficoltaIA)}</div>
+      <div class="row"><b>Scuderia:</b> ${esc(c.scuderia)}</div>
+      <div class="exp"><b>Esperienze:</b><br>${esc(c.esperienze||'—')}</div>
+      <label>Stato</label>
+      <select class="state">
+        ${['Nuova','Contattato','Accettata','Rifiutata'].map(s=>`<option ${s===(c.stato||'Nuova')?'selected':''}>${s}</option>`).join('')}
+      </select>
+      <label>Note Direzione Gara</label>
+      <textarea class="notes" placeholder="Inserisci eventuali note...">${esc(c.note||'')}</textarea>
+      <button onclick="save(this)">SALVA MODIFICHE</button>
+    </article>`).join('');
+ }catch(e){
+   status.textContent='❌ Impossibile caricare le candidature: '+e.message;
+   status.style.color='#ff6b6b';
+ }
+}
+async function save(btn){
+ const card=btn.closest('.card');
+ btn.disabled=true; const old=btn.textContent; btn.textContent='SALVATAGGIO...';
+ try{
+   const data=await post({
+     action:'candidatura_update',
+     adminToken:sessionStorage.getItem('grcc_admin_token')||'',
+     riga:Number(card.dataset.row),
+     stato:card.querySelector('.state').value,
+     note:card.querySelector('.notes').value.trim()
+   });
+   if(!data.success) throw new Error(data.message||'Aggiornamento non riuscito');
+   card.querySelector('.badge').textContent=card.querySelector('.state').value;
+   btn.textContent='✓ SALVATO';
+   setTimeout(()=>btn.textContent=old,1300);
+ }catch(e){
+   alert('Errore: '+e.message); btn.textContent=old;
+ }finally{btn.disabled=false}
+}
+load();
+</script>
+</body>
+</html>
