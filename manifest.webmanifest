@@ -1,0 +1,31 @@
+{
+  "id": "./?pwa=v3",
+  "name": "GRCC F1 ESPORTS - Race Control",
+  "short_name": "GRCC Race Control",
+  "description": "Race Control ufficiale GRCC F1 ESPORTS",
+  "lang": "it-IT",
+  "start_url": "./index.html?pwa=v3",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "background_color": "#0b0f19",
+  "theme_color": "#0b0f19",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icon-grcc-192-v3.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-grcc-512-v3.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -123,6 +123,24 @@
             margin-top: 20px;
             display: none;
         }
+
+        @media (max-width: 768px) {
+            .preview-frame {
+                display: none !important;
+            }
+
+            .pdf-container {
+                padding-bottom: 30px;
+            }
+
+            .btn-download {
+                width: 100%;
+                max-width: 420px;
+                justify-content: center;
+                box-sizing: border-box;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -221,7 +239,11 @@
                 downloadLink.setAttribute('download', savedName || 'regolamento.pdf');
                 downloadLink.style.display = 'inline-flex';
                 pdfPreview.src = savedPdf;
-                pdfPreview.style.display = 'block';
+                if (window.innerWidth > 768) {
+                    pdfPreview.style.display = 'block';
+                } else {
+                    pdfPreview.style.display = 'none';
+                }
             } else {
                 // 2. Fallback automatico: controlla se hai inserito un file chiamato "regolamento.pdf" nella stessa cartella
                 statusText.innerText = "Clicca sotto per aprire il file regolamento.pdf ufficiale.";
@@ -229,7 +251,11 @@
                 downloadLink.setAttribute('download', 'regolamento.pdf');
                 downloadLink.style.display = 'inline-flex';
                 pdfPreview.src = "regolamento.pdf";
-                pdfPreview.style.display = 'block';
+                if (window.innerWidth > 768) {
+                    pdfPreview.style.display = 'block';
+                } else {
+                    pdfPreview.style.display = 'none';
+                }
             }
         }
     </script>
