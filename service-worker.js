@@ -1,10 +1,10 @@
-const CACHE_NAME = 'grcc-race-control-v1';
+const CACHE_NAME = 'grcc-race-control-v2';
 const APP_SHELL = [
   './',
   './index.html',
-  './manifest.webmanifest',
-  './icon-192.png',
-  './icon-512.png'
+  './manifest.webmanifest?v=2',
+  './icon-192.png?v=2',
+  './icon-512.png?v=2'
 ];
 
 self.addEventListener('install', event => {
@@ -17,7 +17,11 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))
+      Promise.all(
+        keys
+          .filter(key => key.startsWith('grcc-race-control-') && key !== CACHE_NAME)
+          .map(key => caches.delete(key))
+      )
     )
   );
   self.clients.claim();
@@ -25,12 +29,30 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   const req = event.request;
-
-  // Non intercetta richieste esterne (Google Apps Script, CDN, ecc.)
   const url = new URL(req.url);
+
+  // Google Apps Script/CDN/external requests remain untouched.
   if (url.origin !== self.location.origin) return;
 
-  // Navigazione/HTML: rete prima, cache come fallback.
+  // Always refresh manifest and app icons from network first.
+  if (
+    url.pathname.endsWith('/manifest.webmanifest') ||
+    url.pathname.endsWith('/icon-192.png') ||
+    url.pathname.endsWith('/icon-512.png')
+  ) {
+    event.respondWith(
+      fetch(req, { cache: 'reload' })
+        .then(response => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+          return response;
+        })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // HTML/navigation: network first.
   if (req.mode === 'navigate' || req.destination === 'document') {
     event.respondWith(
       fetch(req)
@@ -44,7 +66,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Asset statici: cache prima, poi rete.
+  // Other same-origin static assets: cache first.
   event.respondWith(
     caches.match(req).then(cached => {
       if (cached) return cached;
