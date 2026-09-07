@@ -11,6 +11,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>GRCCF1ESPORTS | Race Control</title>
+
+    <!-- GRCC Race Control PWA -->
+    <meta name="theme-color" content="#0b0f19">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GRCC Race Control">
+    <meta name="application-name" content="GRCC Race Control">
+    <link rel="manifest" href="manifest.webmanifest?v=3">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-grcc-192-v3.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-grcc-512-v3.png">
+    <link rel="apple-touch-icon" href="icon-grcc-192-v3.png">
+
     <style>
         /* Stile del contenitore video a tutto schermo */
 .video-bg-container {
@@ -164,6 +177,34 @@
         font-size: 1.6rem !important; /* Testo leggermente più piccolo per non farlo andare a capo */
     }
 }
+
+        /* RACE WEEKEND CENTER */
+        .race-weekend {
+            margin: 0 0 22px;
+            background: linear-gradient(135deg, rgba(225,6,0,.20), rgba(19,26,38,.96) 45%, rgba(0,255,209,.08));
+            border: 1px solid #26364b;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 14px 35px rgba(0,0,0,.28);
+        }
+        .rw-top { padding: 18px 18px 13px; border-bottom: 1px solid rgba(255,255,255,.08); }
+        .rw-kicker { color: var(--accent-cyan); font-size:.72rem; font-weight:900; letter-spacing:1.6px; text-transform:uppercase; }
+        .rw-title { margin:6px 0 2px; font-size:1.55rem; font-weight:900; text-transform:uppercase; }
+        .rw-sub { color:var(--text-muted); font-size:.85rem; }
+        .rw-countdown { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:15px; }
+        .rw-time { background:rgba(5,10,17,.68); border:1px solid #253449; border-radius:10px; padding:9px 4px; text-align:center; }
+        .rw-time strong { display:block; font-size:1.18rem; color:#fff; }
+        .rw-time span { font-size:.62rem; color:var(--text-muted); text-transform:uppercase; }
+        .rw-info { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:rgba(255,255,255,.07); }
+        .rw-info > div { background:rgba(11,15,25,.88); padding:12px 14px; }
+        .rw-label { color:var(--text-muted); font-size:.66rem; text-transform:uppercase; letter-spacing:.8px; }
+        .rw-value { margin-top:3px; font-size:.9rem; font-weight:800; }
+        .rw-actions { padding:14px; display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+        .rw-action { text-decoration:none; color:#fff; background:#182231; border:1px solid #2a3a50; border-radius:10px; padding:11px 8px; text-align:center; font-size:.78rem; font-weight:800; }
+        .rw-action:hover { border-color:var(--accent-cyan); }
+        .rw-status { display:inline-flex; align-items:center; gap:6px; margin-top:10px; font-size:.72rem; font-weight:800; color:#dbe7f5; }
+        .rw-status-dot { width:7px; height:7px; border-radius:50%; background:#ffb700; box-shadow:0 0 7px #ffb700; }
+
     </style>
 </head>
 <body>
@@ -427,6 +468,34 @@
     </header>
 
     <div class="dashboard-container">
+
+        <section class="race-weekend" id="race-weekend-center">
+            <div class="rw-top">
+                <div class="rw-kicker">🏁 Race Weekend Center · Round 1</div>
+                <div class="rw-title">GP d'Australia</div>
+                <div class="rw-sub">Melbourne · Albert Park Circuit · 23 ottobre 2026</div>
+                <div class="rw-status"><span class="rw-status-dot"></span><span id="rw-state">PROSSIMO EVENTO</span></div>
+                <div class="rw-countdown">
+                    <div class="rw-time"><strong id="rw-days">--</strong><span>Giorni</span></div>
+                    <div class="rw-time"><strong id="rw-hours">--</strong><span>Ore</span></div>
+                    <div class="rw-time"><strong id="rw-minutes">--</strong><span>Minuti</span></div>
+                    <div class="rw-time"><strong id="rw-seconds">--</strong><span>Secondi</span></div>
+                </div>
+            </div>
+            <div class="rw-info">
+                <div><div class="rw-label">Gara</div><div class="rw-value">Venerdì 23/10</div></div>
+                <div><div class="rw-label">Orario ufficiale</div><div class="rw-value">21:45</div></div>
+                <div><div class="rw-label">Presenza</div><div class="rw-value">Entro le 19:00</div></div>
+                <div><div class="rw-label">Stagione</div><div class="rw-value">2026/27</div></div>
+            </div>
+            <div class="rw-actions">
+                <a class="rw-action" href="calendario.html">📅 Calendario</a>
+                <a class="rw-action" href="driver-of-the-day.html">🏆 DOTD</a>
+                <a class="rw-action" href="highlights.html">🎥 Highlights</a>
+                <a class="rw-action" href="regolamento.html">📖 Regolamento</a>
+            </div>
+        </section>
+
         <div class="grid-dashboard">
 
             <a id="account-management-btn" onclick="apriGestioneAccount()" class="dash-btn" style="display:none;">
@@ -682,6 +751,42 @@
             }
         }
     </script>
+
+    <script>
+    // Race Weekend Center - Round 1
+    (function () {
+        const raceTime = new Date('2026-10-23T21:45:00+02:00').getTime();
+        function updateRaceCountdown() {
+            let diff = raceTime - Date.now();
+            const state = document.getElementById('rw-state');
+            if (diff <= 0) {
+                diff = 0;
+                if (state) state.textContent = 'RACE WEEKEND';
+            }
+            const d = Math.floor(diff / 86400000);
+            const h = Math.floor((diff % 86400000) / 3600000);
+            const m = Math.floor((diff % 3600000) / 60000);
+            const s = Math.floor((diff % 60000) / 1000);
+            const set = (id,v) => { const e=document.getElementById(id); if(e)e.textContent=String(v).padStart(2,'0'); };
+            set('rw-days',d); set('rw-hours',h); set('rw-minutes',m); set('rw-seconds',s);
+        }
+        updateRaceCountdown();
+        setInterval(updateRaceCountdown, 1000);
+    })();
+
+    // PWA
+    let deferredInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        deferredInstallPrompt = event;
+    });
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./service-worker.js?v=2').catch(() => {});
+        });
+    }
+    </script>
+
 </body>
 </html>
 
