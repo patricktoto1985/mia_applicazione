@@ -204,6 +204,14 @@
         .rw-action:hover { border-color:var(--accent-cyan); }
         .rw-status { display:inline-flex; align-items:center; gap:6px; margin-top:10px; font-size:.72rem; font-weight:800; color:#dbe7f5; }
         .rw-status-dot { width:7px; height:7px; border-radius:50%; background:#ffb700; box-shadow:0 0 7px #ffb700; }
+        .presence-box { margin:0 14px 14px; padding:14px; background:rgba(5,10,17,.78); border:1px solid #26364b; border-radius:12px; }
+        .presence-title { font-size:.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.8px; }
+        .presence-state { margin:5px 0 11px; font-size:1rem; font-weight:900; }
+        .presence-actions { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+        .presence-btn { border:1px solid #2a3a50; border-radius:10px; padding:11px 8px; color:#fff; font-weight:900; cursor:pointer; background:#182231; }
+        .presence-btn.present { border-color:#00ffd1; }
+        .presence-btn.absent { border-color:#e10600; }
+        .presence-summary { display:none; margin-top:11px; padding-top:10px; border-top:1px solid rgba(255,255,255,.08); color:#dbe7f5; font-size:.78rem; font-weight:800; }
 
     </style>
 </head>
@@ -493,6 +501,15 @@
                 <a class="rw-action" href="driver-of-the-day.html">🏆 DOTD</a>
                 <a class="rw-action" href="highlights.html">🎥 Highlights</a>
                 <a class="rw-action" href="regolamento.html">📖 Regolamento</a>
+            </div>
+            <div class="presence-box">
+                <div class="presence-title">La tua presenza · <span id="presence-round">Round 1</span></div>
+                <div class="presence-state" id="presence-state">⚠️ DA CONFERMARE</div>
+                <div class="presence-actions">
+                    <button class="presence-btn present" onclick="registraPresenzaRaceCenter('PRESENTE')">✅ PRESENTE</button>
+                    <button class="presence-btn absent" onclick="registraPresenzaRaceCenter('ASSENTE')">❌ ASSENTE</button>
+                </div>
+                <div class="presence-summary" id="presence-summary"></div>
             </div>
         </section>
 
@@ -805,6 +822,8 @@
             const raceEnd = raceTime + (3*60*60*1000);
 
             setText("rw-round", "🏁 RACE WEEKEND CENTER · ROUND " + (idx+1));
+            window.grccCurrentRound = idx + 1;
+            setText("presence-round", "Round " + (idx+1));
             setText("rw-title", "GP " + (r[0] === "Miami" || r[0] === "Monaco" || r[0] === "Madrid" || r[0] === "Singapore" || r[0] === "Las Vegas" || r[0] === "Abu Dhabi" ? "DI " : "D'") + r[0].toUpperCase());
             const dt = new Date(r[3]);
             setText("rw-sub", r[1] + " · " + r[2] + " · " + longDate(dt));
@@ -832,6 +851,25 @@
         updateRaceCenter();
         setInterval(updateRaceCenter,1000);
     })();
+
+    // Presenze Race Weekend Center
+    async function registraPresenzaRaceCenter(stato) {
+        const pilota = sessionStorage.getItem('grcc_pilot') || '';
+        const round = window.grccCurrentRound || 1;
+        if (!pilota) { alert('Profilo pilota non disponibile. Effettua nuovamente l’accesso.'); return; }
+        const state = document.getElementById('presence-state');
+        if (state) state.textContent = '⏳ REGISTRAZIONE...';
+        try {
+            const result = await postAccount({ action:'presenza', round:round, pilota:pilota, stato:stato });
+            if (result && result.success === false) throw new Error(result.message || 'Registrazione non riuscita');
+            if (state) {
+                state.textContent = stato === 'PRESENTE' ? '✅ PRESENTE' : '❌ ASSENTE';
+                state.style.color = stato === 'PRESENTE' ? '#00ffd1' : '#ff6b6b';
+            }
+        } catch (err) {
+            if (state) { state.textContent = '⚠️ ERRORE · RIPROVA'; state.style.color = '#ffb700'; }
+        }
+    }
 
     // PWA
     let deferredInstallPrompt = null;
