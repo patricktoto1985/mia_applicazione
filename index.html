@@ -211,6 +211,7 @@
         .presence-btn { border:1px solid #2a3a50; border-radius:10px; padding:11px 8px; color:#fff; font-weight:900; cursor:pointer; background:#182231; }
         .presence-btn.present { border-color:#00ffd1; }
         .presence-btn.absent { border-color:#e10600; }
+        .presence-btn.cancel { grid-column:1 / -1; border-color:#556575; color:#dbe7f5; background:#111823; }
         .presence-summary { display:none; margin-top:11px; padding-top:10px; border-top:1px solid rgba(255,255,255,.08); color:#dbe7f5; font-size:.78rem; font-weight:800; }
 
     </style>
@@ -508,6 +509,7 @@
                 <div class="presence-actions">
                     <button class="presence-btn present" onclick="registraPresenzaRaceCenter('PRESENTE')">✅ PRESENTE</button>
                     <button class="presence-btn absent" onclick="registraPresenzaRaceCenter('ASSENTE')">❌ ASSENTE</button>
+                    <button class="presence-btn cancel" onclick="annullaPresenzaRaceCenter()">↩️ ANNULLA CONFERMA</button>
                 </div>
                 <div class="presence-summary" id="presence-summary"></div>
             </div>
@@ -865,6 +867,28 @@
             if (state) {
                 state.textContent = stato === 'PRESENTE' ? '✅ PRESENTE' : '❌ ASSENTE';
                 state.style.color = stato === 'PRESENTE' ? '#00ffd1' : '#ff6b6b';
+            }
+        } catch (err) {
+            if (state) { state.textContent = '⚠️ ERRORE · RIPROVA'; state.style.color = '#ffb700'; }
+        }
+    }
+
+
+    async function annullaPresenzaRaceCenter() {
+        const pilota = sessionStorage.getItem('grcc_pilot') || '';
+        const round = window.grccCurrentRound || 1;
+        if (!pilota) { alert('Profilo pilota non disponibile. Effettua nuovamente l’accesso.'); return; }
+
+        const state = document.getElementById('presence-state');
+        if (state) { state.textContent = '⏳ ANNULLAMENTO...'; state.style.color = '#ffb700'; }
+
+        try {
+            const result = await postAccount({ action:'presenza_annulla', round:round, pilota:pilota });
+            if (result && result.success === false) throw new Error(result.message || 'Annullamento non riuscito');
+
+            if (state) {
+                state.textContent = '⚠️ DA CONFERMARE';
+                state.style.color = '#ffb700';
             }
         } catch (err) {
             if (state) { state.textContent = '⚠️ ERRORE · RIPROVA'; state.style.color = '#ffb700'; }
