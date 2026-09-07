@@ -436,6 +436,13 @@
                 <p class="dash-desc">Reset password e nuovo codice di attivazione piloti.</p>
             </a>
 
+            <a id="candidature-management-btn" href="candidature.html" class="dash-btn" style="display:none;">
+                <span class="status-dot dot-cyan"></span>
+                <div class="dash-icon">📋</div>
+                <h2 class="dash-title">Candidature</h2>
+                <p class="dash-desc">Visualizza e gestisci le candidature ricevute dal sito pubblico.</p>
+            </a>
+
             <a href="campionati.html" class="dash-btn">
                 <span class="status-dot dot-cyan"></span>
                 <div class="dash-icon">📅</div>
@@ -575,9 +582,10 @@
         </div> <script>
         function aggiornaVisibilitaGestioneAccount() {
             const btn = document.getElementById('account-management-btn');
-            if (!btn) return;
+            const candidatureBtn = document.getElementById('candidature-management-btn');
             const isAdmin = sessionStorage.getItem('grcc_role') === 'DIREZIONE GARA' || sessionStorage.getItem('grcc_admin') === 'true';
-            btn.style.display = isAdmin ? 'flex' : 'none';
+            if (btn) btn.style.display = isAdmin ? 'flex' : 'none';
+            if (candidatureBtn) candidatureBtn.style.display = isAdmin ? 'flex' : 'none';
         }
 
         function apriGestioneAccount() {
