@@ -9,19 +9,6 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- PWA GRCC Race Control -->
-    <meta name="theme-color" content="#0b0f19">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="GRCC Race Control">
-    <meta name="application-name" content="GRCC Race Control">
-    <link rel="manifest" href="manifest.webmanifest?v=2">
-    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=2">
-    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png?v=2">
-    <link rel="apple-touch-icon" href="icon-192.png?v=2">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>GRCCF1ESPORTS | Race Control</title>
 
@@ -217,28 +204,6 @@
         .rw-action:hover { border-color:var(--accent-cyan); }
         .rw-status { display:inline-flex; align-items:center; gap:6px; margin-top:10px; font-size:.72rem; font-weight:800; color:#dbe7f5; }
         .rw-status-dot { width:7px; height:7px; border-radius:50%; background:#ffb700; box-shadow:0 0 7px #ffb700; }
-    
-        .pwa-install-wrap {
-            display: none;
-            max-width: 520px;
-            margin: 0 auto 18px auto;
-            padding: 0 18px;
-        }
-        .pwa-install-btn {
-            width: 100%;
-            border: 1px solid #00ffd1;
-            background: rgba(0,255,209,.08);
-            color: #00ffd1;
-            border-radius: 12px;
-            padding: 12px 16px;
-            font-weight: 800;
-            letter-spacing: .4px;
-            cursor: pointer;
-            box-shadow: 0 0 18px rgba(0,255,209,.12);
-        }
-        .pwa-install-btn:hover {
-            background: rgba(0,255,209,.16);
-        }
 
     </style>
 </head>
@@ -502,23 +467,13 @@
         </div>
     </header>
 
-    
-    <div id="pwa-install-wrap" class="pwa-install-wrap">
-        <button id="pwa-install-btn" class="pwa-install-btn" type="button">
-            📲 Installa GRCC Race Control sul dispositivo
-        </button>
-<div id="pwa-install-note" style="display:none; margin-top:8px; font-size:12px; line-height:1.35; opacity:.78; text-align:center;">
-  Android: per un’installazione senza avvisi usa <strong>Google Chrome</strong>. Evita Samsung Internet.
-</div>
-    </div>
-
     <div class="dashboard-container">
 
         <section class="race-weekend" id="race-weekend-center">
             <div class="rw-top">
-                <div class="rw-kicker">🏁 Race Weekend Center · Round 1</div>
-                <div class="rw-title">GP d'Australia</div>
-                <div class="rw-sub">Melbourne · Albert Park Circuit · 23 ottobre 2026</div>
+                <div class="rw-kicker"><span id="rw-round">🏁 Race Weekend Center · Round 1</span></div>
+                <div class="rw-title" id="rw-title">GP D'AUSTRALIA</div>
+                <div class="rw-sub" id="rw-sub">Melbourne · Albert Park Circuit · 23 ottobre 2026</div>
                 <div class="rw-status"><span class="rw-status-dot"></span><span id="rw-state">PROSSIMO EVENTO</span></div>
                 <div class="rw-countdown">
                     <div class="rw-time"><strong id="rw-days">--</strong><span>Giorni</span></div>
@@ -528,7 +483,7 @@
                 </div>
             </div>
             <div class="rw-info">
-                <div><div class="rw-label">Gara</div><div class="rw-value">Venerdì 23/10</div></div>
+                <div><div class="rw-label">Gara</div><div class="rw-value" id="rw-date">Venerdì 23/10</div></div>
                 <div><div class="rw-label">Orario ufficiale</div><div class="rw-value">21:45</div></div>
                 <div><div class="rw-label">Presenza</div><div class="rw-value">Entro le 19:00</div></div>
                 <div><div class="rw-label">Stagione</div><div class="rw-value">2026/27</div></div>
@@ -798,25 +753,84 @@
     </script>
 
     <script>
-    // Race Weekend Center - Round 1
+    // Race Weekend Center automatico - stagione 2026/27
     (function () {
-        const raceTime = new Date('2026-10-23T21:45:00+02:00').getTime();
-        function updateRaceCountdown() {
-            let diff = raceTime - Date.now();
-            const state = document.getElementById('rw-state');
-            if (diff <= 0) {
-                diff = 0;
-                if (state) state.textContent = 'RACE WEEKEND';
-            }
-            const d = Math.floor(diff / 86400000);
-            const h = Math.floor((diff % 86400000) / 3600000);
-            const m = Math.floor((diff % 3600000) / 60000);
-            const s = Math.floor((diff % 60000) / 1000);
-            const set = (id,v) => { const e=document.getElementById(id); if(e)e.textContent=String(v).padStart(2,'0'); };
-            set('rw-days',d); set('rw-hours',h); set('rw-minutes',m); set('rw-seconds',s);
+        const races = [
+            ["Australia","Melbourne","Albert Park Circuit","2026-10-23T21:45:00+02:00"],
+            ["Cina","Shanghai","Shanghai International Circuit","2026-10-30T21:45:00+01:00"],
+            ["Giappone","Suzuka","Suzuka Circuit","2026-11-06T21:45:00+01:00"],
+            ["Bahrain","Sakhir","Bahrain International Circuit","2026-11-13T21:45:00+01:00"],
+            ["Arabia Saudita","Jeddah","Jeddah Corniche Circuit","2026-11-20T21:45:00+01:00"],
+            ["Miami","Miami","Miami International Autodrome","2026-11-27T21:45:00+01:00"],
+            ["Canada","Montréal","Circuit Gilles Villeneuve","2026-12-04T21:45:00+01:00"],
+            ["Monaco","Monte Carlo","Circuit de Monaco","2026-12-11T21:45:00+01:00"],
+            ["Spagna","Barcellona","Circuit de Barcelona-Catalunya","2026-12-18T21:45:00+01:00"],
+            ["Austria","Spielberg","Red Bull Ring","2027-01-08T21:45:00+01:00"],
+            ["Gran Bretagna","Silverstone","Silverstone Circuit","2027-01-15T21:45:00+01:00"],
+            ["Belgio","Spa-Francorchamps","Circuit de Spa-Francorchamps","2027-01-22T21:45:00+01:00"],
+            ["Ungheria","Budapest","Hungaroring","2027-01-29T21:45:00+01:00"],
+            ["Paesi Bassi","Zandvoort","Circuit Zandvoort","2027-02-05T21:45:00+01:00"],
+            ["Italia","Monza","Autodromo Nazionale Monza","2027-02-12T21:45:00+01:00"],
+            ["Madrid","Madrid","Madrid","2027-02-19T21:45:00+01:00"],
+            ["Azerbaijan","Baku","Baku City Circuit","2027-02-26T21:45:00+01:00"],
+            ["Singapore","Singapore","Marina Bay Street Circuit","2027-03-05T21:45:00+01:00"],
+            ["Stati Uniti","Austin","Circuit of the Americas","2027-03-12T21:45:00+01:00"],
+            ["Messico","Città del Messico","Autódromo Hermanos Rodríguez","2027-03-26T21:45:00+02:00"],
+            ["São Paulo","São Paulo","Interlagos","2027-04-02T21:45:00+02:00"],
+            ["Las Vegas","Las Vegas","Las Vegas Strip Circuit","2027-04-09T21:45:00+02:00"],
+            ["Qatar","Lusail","Lusail International Circuit","2027-04-16T21:45:00+02:00"],
+            ["Abu Dhabi","Yas Marina","Yas Marina Circuit","2027-04-23T21:45:00+02:00"]
+        ];
+
+        function pad(v){ return String(v).padStart(2,'0'); }
+        function italianDate(d){
+            return "Venerdì " + pad(d.getDate()) + "/" + pad(d.getMonth()+1);
         }
-        updateRaceCountdown();
-        setInterval(updateRaceCountdown, 1000);
+        function longDate(d){
+            return d.toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"});
+        }
+        function setText(id, value){
+            const el=document.getElementById(id); if(el) el.textContent=value;
+        }
+
+        function updateRaceCenter() {
+            const now = Date.now();
+            // Keep the current race visible until 3 hours after the official start.
+            let idx = races.findIndex(r => new Date(r[3]).getTime() + 3*60*60*1000 > now);
+            if (idx < 0) idx = races.length - 1;
+
+            const r = races[idx];
+            const raceTime = new Date(r[3]).getTime();
+            const weekendStart = raceTime - (24*60*60*1000);
+            const raceEnd = raceTime + (3*60*60*1000);
+
+            setText("rw-round", "🏁 RACE WEEKEND CENTER · ROUND " + (idx+1));
+            setText("rw-title", "GP " + (r[0] === "Miami" || r[0] === "Monaco" || r[0] === "Madrid" || r[0] === "Singapore" || r[0] === "Las Vegas" || r[0] === "Abu Dhabi" ? "DI " : "D'") + r[0].toUpperCase());
+            const dt = new Date(r[3]);
+            setText("rw-sub", r[1] + " · " + r[2] + " · " + longDate(dt));
+            setText("rw-date", italianDate(dt));
+
+            let diff = raceTime - now;
+            if (now >= raceTime && now < raceEnd) {
+                setText("rw-state","GARA IN CORSO");
+                diff = 0;
+            } else if (now >= weekendStart && now < raceTime) {
+                setText("rw-state","RACE WEEKEND");
+            } else if (now >= raceEnd && idx === races.length-1) {
+                setText("rw-state","STAGIONE CONCLUSA");
+                diff = 0;
+            } else {
+                setText("rw-state","PROSSIMO EVENTO");
+            }
+
+            diff = Math.max(0,diff);
+            setText("rw-days", pad(Math.floor(diff/86400000)));
+            setText("rw-hours", pad(Math.floor((diff%86400000)/3600000)));
+            setText("rw-minutes", pad(Math.floor((diff%3600000)/60000)));
+            setText("rw-seconds", pad(Math.floor((diff%60000)/1000)));
+        }
+        updateRaceCenter();
+        setInterval(updateRaceCenter,1000);
     })();
 
     // PWA
@@ -831,46 +845,6 @@
         });
     }
     </script>
-<script>
-    // Registrazione Service Worker
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./service-worker.js?v=2')
-                .catch(err => console.warn('Service Worker non registrato:', err));
-        });
-    }
-
-    // Pulsante installazione PWA (Chrome/Edge/Android)
-    let deferredPwaPrompt = null;
-    const pwaInstallWrap = document.getElementById('pwa-install-wrap');
-    const pwaInstallBtn = document.getElementById('pwa-install-btn');
-
-    window.addEventListener('beforeinstallprompt', (event) => {
-        event.preventDefault();
-        deferredPwaPrompt = event;
-        if (pwaInstallWrap) pwaInstallWrap.style.display = 'block';
-    });
-
-    if (pwaInstallBtn) {
-        pwaInstallBtn.addEventListener('click', async () => {
-            if (!deferredPwaPrompt) return;
-            deferredPwaPrompt.prompt();
-            await deferredPwaPrompt.userChoice;
-            deferredPwaPrompt = null;
-            if (pwaInstallWrap) pwaInstallWrap.style.display = 'none';
-        });
-    }
-
-    window.addEventListener('appinstalled', () => {
-        deferredPwaPrompt = null;
-        if (pwaInstallWrap) pwaInstallWrap.style.display = 'none';
-    });
-
-    // Se l'app è già aperta in modalità standalone, nasconde il pulsante
-    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-        if (pwaInstallWrap) pwaInstallWrap.style.display = 'none';
-    }
-</script>
 
 </body>
 </html>
