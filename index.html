@@ -9,6 +9,19 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- PWA GRCC Race Control -->
+    <meta name="theme-color" content="#0b0f19">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GRCC Race Control">
+    <meta name="application-name" content="GRCC Race Control">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>GRCCF1ESPORTS | Race Control</title>
     <style>
@@ -164,6 +177,29 @@
         font-size: 1.6rem !important; /* Testo leggermente più piccolo per non farlo andare a capo */
     }
 }
+    
+        .pwa-install-wrap {
+            display: none;
+            max-width: 520px;
+            margin: 0 auto 18px auto;
+            padding: 0 18px;
+        }
+        .pwa-install-btn {
+            width: 100%;
+            border: 1px solid #00ffd1;
+            background: rgba(0,255,209,.08);
+            color: #00ffd1;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-weight: 800;
+            letter-spacing: .4px;
+            cursor: pointer;
+            box-shadow: 0 0 18px rgba(0,255,209,.12);
+        }
+        .pwa-install-btn:hover {
+            background: rgba(0,255,209,.16);
+        }
+
     </style>
 </head>
 <body>
@@ -426,6 +462,13 @@
         </div>
     </header>
 
+    
+    <div id="pwa-install-wrap" class="pwa-install-wrap">
+        <button id="pwa-install-btn" class="pwa-install-btn" type="button">
+            📲 Installa GRCC Race Control sul dispositivo
+        </button>
+    </div>
+
     <div class="dashboard-container">
         <div class="grid-dashboard">
 
@@ -682,6 +725,48 @@
             }
         }
     </script>
+
+<script>
+    // Registrazione Service Worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./service-worker.js')
+                .catch(err => console.warn('Service Worker non registrato:', err));
+        });
+    }
+
+    // Pulsante installazione PWA (Chrome/Edge/Android)
+    let deferredPwaPrompt = null;
+    const pwaInstallWrap = document.getElementById('pwa-install-wrap');
+    const pwaInstallBtn = document.getElementById('pwa-install-btn');
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        deferredPwaPrompt = event;
+        if (pwaInstallWrap) pwaInstallWrap.style.display = 'block';
+    });
+
+    if (pwaInstallBtn) {
+        pwaInstallBtn.addEventListener('click', async () => {
+            if (!deferredPwaPrompt) return;
+            deferredPwaPrompt.prompt();
+            await deferredPwaPrompt.userChoice;
+            deferredPwaPrompt = null;
+            if (pwaInstallWrap) pwaInstallWrap.style.display = 'none';
+        });
+    }
+
+    window.addEventListener('appinstalled', () => {
+        deferredPwaPrompt = null;
+        if (pwaInstallWrap) pwaInstallWrap.style.display = 'none';
+    });
+
+    // Se l'app è già aperta in modalità standalone, nasconde il pulsante
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        if (pwaInstallWrap) pwaInstallWrap.style.display = 'none';
+    }
+</script>
+
 </body>
 </html>
 
