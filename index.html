@@ -407,6 +407,7 @@
 
                 document.getElementById('login-overlay').style.display = 'none';
                 aggiornaScrittaRuolo();
+                setTimeout(caricaPresenzaRaceCenter, 150);
 
             } catch (err) {
                 mostraMessaggio('❌ Errore di collegamento. Riprova.');
@@ -951,6 +952,63 @@
             if (state) { state.textContent = '⚠️ ERRORE · RIPROVA'; state.style.color = '#ffb700'; }
         }
     }
+
+
+    // Carica automaticamente la presenza già salvata per il Round corrente
+    async function caricaPresenzaRaceCenter() {
+        const pilota = sessionStorage.getItem('grcc_pilot') || '';
+        const round = window.grccCurrentRound || 1;
+        const state = document.getElementById('presence-state');
+
+        if (!pilota || !state) return;
+
+        try {
+            const result = await postAccount({
+                action: 'presenze_list'
+            });
+
+            const elenco = Array.isArray(result)
+                ? result
+                : (Array.isArray(result.presenze) ? result.presenze : []);
+
+            const miaPresenza = elenco
+                .filter(p =>
+                    Number(p.round) === Number(round) &&
+                    String(p.pilota || '').toUpperCase().trim() === pilota.toUpperCase().trim()
+                )
+                .pop();
+
+            if (!miaPresenza) {
+                state.textContent = '⚠️ DA CONFERMARE';
+                state.style.color = '#ffb700';
+                return;
+            }
+
+            const stato = String(miaPresenza.stato || '').toUpperCase().trim();
+
+            if (stato === 'PRESENTE') {
+                state.textContent = '✅ PRESENTE';
+                state.style.color = '#00ffd1';
+            } else if (stato === 'ASSENTE') {
+                state.textContent = '❌ ASSENTE';
+                state.style.color = '#ff6b6b';
+            } else {
+                state.textContent = '⚠️ DA CONFERMARE';
+                state.style.color = '#ffb700';
+            }
+        } catch (err) {
+            console.error('Errore caricamento presenza:', err);
+            state.textContent = '⚠️ DA CONFERMARE';
+            state.style.color = '#ffb700';
+        }
+    }
+
+    // Aggiorna la presenza dopo il login e quando la pagina è già autenticata.
+    window.addEventListener('DOMContentLoaded', () => {
+        if (sessionStorage.getItem('grcc_authenticated') === 'true') {
+            setTimeout(caricaPresenzaRaceCenter, 150);
+        }
+    });
 
     // PWA
     let deferredInstallPrompt = null;
