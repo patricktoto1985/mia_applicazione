@@ -214,6 +214,43 @@
         .presence-btn.cancel { grid-column:1 / -1; border-color:#556575; color:#dbe7f5; background:#111823; }
         .presence-summary { display:none; margin-top:11px; padding-top:10px; border-top:1px solid rgba(255,255,255,.08); color:#dbe7f5; font-size:.78rem; font-weight:800; }
 
+
+        /* INSTALLAZIONE PWA */
+        .pwa-install-wrap {
+            margin: 0 0 22px;
+            padding: 16px;
+            background: rgba(19,26,38,.94);
+            border: 1px solid #26364b;
+            border-radius: 16px;
+            box-shadow: 0 10px 28px rgba(0,0,0,.22);
+        }
+        .pwa-install-title {
+            font-size: 1rem;
+            font-weight: 900;
+            margin-bottom: 5px;
+        }
+        .pwa-install-text {
+            color: var(--text-muted);
+            font-size: .80rem;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+        .pwa-install-btn {
+            width: 100%;
+            border: 1px solid var(--accent-cyan);
+            background: rgba(0,255,209,.10);
+            color: var(--accent-cyan);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-weight: 900;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .pwa-install-btn:disabled {
+            opacity: .65;
+            cursor: default;
+        }
+
     </style>
 </head>
 <body>
@@ -515,6 +552,17 @@
             </div>
         </section>
 
+
+        <section class="pwa-install-wrap" id="pwa-install-wrap">
+            <div class="pwa-install-title">📲 Installa GRCC Race Control</div>
+            <div class="pwa-install-text" id="pwa-install-text">
+                Su Android apri questa pagina con <strong>Google Chrome</strong> e installala come un'app sul telefono.
+            </div>
+            <button class="pwa-install-btn" id="pwa-install-btn" type="button" onclick="installaPWA()">
+                📲 INSTALLA COME APP
+            </button>
+        </section>
+
         <div class="grid-dashboard">
 
             <a id="account-management-btn" onclick="apriGestioneAccount()" class="dash-btn" style="display:none;">
@@ -529,6 +577,13 @@
                 <div class="dash-icon">📋</div>
                 <h2 class="dash-title">Candidature</h2>
                 <p class="dash-desc">Visualizza e gestisci le candidature ricevute dal sito pubblico.</p>
+            </a>
+
+            <a id="presenze-management-btn" href="presenze.html" class="dash-btn" style="display:none;">
+                <span class="status-dot dot-yellow"></span>
+                <div class="dash-icon">👥</div>
+                <h2 class="dash-title">Presenze GP</h2>
+                <p class="dash-desc">Controlla presenti, assenti e piloti ancora da confermare.</p>
             </a>
 
             <a href="campionati.html" class="dash-btn">
@@ -671,9 +726,11 @@
         function aggiornaVisibilitaGestioneAccount() {
             const btn = document.getElementById('account-management-btn');
             const candidatureBtn = document.getElementById('candidature-management-btn');
+            const presenzeBtn = document.getElementById('presenze-management-btn');
             const isAdmin = sessionStorage.getItem('grcc_role') === 'DIREZIONE GARA' || sessionStorage.getItem('grcc_admin') === 'true';
             if (btn) btn.style.display = isAdmin ? 'flex' : 'none';
             if (candidatureBtn) candidatureBtn.style.display = isAdmin ? 'flex' : 'none';
+            if (presenzeBtn) presenzeBtn.style.display = isAdmin ? 'flex' : 'none';
         }
 
         function apriGestioneAccount() {
@@ -897,10 +954,59 @@
 
     // PWA
     let deferredInstallPrompt = null;
+
+    function pwaStandalone() {
+        return window.matchMedia('(display-mode: standalone)').matches ||
+               window.navigator.standalone === true;
+    }
+
+    function aggiornaBoxInstallazione() {
+        const wrap = document.getElementById('pwa-install-wrap');
+        const btn = document.getElementById('pwa-install-btn');
+        const txt = document.getElementById('pwa-install-text');
+        if (!wrap || !btn || !txt) return;
+
+        if (pwaStandalone()) {
+            wrap.style.display = 'none';
+            return;
+        }
+
+        wrap.style.display = 'block';
+        if (deferredInstallPrompt) {
+            btn.disabled = false;
+            btn.textContent = '📲 INSTALLA COME APP';
+            txt.innerHTML = 'Installa <strong>GRCC Race Control</strong> sul telefono. Su Android consigliamo <strong>Google Chrome</strong>.';
+        } else {
+            btn.disabled = true;
+            btn.textContent = 'APRI CON GOOGLE CHROME';
+            txt.innerHTML = 'Per installarla senza avvisi, apri questa pagina con <strong>Google Chrome</strong>. Se il pulsante non si attiva, usa il menu ⋮ di Chrome → <strong>Installa app</strong> o <strong>Aggiungi a schermata Home</strong>.';
+        }
+    }
+
     window.addEventListener('beforeinstallprompt', (event) => {
         event.preventDefault();
         deferredInstallPrompt = event;
+        aggiornaBoxInstallazione();
     });
+
+    async function installaPWA() {
+        if (!deferredInstallPrompt) {
+            aggiornaBoxInstallazione();
+            return;
+        }
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        aggiornaBoxInstallazione();
+    }
+
+    window.addEventListener('appinstalled', () => {
+        deferredInstallPrompt = null;
+        aggiornaBoxInstallazione();
+    });
+
+    window.addEventListener('DOMContentLoaded', aggiornaBoxInstallazione);
+
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./service-worker.js?v=2').catch(() => {});
