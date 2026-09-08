@@ -91,6 +91,21 @@
         .upload-progress{display:none;margin-top:10px;color:#ffb700;font-weight:bold}
         input[readonly]{opacity:.8;cursor:not-allowed}
 
+        /* COMMENTI HIGHLIGHTS */
+        .video-item { display:block; }
+        .video-main { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+        .comments-box { margin-top:12px; padding-top:12px; border-top:1px solid #30384a; }
+        .comments-title { font-size:.82rem; font-weight:800; color:#fff; margin-bottom:8px; }
+        .comments-list { display:flex; flex-direction:column; gap:7px; margin-bottom:9px; }
+        .comment-item { background:#111723; border:1px solid #263246; border-radius:7px; padding:8px 10px; }
+        .comment-author { color:var(--accent-cyan); font-size:.78rem; font-weight:800; }
+        .comment-text { color:#fff; font-size:.84rem; margin-top:3px; line-height:1.35; word-break:break-word; }
+        .comment-form { display:flex; gap:7px; align-items:center; }
+        .comment-input { flex:1; min-width:0; padding:9px 10px; background:#0b0f19; border:1px solid #34445c; color:#fff; border-radius:6px; box-sizing:border-box; }
+        .comment-send { width:auto; padding:9px 11px; border:none; border-radius:6px; background:var(--accent-cyan); color:#05110f; font-weight:900; cursor:pointer; }
+        .comment-empty { color:var(--text-muted); font-size:.78rem; font-style:italic; }
+        @media(max-width:520px){ .video-main{align-items:flex-start;flex-direction:column;} .comment-form{align-items:stretch;} .comment-send{white-space:nowrap;} }
+
 </style>
 </head>
 <body>
@@ -262,17 +277,110 @@
                     return;
                 }
 
-                contenitore.innerHTML = videoSalvati.map(video => `
-                    <div class="video-item">
-                        <div>
-                            <strong style="color:#fff;">${escapeHtml(video.pilota)}</strong>
+                contenitore.innerHTML = videoSalvati.map((video, index) => {
+                    const highlightId = String(video.id || video.link || `${round}-${index}`);
+                    const safeId = `hl-${index}`;
+                    return `
+                    <div class="video-item" data-highlight-id="${escapeAttr(highlightId)}">
+                        <div class="video-main">
+                            <div>
+                                <strong style="color:#fff;">${escapeHtml(video.pilota)}</strong>
+                            </div>
+                            <a href="${escapeAttr(video.link)}" target="_blank" rel="noopener" class="video-link">Guarda Video 🎥</a>
                         </div>
-                        <a href="${escapeAttr(video.link)}" target="_blank" rel="noopener" class="video-link">Guarda Video 🎥</a>
-                    </div>
-                `).join('');
+
+                        <div class="comments-box">
+                            <div class="comments-title">💬 Commenti</div>
+                            <div id="comments-${safeId}" class="comments-list">
+                                <div class="comment-empty">Caricamento commenti...</div>
+                            </div>
+                            <div class="comment-form">
+                                <input id="comment-input-${safeId}" class="comment-input" type="text" maxlength="300" placeholder="Scrivi un commento...">
+                                <button class="comment-send" type="button" onclick='pubblicaCommento(${JSON.stringify(highlightId)}, ${JSON.stringify(safeId)})'>Invia</button>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                await Promise.all(videoSalvati.map((video, index) => {
+                    const highlightId = String(video.id || video.link || `${round}-${index}`);
+                    return caricaCommenti(highlightId, `hl-${index}`);
+                }));
 
             } catch(err) {
                 contenitore.innerHTML = `<p style="color:#ff6b6b;">❌ ${escapeHtml(err.message)}</p>`;
+            }
+        }
+
+        async function caricaCommenti(highlightId, safeId) {
+            const round = document.getElementById('selectRound').value;
+            const box = document.getElementById(`comments-${safeId}`);
+            if (!box) return;
+
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type':'text/plain;charset=utf-8'},
+                    body: JSON.stringify({
+                        action: 'highlight_comment_list',
+                        round,
+                        highlightId
+                    })
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message || 'Errore lettura commenti');
+
+                const commenti = Array.isArray(data.commenti) ? data.commenti : [];
+                if (!commenti.length) {
+                    box.innerHTML = '<div class="comment-empty">Nessun commento. Scrivi il primo 👇</div>';
+                    return;
+                }
+
+                box.innerHTML = commenti.map(c => `
+                    <div class="comment-item">
+                        <div class="comment-author">${escapeHtml(c.pilota)}</div>
+                        <div class="comment-text">${escapeHtml(c.commento)}</div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                box.innerHTML = `<div class="comment-empty" style="color:#ff6b6b;">❌ ${escapeHtml(err.message)}</div>`;
+            }
+        }
+
+        async function pubblicaCommento(highlightId, safeId) {
+            const round = document.getElementById('selectRound').value;
+            const pilota = sessionStorage.getItem('grcc_pilot') || '';
+            const input = document.getElementById(`comment-input-${safeId}`);
+            const commento = input ? input.value.trim() : '';
+
+            if (!pilota) {
+                alert('Sessione pilota non trovata. Rientra dalla Race Control.');
+                return;
+            }
+            if (!commento) {
+                alert('Scrivi prima un commento.');
+                return;
+            }
+
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type':'text/plain;charset=utf-8'},
+                    body: JSON.stringify({
+                        action: 'highlight_comment_submit',
+                        round,
+                        highlightId,
+                        pilota,
+                        commento
+                    })
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message || 'Pubblicazione commento non riuscita');
+
+                input.value = '';
+                await caricaCommenti(highlightId, safeId);
+            } catch (err) {
+                alert('❌ ' + err.message);
             }
         }
 
