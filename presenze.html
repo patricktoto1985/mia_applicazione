@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GRCCF1ESPORTS | Presenze GP</title>
+  <meta name="theme-color" content="#0b0f19">
+  <style>
+    :root{--red:#e10600;--bg:#0b0f19;--card:#131a26;--cyan:#00ffd1;--muted:#8fa0b5;--line:#26364b;--yellow:#ffb700;--green:#00ffd1;--danger:#ff6b6b}
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#0b0f19,#101725);color:#fff;font-family:'Segoe UI',Roboto,sans-serif;min-height:100vh}
+    .wrap{max-width:760px;margin:auto;padding:20px 16px 40px}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+    .back{color:#fff;text-decoration:none;background:#182231;border:1px solid #2a3a50;border-radius:10px;padding:10px 13px;font-weight:800;font-size:.82rem}
+    .title{margin:0;font-size:1.45rem;font-weight:900;text-transform:uppercase}.title span{color:var(--red)}
+    .sub{color:var(--muted);font-size:.82rem;margin-top:4px}
+    .panel{background:rgba(19,26,38,.96);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 14px 35px rgba(0,0,0,.28);margin-bottom:16px}
+    .controls{display:grid;grid-template-columns:1fr auto;gap:10px}
+    select,button{font:inherit}
+    select{width:100%;background:#0b0f19;color:#fff;border:1px solid #2a3a50;border-radius:10px;padding:12px;outline:none}
+    .refresh{background:var(--cyan);color:#06120f;border:none;border-radius:10px;padding:0 15px;font-weight:900;cursor:pointer}
+    .gpname{margin-top:12px;font-weight:900;font-size:1.08rem}.gpdate{color:var(--muted);font-size:.82rem;margin-top:3px}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+    .stat{background:#131a26;border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center}.stat strong{display:block;font-size:1.55rem}.stat span{font-size:.72rem;color:var(--muted);font-weight:800;text-transform:uppercase}
+    .present strong{color:var(--green)}.absent strong{color:var(--danger)}.pending strong{color:var(--yellow)}
+    .list{display:grid;gap:8px}.row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#131a26;border:1px solid #223047;border-radius:12px;padding:12px 13px}.pilot{font-weight:850;font-size:.92rem}.badge{font-size:.76rem;font-weight:900;border-radius:999px;padding:6px 9px;white-space:nowrap}.b-present{color:#05120f;background:var(--green)}.b-absent{color:#fff;background:#a82931}.b-pending{color:#171100;background:var(--yellow)}
+    .status{color:var(--muted);text-align:center;padding:20px}.error{color:#ff8080}.adminnote{font-size:.75rem;color:var(--muted);margin-top:10px;text-align:center}
+    @media(max-width:520px){.top{align-items:flex-start}.title{font-size:1.15rem}.stats{gap:7px}.stat{padding:11px 6px}.stat strong{font-size:1.3rem}.row{padding:11px}.controls{grid-template-columns:1fr}.refresh{padding:12px}.badge{font-size:.68rem}}
+  </style>
+  <script>
+    if (sessionStorage.getItem('grcc_authenticated') !== 'true' || sessionStorage.getItem('grcc_admin') !== 'true') {
+      location.replace('index.html');
+    }
+  </script>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1 class="title">👥 Presenze <span>GP</span></h1>
+      <div class="sub">Pannello Direzione Gara · Stagione 2026/27</div>
+    </div>
+    <a class="back" href="index.html">← Race Control</a>
+  </div>
+
+  <div class="panel">
+    <div class="controls">
+      <select id="round-select"></select>
+      <button class="refresh" onclick="caricaPresenze()">↻ Aggiorna</button>
+    </div>
+    <div class="gpname" id="gp-name">—</div>
+    <div class="gpdate" id="gp-date">—</div>
+    <div class="adminnote">Mostra le conferme registrate per il Round selezionato.</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat present"><strong id="count-present">0</strong><span>Presenti</span></div>
+    <div class="stat absent"><strong id="count-absent">0</strong><span>Assenti</span></div>
+    <div class="stat pending"><strong id="count-pending">0</strong><span>Da confermare</span></div>
+  </div>
+
+  <div id="list" class="list"><div class="status">Caricamento presenze...</div></div>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz30o3f7QkmijHWpQgwInJMIcIujmO_F070OwXhqbKnQidHdJC4iLa-rQZy0WzsN9buuA/exec";
+
+const pilots = [
+  "SICKMIRKO","MIKYPOWER","SALVOTD91","MKI-110","RAO-783","BENE20DOMENICO",
+  "LRT_KURAMA","FRA319153","LIVLONELY","GIUMEND29","TOTO'F1","DANIELE251191",
+  "NXS_ODI","KEIDIKID2","GRCC F1 VITTORIO","LILLUPAZZU","CONDE785","PEPPEFLE_IRT",
+  "ICEANT16","DAVIARCO1999","BRA_FOSY89"
+];
+
+const races = [
+  ["Australia","Melbourne · Albert Park Circuit","2026-10-23T21:45:00+02:00"],
+  ["Cina","Shanghai · Shanghai International Circuit","2026-10-30T21:45:00+01:00"],
+  ["Giappone","Suzuka · Suzuka Circuit","2026-11-06T21:45:00+01:00"],
+  ["Bahrain","Sakhir · Bahrain International Circuit","2026-11-13T21:45:00+01:00"],
+  ["Arabia Saudita","Jeddah · Jeddah Corniche Circuit","2026-11-20T21:45:00+01:00"],
+  ["Miami","Miami · Miami International Autodrome","2026-11-27T21:45:00+01:00"],
+  ["Canada","Montréal · Circuit Gilles Villeneuve","2026-12-04T21:45:00+01:00"],
+  ["Monaco","Monte Carlo · Circuit de Monaco","2026-12-11T21:45:00+01:00"],
+  ["Spagna","Barcellona · Circuit de Barcelona-Catalunya","2026-12-18T21:45:00+01:00"],
+  ["Austria","Spielberg · Red Bull Ring","2027-01-08T21:45:00+01:00"],
+  ["Gran Bretagna","Silverstone · Silverstone Circuit","2027-01-15T21:45:00+01:00"],
+  ["Belgio","Spa-Francorchamps · Circuit de Spa-Francorchamps","2027-01-22T21:45:00+01:00"],
+  ["Ungheria","Budapest · Hungaroring","2027-01-29T21:45:00+01:00"],
+  ["Paesi Bassi","Zandvoort · Circuit Zandvoort","2027-02-05T21:45:00+01:00"],
+  ["Italia","Monza · Autodromo Nazionale Monza","2027-02-12T21:45:00+01:00"],
+  ["Madrid","Madrid","2027-02-19T21:45:00+01:00"],
+  ["Azerbaijan","Baku · Baku City Circuit","2027-02-26T21:45:00+01:00"],
+  ["Singapore","Singapore · Marina Bay Street Circuit","2027-03-05T21:45:00+01:00"],
+  ["Stati Uniti","Austin · Circuit of the Americas","2027-03-12T21:45:00+01:00"],
+  ["Messico","Città del Messico · Autódromo Hermanos Rodríguez","2027-03-26T21:45:00+01:00"],
+  ["São Paulo","São Paulo · Interlagos","2027-04-02T21:45:00+02:00"],
+  ["Las Vegas","Las Vegas · Las Vegas Strip Circuit","2027-04-09T21:45:00+02:00"],
+  ["Qatar","Lusail · Lusail International Circuit","2027-04-16T21:45:00+02:00"],
+  ["Abu Dhabi","Yas Marina · Yas Marina Circuit","2027-04-23T21:45:00+02:00"]
+];
+
+function currentRound(){
+  const now = Date.now();
+  let idx = races.findIndex(r => new Date(r[2]).getTime() + 3*60*60*1000 > now);
+  if (idx < 0) idx = races.length - 1;
+  return idx + 1;
+}
+
+function fillRounds(){
+  const sel = document.getElementById('round-select');
+  races.forEach((r,i)=>{
+    const o=document.createElement('option');
+    o.value=i+1; o.textContent=`Round ${i+1} · ${r[0]}`; sel.appendChild(o);
+  });
+  sel.value=currentRound();
+  sel.addEventListener('change', caricaPresenze);
+}
+
+function updateHeader(round){
+  const r=races[round-1];
+  const d=new Date(r[2]);
+  document.getElementById('gp-name').textContent=`Round ${round} · GP ${r[0].toUpperCase()}`;
+  document.getElementById('gp-date').textContent=`${r[1]} · ${d.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})} · 21:45`;
+}
+
+async function post(payload){
+  const res=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+  const txt=await res.text();
+  return JSON.parse(txt);
+}
+
+async function caricaPresenze(){
+  const round=Number(document.getElementById('round-select').value || 1);
+  updateHeader(round);
+  const list=document.getElementById('list');
+  list.innerHTML='<div class="status">Caricamento presenze...</div>';
+  try{
+    const result=await post({action:'presenze_list',adminToken:sessionStorage.getItem('grcc_admin_token')||''});
+    if(result && result.success===false) throw new Error(result.message||'Errore server');
+    const all = Array.isArray(result) ? result : (Array.isArray(result.presenze) ? result.presenze : []);
+    const map=new Map();
+    all.filter(x=>Number(x.round)===round).forEach(x=>map.set(String(x.pilota||'').toUpperCase().trim(),String(x.stato||'').toUpperCase().trim()));
+
+    let presenti=0, assenti=0, daConfermare=0;
+    list.innerHTML='';
+    pilots.forEach(p=>{
+      const stato=map.get(p) || 'DA CONFERMARE';
+      if(stato==='PRESENTE') presenti++; else if(stato==='ASSENTE') assenti++; else daConfermare++;
+      const row=document.createElement('div'); row.className='row';
+      const cls=stato==='PRESENTE'?'b-present':stato==='ASSENTE'?'b-absent':'b-pending';
+      const label=stato==='PRESENTE'?'✅ PRESENTE':stato==='ASSENTE'?'❌ ASSENTE':'⚠️ DA CONFERMARE';
+      row.innerHTML=`<div class="pilot">${p}</div><div class="badge ${cls}">${label}</div>`;
+      list.appendChild(row);
+    });
+    document.getElementById('count-present').textContent=presenti;
+    document.getElementById('count-absent').textContent=assenti;
+    document.getElementById('count-pending').textContent=daConfermare;
+  }catch(err){
+    list.innerHTML=`<div class="status error">❌ Impossibile caricare le presenze.<br>${err.message||''}</div>`;
+  }
+}
+
+fillRounds();
+caricaPresenze();
+</script>
+</body>
+</html>
