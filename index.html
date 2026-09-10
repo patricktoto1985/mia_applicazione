@@ -1014,12 +1014,39 @@
         }
     });
 
-    // PWA
+    // PWA - installazione guidata Android / iPhone / PC
     let deferredInstallPrompt = null;
 
     function pwaStandalone() {
         return window.matchMedia('(display-mode: standalone)').matches ||
                window.navigator.standalone === true;
+    }
+
+    function pwaDevice() {
+        const ua = navigator.userAgent || '';
+        const ios = /iPad|iPhone|iPod/.test(ua) ||
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        const android = /Android/i.test(ua);
+        const samsung = /SamsungBrowser/i.test(ua);
+        const chrome = /Chrome|CriOS/i.test(ua) && !/EdgA|OPR|SamsungBrowser/i.test(ua);
+        const edge = /Edg/i.test(ua);
+        return { ios, android, samsung, chrome, edge };
+    }
+
+    function mostraIstruzioniInstallazione() {
+        const d = pwaDevice();
+
+        if (d.ios) {
+            alert('📲 INSTALLAZIONE SU iPHONE / iPAD\n\n1. Apri GRCC Race Control con Safari.\n2. Tocca il pulsante Condividi ⬆️.\n3. Scegli “Aggiungi alla schermata Home”.\n4. Tocca “Aggiungi”.');
+            return;
+        }
+
+        if (d.android) {
+            alert('📲 INSTALLAZIONE SU ANDROID\n\nApri GRCC Race Control con Google Chrome.\nPoi tocca ⋮ in alto a destra e scegli “Installa app” oppure “Aggiungi a schermata Home”.\n\nSe stai usando Samsung Internet, consigliamo di riaprire il sito con Chrome.');
+            return;
+        }
+
+        alert('💻 INSTALLAZIONE SU PC\n\nApri GRCC Race Control con Google Chrome o Microsoft Edge.\nUsa l’icona Installa nella barra degli indirizzi oppure il menu del browser → “Installa GRCC Race Control”.');
     }
 
     function aggiornaBoxInstallazione() {
@@ -1034,14 +1061,24 @@
         }
 
         wrap.style.display = 'block';
+        btn.disabled = false;
+
+        const d = pwaDevice();
+
         if (deferredInstallPrompt) {
-            btn.disabled = false;
-            btn.textContent = '📲 INSTALLA COME APP';
-            txt.innerHTML = 'Installa <strong>GRCC Race Control</strong> sul telefono. Su Android consigliamo <strong>Google Chrome</strong>.';
+            btn.textContent = '📲 INSTALLA APP';
+            txt.innerHTML = 'Installa <strong>GRCC Race Control</strong> sul dispositivo e usala come una normale app.';
+        } else if (d.ios) {
+            btn.textContent = '📲 COME INSTALLARE SU iPHONE';
+            txt.innerHTML = 'Su iPhone/iPad usa <strong>Safari</strong>: Condividi ⬆️ → <strong>Aggiungi alla schermata Home</strong>. Tocca il pulsante per vedere i passaggi.';
+        } else if (d.android) {
+            btn.textContent = '📲 INSTALLA SU ANDROID';
+            txt.innerHTML = d.samsung
+                ? 'Stai usando <strong>Samsung Internet</strong>. Per l’installazione consigliamo <strong>Google Chrome</strong>. Tocca il pulsante per le istruzioni.'
+                : 'Su Android usa <strong>Google Chrome</strong>. Se non compare il popup automatico, puoi installare dal menu ⋮. Tocca il pulsante per continuare.';
         } else {
-            btn.disabled = true;
-            btn.textContent = 'APRI CON GOOGLE CHROME';
-            txt.innerHTML = 'Per installarla senza avvisi, apri questa pagina con <strong>Google Chrome</strong>. Se il pulsante non si attiva, usa il menu ⋮ di Chrome → <strong>Installa app</strong> o <strong>Aggiungi a schermata Home</strong>.';
+            btn.textContent = '💻 INSTALLA SUL DISPOSITIVO';
+            txt.innerHTML = 'Su PC usa <strong>Chrome</strong> o <strong>Microsoft Edge</strong>. Tocca il pulsante per le istruzioni di installazione.';
         }
     }
 
@@ -1052,14 +1089,19 @@
     });
 
     async function installaPWA() {
-        if (!deferredInstallPrompt) {
+        if (pwaStandalone()) return;
+
+        if (deferredInstallPrompt) {
+            deferredInstallPrompt.prompt();
+            const scelta = await deferredInstallPrompt.userChoice;
+            if (scelta && scelta.outcome === 'accepted') {
+                deferredInstallPrompt = null;
+            }
             aggiornaBoxInstallazione();
             return;
         }
-        deferredInstallPrompt.prompt();
-        await deferredInstallPrompt.userChoice;
-        deferredInstallPrompt = null;
-        aggiornaBoxInstallazione();
+
+        mostraIstruzioniInstallazione();
     }
 
     window.addEventListener('appinstalled', () => {
