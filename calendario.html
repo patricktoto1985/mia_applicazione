@@ -10,12 +10,14 @@
             window.location.href = 'index.html';
         }
 
-        const GRCC_DRIVERS = [{"name": "SICKMIRKO", "team": "Ferrari"}, {"name": "MIKYPOWER", "team": "Ferrari"}, {"name": "SALVOTD91", "team": "Mercedes"}, {"name": "MKI-110", "team": "Mercedes"}, {"name": "RAO-783", "team": "Red Bull"}, {"name": "BENE20DOMENICO", "team": "Red Bull"}, {"name": "LRT_KURAMA", "team": "McLaren"}, {"name": "FRA319153", "team": "McLaren"}, {"name": "LIVLONELY", "team": "Aston Martin"}, {"name": "GIUMEND29", "team": "Aston Martin"}, {"name": "TOTO'F1", "team": "Audi"}, {"name": "DANIELE251191", "team": "Audi"}, {"name": "NXS_ODI", "team": "Cadillac"}, {"name": "KEIDIKID2", "team": "Cadillac"}, {"name": "GRCC F1 VITTORIO", "team": "Racing Bulls"}, {"name": "LILLUPAZZU", "team": "Racing Bulls"}, {"name": "CONDE785", "team": "Alpine"}, {"name": "PEPPEFLE_IRT", "team": "Alpine"}, {"name": "ICEANT16", "team": "Williams"}, {"name": "DAVIARCO1999", "team": "Haas"}, {"name": "BRA_FOSY89", "team": "Haas"}];
+        const GRCC_DRIVERS = [{"name": "SICKMIRKO", "team": "Ferrari"}, {"name": "MIKYPOWER", "team": "Ferrari"}, {"name": "SALVOTD91", "team": "Mercedes"}, {"name": "MKI-110", "team": "Mercedes"}, {"name": "RAO-783", "team": "Red Bull"}, {"name": "BENE20DOMENICO", "team": "Red Bull"}, {"name": "LRT_KURAMA", "team": "McLaren"}, {"name": "FRA319153", "team": "McLaren"}, {"name": "LIVLONELY", "team": "Aston Martin"}, {"name": "GIUMEND29", "team": "Aston Martin"}, {"name": "TOTO'F1", "team": "Audi"}, {"name": "DANIELE251191", "team": "Audi"}, {"name": "NXS_ODI", "team": "Cadillac"}, {"name": "KEIDIKID2", "team": "Cadillac"}, {"name": "GRCC F1 VITTORIO", "team": "Racing Bulls"}, {"name": "LILLUPAZZU", "team": "Racing Bulls"}, {"name": "CONDE785", "team": "Alpine"}, {"name": "PEPPEFLE_IRT", "team": "Alpine"}, {"name": "ICEANT16", "team": "Williams"}, {"name": "DAVIARCO1999", "team": "Haas"}, {"name": "BRA_FOSY89", "team": "Haas"}, {"name": "CECCO67_SCAI", "team": "WILD CARD", "wildcard": true}];
+        const GRCC_TEAMS = ["Ferrari","Mercedes","Red Bull","McLaren","Aston Martin","Audi","Cadillac","Racing Bulls","Alpine","Williams","Haas"];
         const F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
         const resultCache = {};
 
         function isRaceControl() {
-            return sessionStorage.getItem('grcc_role') === 'DIREZIONE GARA';
+            return sessionStorage.getItem('grcc_role') === 'DIREZIONE GARA' ||
+                   sessionStorage.getItem('grcc_admin') === 'true';
         }
 
         function toggleRisultati(idRound) {
@@ -35,7 +37,12 @@
 
         function driverOptions(selected='') {
             return '<option value="">Seleziona pilota</option>' +
-                GRCC_DRIVERS.map(d => `<option value="${d.name}" ${d.name===selected?'selected':''}>${d.name} · ${d.team}</option>`).join('');
+                GRCC_DRIVERS.map(d => `<option value="${d.name}" ${d.name===selected?'selected':''}>${d.name}${d.wildcard ? ' · #67 · WILD CARD' : ' · ' + d.team}</option>`).join('');
+        }
+
+        function teamOptions(selected='') {
+            return '<option value="">Scuderia sostituita</option>' +
+                GRCC_TEAMS.map(team => `<option value="${team}" ${team===selected?'selected':''}>${team}</option>`).join('');
         }
 
         function renderResultEditor(idRound) {
@@ -48,7 +55,10 @@
             const rows = Array.from({length: GRCC_DRIVERS.length}, (_,i) => `
                 <div class="race-result-row" data-index="${i}">
                     <div class="position-box">${i+1}°</div>
-                    <select class="result-driver" ${readonly?'disabled':''}>${driverOptions()}</select>
+                    <div class="driver-team-wrap">
+                        <select class="result-driver" ${readonly?'disabled':''}>${driverOptions()}</select>
+                        <select class="result-team" disabled>${teamOptions()}</select>
+                    </div>
                     <select class="result-status" ${readonly?'disabled':''}>
                         <option value="CLASSIFICATO">Classificato</option>
                         <option value="DNF">DNF</option>
@@ -115,10 +125,15 @@
                 if (pilota && seen.has(pilota)) throw new Error(`Il pilota ${pilota} è stato inserito più di una volta.`);
                 if (pilota) seen.add(pilota);
                 const info = GRCC_DRIVERS.find(d=>d.name===pilota);
+                const teamSelect = r.querySelector('.result-team');
+                const team = info?.wildcard ? String(teamSelect?.value || '').trim() : (info?.team || '');
+                if (info?.wildcard && !team) {
+                    throw new Error(`Seleziona la scuderia sostituita da ${pilota}.`);
+                }
                 return {
                     posizione:i+1,
                     pilota,
-                    team:info?.team||'',
+                    team,
                     punti:Number(r.querySelector('.result-points').value)||0,
                     stato:r.querySelector('.result-status').value
                 };
@@ -199,7 +214,17 @@
             const resultRows = [...row.querySelectorAll('.race-result-row')];
             resultRows.forEach((r,i)=>{
                 const saved = data.risultati[i];
-                r.querySelector('.result-driver').value = saved?.pilota || '';
+                const driverSelect = r.querySelector('.result-driver');
+                const teamSelect = r.querySelector('.result-team');
+                driverSelect.value = saved?.pilota || '';
+                const info = GRCC_DRIVERS.find(d => d.name === driverSelect.value);
+                if (info?.wildcard) {
+                    teamSelect.disabled = !isRaceControl();
+                    teamSelect.value = saved?.team || '';
+                } else {
+                    teamSelect.disabled = true;
+                    teamSelect.value = info?.team || '';
+                }
                 r.querySelector('.result-status').value = saved?.stato || 'CLASSIFICATO';
                 r.querySelector('.result-points').value = saved?.punti ?? (F1_POINTS[i]||0);
             });
@@ -216,6 +241,20 @@
             if(e.target.classList.contains('result-status')) {
                 const r=e.target.closest('.race-result-row');
                 if(['DNF','DNS','DSQ'].includes(e.target.value)) r.querySelector('.result-points').value=0;
+            }
+
+            if(e.target.classList.contains('result-driver')) {
+                const r = e.target.closest('.race-result-row');
+                const teamSelect = r.querySelector('.result-team');
+                const info = GRCC_DRIVERS.find(d => d.name === e.target.value);
+
+                if (info?.wildcard) {
+                    teamSelect.value = '';
+                    teamSelect.disabled = !isRaceControl();
+                } else {
+                    teamSelect.value = info?.team || '';
+                    teamSelect.disabled = true;
+                }
             }
         });
     </script>
@@ -334,7 +373,9 @@
         .special-awards,.extra-race-data{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:15px}
         .special-awards label,.extra-race-data label,.notes-label{font-size:.72rem;color:var(--text-muted);font-weight:800;text-transform:uppercase}
         .special-awards select,.extra-race-data select,.extra-race-data input,.notes-label textarea,
-        .result-driver,.result-status,.result-points{width:100%;margin-top:5px;background:#0b1019;color:#fff;border:1px solid #2b3748;border-radius:7px;padding:9px}
+        .result-driver,.result-team,.result-status,.result-points{width:100%;margin-top:5px;background:#0b1019;color:#fff;border:1px solid #2b3748;border-radius:7px;padding:9px}
+        .driver-team-wrap{display:grid;gap:4px}
+        .result-team:disabled{opacity:.72}
         .race-result-header,.race-result-row{display:grid;grid-template-columns:55px minmax(220px,1fr) 135px 80px;gap:8px;align-items:center}
         .race-result-header{padding:7px 8px;color:var(--accent-cyan);font-size:.68rem;font-weight:900}
         .race-result-row{padding:7px 8px;border-top:1px solid rgba(255,255,255,.055)}
