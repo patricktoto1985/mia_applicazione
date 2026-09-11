@@ -69,7 +69,7 @@ const pilots = [
   "SICKMIRKO","MIKYPOWER","SALVOTD91","MKI-110","RAO-783","BENE20DOMENICO",
   "LRT_KURAMA","FRA319153","LIVLONELY","GIUMEND29","TOTO'F1","DANIELE251191",
   "NXS_ODI","KEIDIKID2","GRCC F1 VITTORIO","LILLUPAZZU","CONDE785","PEPPEFLE_IRT",
-  "ICEANT16","DAVIARCO1999","BRA_FOSY89"
+  "ICEANT16","DAVIARCO1999","BRA_FOSY89","CECCO67_SCAI","GIANLUCA MAFEZZONI"
 ];
 
 const races = [
@@ -149,7 +149,9 @@ async function caricaPresenze(){
       const row=document.createElement('div'); row.className='row';
       const cls=stato==='PRESENTE'?'b-present':stato==='ASSENTE'?'b-absent':'b-pending';
       const label=stato==='PRESENTE'?'✅ PRESENTE':stato==='ASSENTE'?'❌ ASSENTE':'⚠️ DA CONFERMARE';
-      row.innerHTML=`<div class="pilot">${p}</div><div class="badge ${cls}">${label}</div>`;
+      const ruolo = p === 'GIANLUCA MAFEZZONI' ? ' <span style="color:#00ffd1;font-size:.70rem;">· COMMENTATORE</span>' :
+                    p === 'CECCO67_SCAI' ? ' <span style="color:#ffb700;font-size:.70rem;">· WILD CARD #67</span>' : '';
+      row.innerHTML=`<div class="pilot">${p}${ruolo}</div><div class="badge ${cls}">${label}</div>`;
       list.appendChild(row);
     });
     document.getElementById('count-present').textContent=presenti;
