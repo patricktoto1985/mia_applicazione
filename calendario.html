@@ -10,7 +10,19 @@
             window.location.href = 'index.html';
         }
 
-        const GRCC_DRIVERS = [{"name": "SICKMIRKO", "team": "Ferrari"}, {"name": "MIKYPOWER", "team": "Ferrari"}, {"name": "SALVOTD91", "team": "Mercedes"}, {"name": "MKI-110", "team": "Mercedes"}, {"name": "RAO-783", "team": "Red Bull"}, {"name": "BENE20DOMENICO", "team": "Red Bull"}, {"name": "LRT_KURAMA", "team": "McLaren"}, {"name": "FRA319153", "team": "McLaren"}, {"name": "LIVLONELY", "team": "Aston Martin"}, {"name": "GIUMEND29", "team": "Aston Martin"}, {"name": "TOTO'F1", "team": "Audi"}, {"name": "DANIELE251191", "team": "Audi"}, {"name": "NXS_ODI", "team": "Cadillac"}, {"name": "KEIDIKID2", "team": "Cadillac"}, {"name": "GRCC F1 VITTORIO", "team": "Racing Bulls"}, {"name": "LILLUPAZZU", "team": "Racing Bulls"}, {"name": "CONDE785", "team": "Alpine"}, {"name": "PEPPEFLE_IRT", "team": "Alpine"}, {"name": "ICEANT16", "team": "Williams"}, {"name": "DAVIARCO1999", "team": "Haas"}, {"name": "BRA_FOSY89", "team": "Haas"}, {"name": "CECCO67_SCAI", "team": "WILD CARD", "wildcard": true}];
+        const GRCC_DRIVERS = [
+{"name":"SICKMIRKO","team":"Ferrari"},{"name":"MIKYPOWER","team":"Ferrari"},
+{"name":"SALVOTD91","team":"Mercedes"},{"name":"MKI-110","team":"Mercedes"},
+{"name":"RAO-783","team":"Red Bull"},{"name":"BENE20DOMENICO","team":"Red Bull"},
+{"name":"LRT_KURAMA","team":"McLaren"},{"name":"FRA319153","team":"McLaren"},
+{"name":"DAGGER74SUN","team":"Aston Martin"},{"name":"GIUMEND29","team":"Aston Martin"},
+{"name":"CECCO67_SCAI","team":"Audi"},{"name":"DANIELE251191","team":"Audi"},
+{"name":"NXS_ODI","team":"Cadillac"},{"name":"KEIDIKID2","team":"Cadillac"},
+{"name":"GRCC F1 VITTORIO","team":"Racing Bulls"},{"name":"LILLUPAZZU","team":"Racing Bulls"},
+{"name":"CONDE785","team":"Alpine"},{"name":"PEPPEFLE_IRT","team":"Alpine"},
+{"name":"ICEANT16","team":"Williams"},{"name":"TICXY13","team":"Williams"},
+{"name":"DAVIARCO1999","team":"Haas"},{"name":"BRA_FOSY89","team":"Haas"}
+];
         const GRCC_TEAMS = ["Ferrari","Mercedes","Red Bull","McLaren","Aston Martin","Audi","Cadillac","Racing Bulls","Alpine","Williams","Haas"];
         const F1_POINTS = [25,18,15,12,10,8,6,4,2,1];
         const resultCache = {};
@@ -37,7 +49,7 @@
 
         function driverOptions(selected='') {
             return '<option value="">Seleziona pilota</option>' +
-                GRCC_DRIVERS.map(d => `<option value="${d.name}" ${d.name===selected?'selected':''}>${d.name}${d.wildcard ? ' · #67 · WILD CARD' : ' · ' + d.team}</option>`).join('');
+                GRCC_DRIVERS.map(d => `<option value="${d.name}" ${d.name===selected?'selected':''}>${d.name} · ${d.team}</option>`).join('');
         }
 
         function teamOptions(selected='') {
@@ -126,10 +138,7 @@
                 if (pilota) seen.add(pilota);
                 const info = GRCC_DRIVERS.find(d=>d.name===pilota);
                 const teamSelect = r.querySelector('.result-team');
-                const team = info?.wildcard ? String(teamSelect?.value || '').trim() : (info?.team || '');
-                if (info?.wildcard && !team) {
-                    throw new Error(`Seleziona la scuderia sostituita da ${pilota}.`);
-                }
+                const team = info?.team || '';
                 return {
                     posizione:i+1,
                     pilota,
@@ -218,13 +227,8 @@
                 const teamSelect = r.querySelector('.result-team');
                 driverSelect.value = saved?.pilota || '';
                 const info = GRCC_DRIVERS.find(d => d.name === driverSelect.value);
-                if (info?.wildcard) {
-                    teamSelect.disabled = !isRaceControl();
-                    teamSelect.value = saved?.team || '';
-                } else {
-                    teamSelect.disabled = true;
-                    teamSelect.value = info?.team || '';
-                }
+                teamSelect.disabled = true;
+                teamSelect.value = info?.team || '';
                 r.querySelector('.result-status').value = saved?.stato || 'CLASSIFICATO';
                 r.querySelector('.result-points').value = saved?.punti ?? (F1_POINTS[i]||0);
             });
@@ -248,13 +252,8 @@
                 const teamSelect = r.querySelector('.result-team');
                 const info = GRCC_DRIVERS.find(d => d.name === e.target.value);
 
-                if (info?.wildcard) {
-                    teamSelect.value = '';
-                    teamSelect.disabled = !isRaceControl();
-                } else {
-                    teamSelect.value = info?.team || '';
-                    teamSelect.disabled = true;
-                }
+                teamSelect.value = info?.team || '';
+                teamSelect.disabled = true;
             }
         });
     </script>
