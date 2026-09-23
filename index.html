@@ -277,7 +277,7 @@
                 <option value="FRA319153">FRA319153</option>
                 <option value="LIVLONELY">LIVLONELY</option>
                 <option value="GIUMEND29">GIUMEND29</option>
-                <option value="TOTO'F1">TOTO'F1</option>
+                <option value="TOTO'F1">TOTO'F1 · SOCIAL MEDIA & GRAPHIC MANAGER · ADMIN</option>
                 <option value="DANIELE251191">DANIELE251191</option>
                 <option value="NXS_ODI">NXS_ODI</option>
                 <option value="KEIDIKID2">KEIDIKID2</option>
@@ -395,7 +395,7 @@
                 }
 
                 sessionStorage.setItem('grcc_authenticated', 'true');
-                sessionStorage.setItem('grcc_role', pilota === 'CECCO67_SCAI' ? 'WILD CARD' : 'PILOTA');
+                sessionStorage.setItem('grcc_role', pilota === "TOTO'F1" ? 'SOCIAL MEDIA & GRAPHIC MANAGER' : pilota === 'CECCO67_SCAI' ? 'WILD CARD' : 'PILOTA');
                 sessionStorage.setItem('grcc_pilot', pilota);
 
                 if (result.isAdmin === true) {
@@ -475,12 +475,20 @@
         }
 
         // 3. FUNZIONE PER AGGIORNARE LA SCRITTA IN BASSO
+        function aggiornaModalitaStaff() {
+            const pilota = sessionStorage.getItem('grcc_pilot') || '';
+            const box = document.querySelector('.presence-box');
+            if (box) box.style.display = pilota === "TOTO'F1" ? 'none' : '';
+        }
+
         function aggiornaScrittaRuolo() {
             const ruolo = sessionStorage.getItem('grcc_role') || "PILOTA";
             const pilota = sessionStorage.getItem('grcc_pilot');
             const elementoRuolo = document.getElementById("user-role-text");
             if (elementoRuolo) {
-                if (pilota === 'CECCO67_SCAI') {
+                if (pilota === "TOTO'F1") {
+                    elementoRuolo.textContent = "📱 SOCIAL MEDIA & GRAPHIC MANAGER · TOTO'F1 | ADMIN";
+                } else if (pilota === 'CECCO67_SCAI') {
                     elementoRuolo.textContent = '🃏 WILD CARD · CECCO67_SCAI · #67';
                 } else if (ruolo === 'PILOTA' && pilota === 'GIANLUCA MAFEZZONI') {
                     elementoRuolo.textContent = 'COMMENTATORE · GIANLUCA MAFEZZONI';
@@ -493,6 +501,7 @@
                 }
             }
             aggiornaVisibilitaGestioneAccount();
+            aggiornaModalitaStaff();
         }
 
         // 4. CONTROLLO DI PERSISTENZA AL CARICAMENTO DELLA PAGINA
@@ -808,7 +817,7 @@
             }
         }
 
-        window.addEventListener('DOMContentLoaded', aggiornaVisibilitaGestioneAccount);
+        window.addEventListener('DOMContentLoaded', () => { aggiornaVisibilitaGestioneAccount(); aggiornaModalitaStaff(); });
 
         function logout() {
             sessionStorage.removeItem('grcc_authenticated');
@@ -961,6 +970,7 @@
     // Carica automaticamente la presenza già salvata per il Round corrente
     async function caricaPresenzaRaceCenter() {
         const pilota = sessionStorage.getItem('grcc_pilot') || '';
+        if (pilota === "TOTO'F1") return;
         const round = window.grccCurrentRound || 1;
         const state = document.getElementById('presence-state');
 
