@@ -275,7 +275,6 @@
                 <option value="BENE20DOMENICO">BENE20DOMENICO</option>
                 <option value="LRT_KURAMA">LRT_KURAMA</option>
                 <option value="FRA319153">FRA319153</option>
-                <option value="LIVLONELY">LIVLONELY</option>
                 <option value="GIUMEND29">GIUMEND29</option>
                 <option value="TOTO'F1">TOTO'F1 · SOCIAL MEDIA & GRAPHIC MANAGER · ADMIN</option>
                 <option value="DANIELE251191">DANIELE251191</option>
@@ -288,7 +287,9 @@
                 <option value="ICEANT16">ICEANT16</option>
                 <option value="DAVIARCO1999">DAVIARCO1999</option>
                 <option value="BRA_FOSY89">BRA_FOSY89</option>
-                <option value="CECCO67_SCAI">🃏 CECCO67_SCAI · #67 · WILD CARD</option>
+                <option value="CECCO67_SCAI">CECCO67_SCAI · #67 · AUDI REVOLUT</option>
+                <option value="DAGGER74SUN">DAGGER74SUN · #74 · ASTON MARTIN</option>
+                <option value="TICXY13">TICXY13 · #92 · WILLIAMS</option>
                 <option value="GIANLUCA MAFEZZONI">GIANLUCA MAFEZZONI</option>
             </select>
             <div style="color:#8fa0b5;font-size:.76rem;margin:-3px 0 13px;line-height:1.35;">
@@ -395,7 +396,7 @@
                 }
 
                 sessionStorage.setItem('grcc_authenticated', 'true');
-                sessionStorage.setItem('grcc_role', pilota === "TOTO'F1" ? 'SOCIAL MEDIA & GRAPHIC MANAGER' : pilota === 'CECCO67_SCAI' ? 'WILD CARD' : 'PILOTA');
+                sessionStorage.setItem('grcc_role', result.ruolo || 'PILOTA');
                 sessionStorage.setItem('grcc_pilot', pilota);
 
                 if (result.isAdmin === true) {
@@ -488,9 +489,7 @@
             if (elementoRuolo) {
                 if (pilota === "TOTO'F1") {
                     elementoRuolo.textContent = "📱 SOCIAL MEDIA & GRAPHIC MANAGER · TOTO'F1 | ADMIN";
-                } else if (pilota === 'CECCO67_SCAI') {
-                    elementoRuolo.textContent = '🃏 WILD CARD · CECCO67_SCAI · #67';
-                } else if (ruolo === 'PILOTA' && pilota === 'GIANLUCA MAFEZZONI') {
+                } else if (ruolo === 'COMMENTATORE' && pilota === 'GIANLUCA MAFEZZONI') {
                     elementoRuolo.textContent = 'COMMENTATORE · GIANLUCA MAFEZZONI';
                 } else if (ruolo === 'PILOTA' && pilota && sessionStorage.getItem('grcc_admin') === 'true') {
                     elementoRuolo.textContent = `PILOTA · ${pilota} | DIREZIONE GARA`;
@@ -711,7 +710,6 @@
                     <option value="BENE20DOMENICO">BENE20DOMENICO</option>
                     <option value="LRT_KURAMA">LRT_KURAMA</option>
                     <option value="FRA319153">FRA319153</option>
-                    <option value="LIVLONELY">LIVLONELY</option>
                     <option value="GIUMEND29">GIUMEND29</option>
                     <option value="TOTO'F1">TOTO'F1</option>
                     <option value="DANIELE251191">DANIELE251191</option>
@@ -724,7 +722,11 @@
                     <option value="ICEANT16">ICEANT16</option>
                     <option value="DAVIARCO1999">DAVIARCO1999</option>
                     <option value="BRA_FOSY89">BRA_FOSY89</option>
-                    <option value="CECCO67_SCAI">🃏 CECCO67_SCAI · #67 · WILD CARD</option>
+                    <option value="CECCO67_SCAI">CECCO67_SCAI · #67 · AUDI REVOLUT</option>
+                    <option value="DAGGER74SUN">DAGGER74SUN · #74 · ASTON MARTIN</option>
+                    <option value="TICXY13">TICXY13 · #92 · WILLIAMS</option>
+                <option value="DAGGER74SUN">DAGGER74SUN · #74 · ASTON MARTIN</option>
+                <option value="TICXY13">TICXY13 · #92 · WILLIAMS</option>
                     <option value="GIANLUCA MAFEZZONI">GIANLUCA MAFEZZONI</option>
                 </select>
 
