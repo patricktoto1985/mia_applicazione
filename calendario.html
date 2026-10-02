@@ -1135,7 +1135,7 @@
                 <div class="summary-title">🕵️‍♂️ Race Control — Monitor Logistica Presenze</div>
                 <div style="margin-bottom: 12px; font-size: 0.85rem; color: var(--text-muted);">
                     Seleziona un Round per vedere chi partecipa: 
-                    <select id="round-selector" onchange="mostraPilotiPerRound()" style="background-color: #0b0f19; color: #fff; border: 1px solid #1f2c3f; padding: 5px 10px; border-radius: 6px; margin-left: 5px; cursor: pointer; outline: none;">
+                    <select id="round-selector" onchange="cambiaRoundPresenze()" style="background-color: #0b0f19; color: #fff; border: 1px solid #1f2c3f; padding: 5px 10px; border-radius: 6px; margin-left: 5px; cursor: pointer; outline: none;">
                         <option value="R1">Round 1 - Australia</option>
                         <option value="R2">Round 2 - Cina</option>
                         <option value="R3">Round 3 - Giappone</option>
@@ -1200,42 +1200,73 @@
             }).catch(err => console.error("Errore di rete: ", err));
         }
 
-        function caricaDatiDalFoglio() {
-            if(SCRIPT_URL === "INSERISCI_QUI_IL_TUO_LINK_GOOGLE_SCRIPT") return;
-            
-            fetch(SCRIPT_URL)
-                .then(res => res.json())
-                .then(data => {
-                    window.databasePresenze = data;
-                    mostraPilotiPerRound();
-                }).catch(err => console.error("Impossibile caricare il database:", err));
+        async function caricaDatiDalFoglio() {
+            if (SCRIPT_URL === "INSERISCI_QUI_IL_TUO_LINK_GOOGLE_SCRIPT") return;
+
+            const selector = document.getElementById('round-selector');
+            const roundNum = Number((selector?.value || 'R1').replace(/\D/g, '')) || 1;
+
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=presenze_list&round=${roundNum}&_=${Date.now()}`, { cache: 'no-store' });
+                const data = await res.json();
+
+                // Compatibile sia con risposta diretta [ ... ] sia con {presenze:[ ... ]}
+                window.databasePresenze = Array.isArray(data)
+                    ? data
+                    : (Array.isArray(data.presenze) ? data.presenze
+                    : (Array.isArray(data.rows) ? data.rows : []));
+
+                mostraPilotiPerRound();
+            } catch (err) {
+                console.error("Impossibile caricare le presenze:", err);
+                window.databasePresenze = [];
+                mostraPilotiPerRound();
+            }
         }
 
         function mostraPilotiPerRound() {
             const roundSelezionato = document.getElementById('round-selector').value;
+            const roundNum = Number(roundSelezionato.replace(/\D/g, '')) || 1;
             const containerPresenti = document.getElementById('container-presenti');
             const containerAssenti = document.getElementById('container-assenti');
-            
+            const presentCount = document.getElementById('present-count');
+            const absentCount = document.getElementById('absent-count');
+
             containerPresenti.innerHTML = "";
             containerAssenti.innerHTML = "";
 
-            if (!window.databasePresenze) return;
+            const righe = Array.isArray(window.databasePresenze) ? window.databasePresenze : [];
+            let presenti = 0;
+            let assenti = 0;
 
-            window.databasePresenze.forEach(riga => {
-                if (riga.round === roundSelezionato) {
-                    const span = document.createElement('span');
-                    span.className = 'pilot-tag';
-                    span.textContent = riga.pilota;
-                    
-                    if (riga.stato === 'PRESENTE') {
-                        containerPresenti.appendChild(span);
-                    } else if (riga.stato === 'ASSENTE') {
-                        containerAssenti.appendChild(span);
-                    }
+            righe.forEach(riga => {
+                const rRound = Number(String(riga.round ?? riga.Round ?? roundNum).replace(/\D/g, '')) || roundNum;
+                if (rRound !== roundNum) return;
+
+                const pilota = String(riga.pilota ?? riga.Pilota ?? riga.nome ?? riga.Nome ?? '').trim();
+                const stato = String(riga.stato ?? riga.Stato ?? '').trim().toUpperCase();
+                if (!pilota) return;
+
+                const span = document.createElement('span');
+                span.className = 'pilot-tag';
+                span.textContent = pilota;
+
+                if (stato === 'PRESENTE') {
+                    containerPresenti.appendChild(span);
+                    presenti++;
+                } else if (stato === 'ASSENTE') {
+                    containerAssenti.appendChild(span);
+                    assenti++;
                 }
             });
+
+            if (presentCount) presentCount.textContent = `(${presenti})`;
+            if (absentCount) absentCount.textContent = `(${assenti})`;
         }
 
+        async function cambiaRoundPresenze() {
+            await caricaDatiDalFoglio();
+        }
         window.addEventListener('DOMContentLoaded', caricaDatiDalFoglio);
     </script>
 
