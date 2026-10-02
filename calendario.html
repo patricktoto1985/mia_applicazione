@@ -1283,24 +1283,6 @@
         window.addEventListener('DOMContentLoaded', caricaDatiDalFoglio);
     </script>
 
-<script>
-(function(){
- function aggiornaConteggiPresenze(){
-   const p=document.querySelector('.list-group .list-p');
-   const a=document.querySelector('.list-group .list-a');
-   if(!p||!a)return;
-   const pc=document.getElementById('present-count');
-   const ac=document.getElementById('absent-count');
-   if(pc) pc.textContent='('+p.closest('.list-group').querySelectorAll('.pilot-tag').length+')';
-   if(ac) ac.textContent='('+a.closest('.list-group').querySelectorAll('.pilot-tag').length+')';
- }
- document.addEventListener('DOMContentLoaded',()=>{
-   aggiornaConteggiPresenze();
-   const box=document.querySelector('.summary-box');
-   if(box)new MutationObserver(aggiornaConteggiPresenze).observe(box,{childList:true,subtree:true});
- });
-})();
-</script>
 
 </body>
 </html>
