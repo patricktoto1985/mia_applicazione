@@ -390,7 +390,7 @@
 <body>
 
     <div class="container">
-        <a href="index.html" class="back-btn">⬅ Torna al Race Control</a>
+        <a href="./index.html" class="back-btn" onclick="window.location.href='./index.html'; return false;">⬅ Torna al Race Control</a>
 
         <div class="card">
             <h2>Calendario Gare Ufficiale 2026</h2>
@@ -1201,20 +1201,33 @@
         }
 
         async function caricaDatiDalFoglio() {
-            if (SCRIPT_URL === "INSERISCI_QUI_IL_TUO_LINK_GOOGLE_SCRIPT") return;
-
             const selector = document.getElementById('round-selector');
             const roundNum = Number((selector?.value || 'R1').replace(/\D/g, '')) || 1;
 
             try {
-                const res = await fetch(`${SCRIPT_URL}?action=presenze_list&round=${roundNum}&_=${Date.now()}`, { cache: 'no-store' });
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type':'text/plain;charset=utf-8'},
+                    body: JSON.stringify({
+                        action: 'presenze_list',
+                        adminToken: sessionStorage.getItem('grcc_admin_token') || ''
+                    })
+                });
+
                 const data = await res.json();
 
-                // Compatibile sia con risposta diretta [ ... ] sia con {presenze:[ ... ]}
-                window.databasePresenze = Array.isArray(data)
+                if (data && data.success === false) {
+                    throw new Error(data.message || 'Errore nel caricamento presenze');
+                }
+
+                const tutte = Array.isArray(data)
                     ? data
-                    : (Array.isArray(data.presenze) ? data.presenze
-                    : (Array.isArray(data.rows) ? data.rows : []));
+                    : (Array.isArray(data.presenze) ? data.presenze : []);
+
+                window.databasePresenze = tutte.filter(riga => {
+                    const rRound = Number(String(riga.round ?? riga.Round ?? '').replace(/\D/g, ''));
+                    return rRound === roundNum;
+                });
 
                 mostraPilotiPerRound();
             } catch (err) {
