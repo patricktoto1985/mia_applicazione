@@ -149,10 +149,7 @@ async function caricaPresenze(){
       const row=document.createElement('div'); row.className='row';
       const cls=stato==='PRESENTE'?'b-present':stato==='ASSENTE'?'b-absent':'b-pending';
       const label=stato==='PRESENTE'?'✅ PRESENTE':stato==='ASSENTE'?'❌ ASSENTE':'⚠️ DA CONFERMARE';
-      const ruolo = p === 'GIANLUCA MAFEZZONI' ? ' <span style="color:#00ffd1;font-size:.70rem;">· COMMENTATORE</span>' :
-                    p === 'CECCO67_SCAI' ? ' <span style="color:#00ffd1;font-size:.70rem;">· AUDI #67</span>' :
-                    p === 'DAGGER74SUN' ? ' <span style="color:#00ffd1;font-size:.70rem;">· ASTON MARTIN #74</span>' :
-                    p === 'TICXY13' ? ' <span style="color:#00ffd1;font-size:.70rem;">· WILLIAMS #92</span>' : '';
+      const ruolo = p === 'GIANLUCA MAFEZZONI' ? ' <span style="color:#00ffd1;font-size:.70rem;">· COMMENTATORE</span>' : '';
       row.innerHTML=`<div class="pilot">${p}${ruolo}</div><div class="badge ${cls}">${label}</div>`;
       list.appendChild(row);
     });
