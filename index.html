@@ -894,6 +894,8 @@
 
             setText("rw-round", "🏁 RACE WEEKEND CENTER · ROUND " + (idx+1));
             window.grccCurrentRound = idx + 1;
+            window.grccCurrentRaceDate = r[3].slice(0,10);
+            if (typeof aggiornaBloccoPresenze === 'function') aggiornaBloccoPresenze();
             setText("presence-round", "Round " + (idx+1));
             setText("rw-title", "GP " + (r[0] === "Miami" || r[0] === "Monaco" || r[0] === "Madrid" || r[0] === "Singapore" || r[0] === "Las Vegas" || r[0] === "Abu Dhabi" ? "DI " : "D'") + r[0].toUpperCase());
             const dt = new Date(r[3]);
@@ -923,8 +925,40 @@
         setInterval(updateRaceCenter,1000);
     })();
 
+    // Blocco delle conferme dalle 19:01 del giorno del GP (fuso Europe/Rome).
+    function presenzeBloccate() {
+        const dataGP = window.grccCurrentRaceDate;
+        if (!dataGP) return false;
+        const parti = new Intl.DateTimeFormat('en-GB', {
+            timeZone: 'Europe/Rome', year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+        }).formatToParts(new Date());
+        const val = tipo => parti.find(p => p.type === tipo)?.value || '';
+        const oggi = `${val('year')}-${val('month')}-${val('day')}`;
+        return oggi > dataGP || (oggi === dataGP && `${val('hour')}:${val('minute')}` >= '19:01');
+    }
+    function aggiornaBloccoPresenze() {
+        const bloccate = presenzeBloccate();
+        document.querySelectorAll('.presence-actions button').forEach(btn => {
+            btn.disabled = bloccate;
+            btn.style.opacity = bloccate ? '.45' : '';
+            btn.style.cursor = bloccate ? 'not-allowed' : '';
+        });
+        const titolo = document.querySelector('.presence-title');
+        if (titolo) {
+            let avviso = document.getElementById('presence-deadline-note');
+            if (!avviso) {
+                avviso = document.createElement('div');
+                avviso.id = 'presence-deadline-note';
+                avviso.style.cssText = 'margin-top:8px;font-size:.78rem;font-weight:800;color:#ffb700';
+                titolo.after(avviso);
+            }
+            avviso.textContent = bloccate ? '🔒 Conferme chiuse dalle 19:01 (ora italiana)' : 'Conferme modificabili fino alle 19:00 (ora italiana)';
+        }
+    }
     // Presenze Race Weekend Center
     async function registraPresenzaRaceCenter(stato) {
+        if (presenzeBloccate()) { aggiornaBloccoPresenze(); alert('Conferme chiuse dalle 19:01 (ora italiana).'); return; }
         const pilota = sessionStorage.getItem('grcc_pilot') || '';
         const round = window.grccCurrentRound || 1;
         if (!pilota) { alert('Profilo pilota non disponibile. Effettua nuovamente l’accesso.'); return; }
@@ -944,6 +978,7 @@
 
 
     async function annullaPresenzaRaceCenter() {
+        if (presenzeBloccate()) { aggiornaBloccoPresenze(); alert('Conferme chiuse dalle 19:01 (ora italiana).'); return; }
         const pilota = sessionStorage.getItem('grcc_pilot') || '';
         const round = window.grccCurrentRound || 1;
         if (!pilota) { alert('Profilo pilota non disponibile. Effettua nuovamente l’accesso.'); return; }
