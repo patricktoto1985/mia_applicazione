@@ -52,7 +52,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;ba
     <div class="results" id="results"></div>
     <section style="margin-top:28px;border-top:1px solid #263044;padding-top:22px">
       <div class="admin-top"><div><h3><i class="fa-solid fa-list-check"></i> Registro votazioni</h3><p style="color:var(--muted)">Riservato alla Direzione Gara · chi ha votato e per chi</p></div><button class="admin-btn" onclick="loadVoteAudit()"><i class="fa-solid fa-rotate"></i> Aggiorna</button></div>
-      <p id="auditStatus" style="color:#94a3b8">Caricamento registro...</p>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0"><label for="auditRound">Consulta lo storico:</label><select id="auditRound" onchange="loadVoteAudit()" style="background:#0b1019;color:white;border:1px solid #34445c;border-radius:9px;padding:10px"></select><button class="admin-btn" onclick="proclamaAustralia()" id="proclamaR1Btn" style="background:#9a7020">🏆 Proclama vincitore Australia R1</button></div><p id="auditStatus" style="color:#94a3b8">Caricamento registro...</p>
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;text-align:left;min-width:520px"><thead><tr><th style="padding:12px;border-bottom:1px solid #263044">Votante</th><th style="padding:12px;border-bottom:1px solid #263044">Pilota votato</th><th style="padding:12px;border-bottom:1px solid #263044">Data e ora</th></tr></thead><tbody id="auditRows"></tbody></table></div>
     </section>
   </section><div style="text-align:center"><a class="dotd-link" href="classifica-dotd.html"><i class="fa-solid fa-chart-column"></i> Classifica Driver of the Day</a></div>
@@ -232,7 +232,7 @@ async function setVoting(open){
   const action=open?'dotd_open':'dotd_close';
   if(!open&&!confirm('Chiudere la votazione e proclamare il vincitore?'))return;
   try{
-    await apiPost({action,round:ROUND});
+    await apiPost({action,round:ROUND,adminToken:sessionStorage.getItem('grcc_admin_token')||''});
     await new Promise(r=>setTimeout(r,1400));
     await loadState();
   }catch(err){
@@ -259,7 +259,8 @@ async function resetVotingOnline(){
   try{
     await apiPost({
       action:"dotd_reset",
-      round:ROUND
+      round:ROUND,
+      adminToken:sessionStorage.getItem('grcc_admin_token')||'' 
     });
 
     // Cancella anche i blocchi locali di questo browser per tutti i piloti del Round.
@@ -293,10 +294,11 @@ async function loadVoteAudit(){
   const adminToken=sessionStorage.getItem('grcc_admin_token');
   if(!adminToken){status.textContent='Sessione amministratore mancante. Effettua nuovamente il login.';return;}
   try{
-    const data=await apiGet('dotd_votes_admin',{round:ROUND,adminToken});
+    const selectedRound=Number(document.getElementById('auditRound')?.value||ROUND);
+    const data=await apiGet('dotd_votes_admin',{round:selectedRound,adminToken});
     if(!data.success)throw new Error(data.message||'Impossibile caricare il registro');
     const votes=Array.isArray(data.voti)?data.voti:[];
-    status.textContent=votes.length+' voti registrati nel Round '+ROUND;
+    status.textContent=votes.length+' voti registrati nel Round '+selectedRound;
     votes.forEach(v=>{
       const tr=document.createElement('tr');
       [v.votante||'Non disponibile',v.pilota||'',v.data||''].forEach(value=>{
@@ -327,6 +329,30 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeConfirm()});
 loadState();
 if(isAdmin())loadVoteAudit();
 setInterval(loadState,30000);
+
+function setupAuditRounds(){
+ const sel=document.getElementById('auditRound');if(!sel)return;
+ for(let r=1;r<=GRCC_GP_NAMES.length;r++){
+  const opt=document.createElement('option');opt.value=String(r);opt.textContent='Round '+r+' · '+GRCC_GP_NAMES[r-1];sel.appendChild(opt);
+ }
+ sel.value=String(ROUND);
+}
+async function proclamaAustralia(){
+ if(!isAdmin())return;
+ const token=sessionStorage.getItem('grcc_admin_token');
+ if(!token){alert('Accedi nuovamente come amministratore.');return;}
+ if(!confirm('Proclamare il vincitore del Round 1 – Australia usando i voti già salvati?\n\nQuesta operazione CHIUDE la votazione del Round 1, senza cancellare i voti.'))return;
+ const btn=document.getElementById('proclamaR1Btn');btn.disabled=true;
+ try{
+  const result=await apiPost({action:'dotd_close',round:1,adminToken:token});
+  if(!result || !result.success)throw new Error(result?.message||'Risposta non valida');
+  alert('Round 1 chiuso. Vincitore: '+(result.vincitore||'nessuno')+' ('+(result.voti||0)+' voti). Verifica eventuali parità nel registro prima della pubblicazione definitiva.');
+  document.getElementById('auditRound').value='1';await loadVoteAudit();
+ }catch(e){alert('Impossibile proclamare: '+e.message);}
+ finally{btn.disabled=false;}
+}
+document.addEventListener('DOMContentLoaded',setupAuditRounds);
+
 </script>
 </body>
 </html>
