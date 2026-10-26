@@ -913,7 +913,7 @@
             window.grccCurrentRaceDate = r[3].slice(0,10);
             if (typeof aggiornaBloccoPresenze === 'function') aggiornaBloccoPresenze();
             setText("presence-round", "Round " + (idx+1));
-            setText("rw-title", "GP " + (r[0] === "Miami" || r[0] === "Monaco" || r[0] === "Madrid" || r[0] === "Singapore" || r[0] === "Las Vegas" || r[0] === "Abu Dhabi" ? "DI " : "D'") + r[0].toUpperCase());
+            setText("rw-title", "GP " + (["Australia", "Austria", "Azerbaijan", "Italia", "Olanda", "Ungheria"].includes(r[0]) ? "D'" : "DI ") + r[0].toUpperCase());
             const dt = new Date(r[3]);
             setText("rw-sub", r[1] + " · " + r[2] + " · " + longDate(dt));
             setText("rw-date", italianDate(dt));
