@@ -26,6 +26,25 @@
         const GRCC_TEAMS = ["Ferrari","Mercedes","Red Bull","McLaren","Aston Martin","Audi","Cadillac","Racing Bulls","Alpine","Williams","Haas"];
         const F1_POINTS = [25,20,16,14,12,10,9,8,7,6,5,4,3,2,1];
         const resultCache = {};
+        // Round 1 Australia: dati ricavati dalle schermate ufficiali della gara.
+        // Sono una bozza locale: il server rimane la fonte prioritaria se esistono risultati pubblicati.
+        const GRCC_AUSTRALIA_R1 = {
+            round:1, gp:'Australia — Albert Park', pole:'SICKMIRKO', giroVeloce:'',
+            durata:'44:38.831', meteo:'', safetyCar:0, virtualSafetyCar:0, bandiereRosse:0,
+            note:'Risultati Australia 23/10/2026. Punteggi GRCC ufficiali; ritirati 0 punti. Giro veloce da verificare prima della pubblicazione.',
+            risultati:[
+                ['DAVIARCO1999',25,'CLASSIFICATO'],['SICKMIRKO',20,'CLASSIFICATO'],
+                ['RAO-783',16,'CLASSIFICATO'],['CECCO67_SCAI',14,'CLASSIFICATO'],
+                ['DAGGER74SUN',12,'CLASSIFICATO'],['FRA319153',10,'CLASSIFICATO'],
+                ['SALVOTD91',9,'CLASSIFICATO'],['MIKYPOWER',8,'CLASSIFICATO'],
+                ['GIUMEND29',7,'CLASSIFICATO'],['CONDE785',6,'CLASSIFICATO'],
+                ['BENE20DOMENICO',5,'CLASSIFICATO'],['BRA_FOSY89',4,'CLASSIFICATO'],
+                ['TICXY13',3,'CLASSIFICATO'],['PEPPEFLE_IRT',0,'DNF'],
+                ['GRCC F1 VITTORIO',0,'DNF'],['NXS_ODI',0,'DNF'],['KEIDIKID2',0,'DNF']
+            ].map(([pilota,punti,stato],i)=>({posizione:i+1,pilota,
+                team:GRCC_DRIVERS.find(d=>d.name===pilota)?.team||'',punti,stato}))
+        };
+
 
         function isRaceControl() {
             return sessionStorage.getItem('grcc_role') === 'DIREZIONE GARA' ||
@@ -143,7 +162,7 @@
                     posizione:i+1,
                     pilota,
                     team,
-                    punti:Number(r.querySelector('.result-points').value)||0,
+                    punti:['DNF','DNS','DSQ'].includes(r.querySelector('.result-status').value) ? 0 : (Number(r.querySelector('.result-points').value)||0),
                     stato:r.querySelector('.result-status').value
                 };
             }).filter(r=>r.pilota);
@@ -201,7 +220,20 @@
                     data = await res.json();
                     resultCache[idRound] = data;
                 }
-                if (!data || !Array.isArray(data.risultati)) return;
+                if (!data || !Array.isArray(data.risultati) || !data.risultati.length) {
+                    if (idRound === 'r1') {
+                        populateResultForm(idRound, GRCC_AUSTRALIA_R1);
+                        const head = document.querySelector('#risultati-r1 .results-editor-head');
+                        if (head && !head.querySelector('.draft-notice')) {
+                            const msg=document.createElement('div');
+                            msg.className='draft-notice';
+                            msg.style.cssText='color:#ffd166;font-size:.8rem;margin-top:7px;max-width:420px';
+                            msg.textContent='BOZZA AUSTRALIA: dati precaricati, non ancora pubblicati su Google Sheets. Verifica e premi PUBBLICA RISULTATI.';
+                            head.appendChild(msg);
+                        }
+                    }
+                    return;
+                }
                 populateResultForm(idRound, data);
             } catch(err) {
                 console.warn('Risultati non ancora disponibili:', err);
