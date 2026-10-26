@@ -37,7 +37,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;ba
     <h1>Driver <span>of the Day</span></h1>
     <div class="gp-name" id="gpName">Gran Premio d'Australia</div>
     <div class="status" id="statusBadge"><span class="status-dot"></span><span id="statusText">Votazione aperta</span></div>
-    <p class="hero-copy">Scegli il pilota che ha fatto la differenza in pista. Il voto è definitivo e può essere espresso una sola volta dal pilota autenticato.</p>
+    <p class="hero-copy">Non è consentito votare per sé stessi. Scegli il pilota che ha fatto la differenza in pista. Il voto è definitivo e può essere espresso una sola volta dal pilota autenticato.</p>
   </div>
 </section>
 <main class="wrap">
@@ -60,9 +60,17 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;ba
 <div class="vote-dock" id="voteDock"><div class="choice"><div class="mini-number" id="dockNumber"></div><div><small>Hai selezionato</small><strong id="dockName"></strong></div></div><button class="vote-btn" onclick="openConfirm()"><i class="fa-solid fa-trophy"></i> Conferma il voto</button></div>
 <div class="modal" id="modal"><div class="modal-card"><div style="color:var(--gold);font-size:2.5rem"><i class="fa-solid fa-trophy"></i></div><img id="modalImg" alt="Pilota"><div style="color:var(--muted);text-transform:uppercase;letter-spacing:2px">Confermi il voto per</div><h3 id="modalName"></h3><div id="modalTeam" style="color:var(--gold);font-weight:800"></div><div class="modal-actions"><button class="admin-btn cancel" onclick="closeConfirm()">Annulla</button><button class="admin-btn confirm" onclick="confirmVote()">Conferma</button></div></div></div>
 <script>
-const ROUND=1;
-const HERO_IMAGE='assets/gp/australia.jpg';
-const GP_NAME="Gran Premio d'Australia";
+const GRCC_GP_NAMES=["Australia", "Cina", "Giappone", "Bahrain", "Arabia Saudita", "Miami", "Canada", "Monaco", "Spagna", "Austria", "Gran Bretagna", "Belgio", "Ungheria", "Paesi Bassi", "Italia", "Madrid", "Azerbaijan", "Singapore", "Stati Uniti", "Messico", "São Paulo", "Las Vegas", "Qatar", "Abu Dhabi"];
+const GRCC_GP_DATES=["2026-10-23", "2026-10-30", "2026-11-06", "2026-11-13", "2026-11-20", "2026-11-27", "2026-12-04", "2026-12-11", "2026-12-18", "2027-01-08", "2027-01-15", "2027-01-22", "2027-01-29", "2027-02-05", "2027-02-12", "2027-02-19", "2027-02-26", "2027-03-05", "2027-03-12", "2027-03-26", "2027-04-02", "2027-04-09", "2027-04-16", "2027-04-23"];
+function grccRoundAttuale() {
+  const oggi=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  // Il GP successivo diventa attivo il giorno dopo il precedente.
+  const idx=GRCC_GP_DATES.findIndex(d=>d>=oggi);
+  return idx<0?24:idx+1;
+}
+const ROUND=grccRoundAttuale();
+const GP_NAME='Gran Premio '+({"Australia":"d'Australia","Cina":"di Cina","Giappone":"del Giappone","Bahrain":"del Bahrain","Arabia Saudita":"d’Arabia Saudita","Miami":"di Miami","Canada":"del Canada","Monaco":"di Monaco","Spagna":"di Spagna","Austria":"d’Austria","Gran Bretagna":"di Gran Bretagna","Belgio":"del Belgio","Ungheria":"d’Ungheria","Paesi Bassi":"dei Paesi Bassi","Italia":"d’Italia","Madrid":"di Madrid","Azerbaijan":"d’Azerbaijan","Singapore":"di Singapore","Stati Uniti":"degli Stati Uniti","Messico":"del Messico","São Paulo":"di São Paulo","Las Vegas":"di Las Vegas","Qatar":"del Qatar","Abu Dhabi":"di Abu Dhabi"}[GRCC_GP_NAMES[ROUND-1]]||GRCC_GP_NAMES[ROUND-1]);
+const HERO_IMAGE='assets/gp/'+({1:'australia',2:'cina',3:'giappone',4:'bahrain',5:'arabia-saudita',6:'miami',7:'canada',8:'monaco',9:'spagna',10:'austria',11:'gran-bretagna',12:'belgio',13:'ungheria',14:'paesi-bassi',15:'italia',16:'madrid',17:'azerbaijan',18:'singapore',19:'stati-uniti',20:'messico',21:'sao-paulo',22:'las-vegas',23:'qatar',24:'abu-dhabi'}[ROUND])+'.jpg';
 const SCRIPT_URL="https://script.google.com/macros/s/AKfycbz30o3f7QkmijHWpQgwInJMIcIujmO_F070OwXhqbKnQidHdJC4iLa-rQZy0WzsN9buuA/exec";
 
 const heroProbe=new Image();
@@ -99,6 +107,7 @@ let state={open:false,loading:true,winner:null};
 const pilot=sessionStorage.getItem('grcc_pilot');
 const isAdmin=()=>sessionStorage.getItem('grcc_role')==='DIREZIONE GARA' || sessionStorage.getItem('grcc_admin')==='true';
 const voteKey=`grcc_dotd_voted_${ROUND}_${pilot||'none'}`;
+const isSelfVote=name=>String(name||'').trim().toLocaleUpperCase('it-IT')===String(pilot||'').trim().toLocaleUpperCase('it-IT');
 
 if(sessionStorage.getItem('grcc_authenticated')!=='true') window.location.href='index.html';
 if(!isAdmin()&&!pilot){
@@ -113,12 +122,15 @@ async function apiGet(action,extra={}){
   return res.json();
 }
 async function apiPost(payload){
-  await fetch(SCRIPT_URL,{
+  const response=await fetch(SCRIPT_URL,{
     method:'POST',
-    mode:'no-cors',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
     body:JSON.stringify(payload)
   });
+  if(!response.ok)throw new Error('Errore di connessione');
+  const data=await response.json();
+  if(data && data.success===false)throw new Error(data.message||'Operazione non riuscita');
+  return data;
 }
 async function loadState(){
   try{
@@ -137,7 +149,7 @@ async function loadState(){
 }
 function render(){
   const alreadyVoted=!isAdmin()&&localStorage.getItem(voteKey)==='true';
-  document.getElementById('gpName').textContent=GP_NAME;
+  document.getElementById('gpName').textContent=GP_NAME+' · Round '+ROUND;
   document.getElementById('rolePill').textContent=isAdmin()?'DIREZIONE GARA':pilot;
   document.getElementById('adminPanel').classList.toggle('show',isAdmin());
 
@@ -150,11 +162,11 @@ function render(){
   grid.innerHTML='';
   drivers.forEach((d,index)=>{
     const card=document.createElement('article');
-    card.className='driver-card'+((!state.open||alreadyVoted||isAdmin())?' disabled':'');
+    card.className='driver-card'+((!state.open||alreadyVoted||isAdmin()||isSelfVote(d.name))?' disabled':'');
     card.style.setProperty('--team',d.color);
     card.style.animationDelay=(Math.min(index,12)*45)+'ms';
     card.innerHTML=`<div class="shine"></div><div class="check"><i class="fa-solid fa-check"></i></div><img class="driver-img" src="${d.img}" alt="${d.name}"><div class="number">#${d.number}</div><div class="driver-info"><h3 class="driver-name">${d.name}</h3><div class="team">${d.team}</div></div>`;
-    card.onclick=()=>selectDriver(d,card);
+    card.onclick=()=>{if(isSelfVote(d.name)){alert('Non puoi votare per te stesso.');return;}selectDriver(d,card);};
     grid.appendChild(card);
   });
 
@@ -200,6 +212,7 @@ function launchConfetti(){
 }
 async function confirmVote(){
   if(!selected||!state.open||isAdmin())return closeConfirm();
+  if(isSelfVote(selected.name)){closeConfirm();alert('Non puoi votare per te stesso.');return;}
   const button=document.querySelector('.modal .confirm');
   button.disabled=true;button.textContent='Invio...';
   try{
@@ -209,7 +222,7 @@ async function confirmVote(){
     closeConfirm();render();launchConfetti();
     window.scrollTo({top:370,behavior:'smooth'});
   }catch(err){
-    alert('Non è stato possibile inviare il voto. Controlla la connessione.');
+    alert('Voto non registrato: '+(err.message||'controlla la connessione.'));
   }finally{
     button.disabled=false;button.textContent='Conferma';
   }
