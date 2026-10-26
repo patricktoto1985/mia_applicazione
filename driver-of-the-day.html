@@ -97,7 +97,7 @@ const drivers=[
 let selected=null;
 let state={open:false,loading:true,winner:null};
 const pilot=sessionStorage.getItem('grcc_pilot');
-const isAdmin=()=>sessionStorage.getItem('grcc_role')==='DIREZIONE GARA';
+const isAdmin=()=>sessionStorage.getItem('grcc_role')==='DIREZIONE GARA' || sessionStorage.getItem('grcc_admin')==='true';
 const voteKey=`grcc_dotd_voted_${ROUND}_${pilot||'none'}`;
 
 if(sessionStorage.getItem('grcc_authenticated')!=='true') window.location.href='index.html';
