@@ -591,6 +591,13 @@
                 <p class="dash-desc">Visualizza e gestisci le candidature ricevute dal sito pubblico.</p>
             </a>
 
+            <a id="reclami-management-btn" href="reclami-admin.html" class="dash-btn" style="display:none;">
+                <span class="status-dot dot-red"></span>
+                <div class="dash-icon">⚖️</div>
+                <h2 class="dash-title">Gestione Reclami</h2>
+                <p class="dash-desc">Consulta segnalazioni, piloti coinvolti e video allegati.</p>
+            </a>
+
             <a id="presenze-management-btn" href="presenze.html" class="dash-btn" style="display:none;">
                 <span class="status-dot dot-yellow"></span>
                 <div class="dash-icon">👥</div>
@@ -739,10 +746,12 @@
             const btn = document.getElementById('account-management-btn');
             const candidatureBtn = document.getElementById('candidature-management-btn');
             const presenzeBtn = document.getElementById('presenze-management-btn');
+            const reclamiBtn = document.getElementById('reclami-management-btn');
             const isAdmin = sessionStorage.getItem('grcc_role') === 'DIREZIONE GARA' || sessionStorage.getItem('grcc_admin') === 'true';
             if (btn) btn.style.display = isAdmin ? 'flex' : 'none';
             if (candidatureBtn) candidatureBtn.style.display = isAdmin ? 'flex' : 'none';
             if (presenzeBtn) presenzeBtn.style.display = isAdmin ? 'flex' : 'none';
+            if (reclamiBtn) reclamiBtn.style.display = isAdmin ? 'flex' : 'none';
         }
 
         function apriGestioneAccount() {
