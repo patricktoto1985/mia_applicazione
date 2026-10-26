@@ -50,6 +50,11 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;ba
   <section class="admin" id="adminPanel">
     <div class="admin-top"><div><h3><i class="fa-solid fa-shield-halved"></i> Pannello Direzione Gara</h3><p style="color:var(--muted);margin:5px 0 0">Gestione online sincronizzata con Google Sheets</p></div><div class="admin-actions"><button class="admin-btn open" onclick="setVoting(true)">Apri</button><button class="admin-btn close" onclick="setVoting(false)">Chiudi</button><button class="admin-btn reset" onclick="resetVotingOnline()"><i class="fa-solid fa-trash-can"></i> Azzera</button></div></div>
     <div class="results" id="results"></div>
+    <section style="margin-top:28px;border-top:1px solid #263044;padding-top:22px">
+      <div class="admin-top"><div><h3><i class="fa-solid fa-list-check"></i> Registro votazioni</h3><p style="color:var(--muted)">Riservato alla Direzione Gara · chi ha votato e per chi</p></div><button class="admin-btn" onclick="loadVoteAudit()"><i class="fa-solid fa-rotate"></i> Aggiorna</button></div>
+      <p id="auditStatus" style="color:#94a3b8">Caricamento registro...</p>
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;text-align:left;min-width:520px"><thead><tr><th style="padding:12px;border-bottom:1px solid #263044">Votante</th><th style="padding:12px;border-bottom:1px solid #263044">Pilota votato</th><th style="padding:12px;border-bottom:1px solid #263044">Data e ora</th></tr></thead><tbody id="auditRows"></tbody></table></div>
+    </section>
   </section><div style="text-align:center"><a class="dotd-link" href="classifica-dotd.html"><i class="fa-solid fa-chart-column"></i> Classifica Driver of the Day</a></div>
 </main>
 <div class="vote-dock" id="voteDock"><div class="choice"><div class="mini-number" id="dockNumber"></div><div><small>Hai selezionato</small><strong id="dockName"></strong></div></div><button class="vote-btn" onclick="openConfirm()"><i class="fa-solid fa-trophy"></i> Conferma il voto</button></div>
@@ -267,6 +272,26 @@ async function resetVotingOnline(){
   }
 }
 
+async function loadVoteAudit(){
+  if(!isAdmin())return;
+  const status=document.getElementById('auditStatus');
+  const tbody=document.getElementById('auditRows');
+  status.textContent='Caricamento registro...';tbody.replaceChildren();
+  const adminToken=sessionStorage.getItem('grcc_admin_token');
+  if(!adminToken){status.textContent='Sessione amministratore mancante. Effettua nuovamente il login.';return;}
+  try{
+    const data=await apiGet('dotd_votes_admin',{round:ROUND,adminToken});
+    if(!data.success)throw new Error(data.message||'Impossibile caricare il registro');
+    const votes=Array.isArray(data.voti)?data.voti:[];
+    status.textContent=votes.length+' voti registrati nel Round '+ROUND;
+    votes.forEach(v=>{
+      const tr=document.createElement('tr');
+      [v.votante||'Non disponibile',v.pilota||'',v.data||''].forEach(value=>{
+        const td=document.createElement('td');td.textContent=String(value);td.style.cssText='padding:12px;border-bottom:1px solid #263044';tr.appendChild(td);
+      });tbody.appendChild(tr);
+    });
+  }catch(e){status.textContent='Errore: '+e.message;}
+}
 function renderAdminInfo(){
   const box=document.getElementById('results');
   if(!box||!isAdmin())return;
@@ -287,6 +312,7 @@ function renderWinner(){
 document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeConfirm()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeConfirm()});
 loadState();
+if(isAdmin())loadVoteAudit();
 setInterval(loadState,30000);
 </script>
 </body>
