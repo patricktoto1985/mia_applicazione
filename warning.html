@@ -366,6 +366,14 @@
             </form>
         </div>
 
+
+        <div class="card" id="reclamiRicevutiCard">
+            <h3>⚖️ Reclami ricevuti — La tua difesa</h3>
+            <div class="status-text">Hai 12 ore dalla registrazione del reclamo per inviare un controreclamo.</div>
+            <div id="reclamiRicevutiLista" class="complaint-list"><div class="empty-box">Caricamento reclami ricevuti...</div></div>
+            <button type="button" onclick="caricaReclamiRicevuti()" style="margin-top:12px;background:#243449;color:white;border:1px solid #39516d;border-radius:8px;padding:10px;cursor:pointer">↻ Aggiorna reclami ricevuti</button>
+        </div>
+
         <div class="card dg-only" id="dgReclamiCard">
             <h3>📁 Investigazioni e Segnalazioni Ricevute — Direzione Gara</h3>
             <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">
@@ -403,6 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
         reporter.readOnly = true;
     }
 
+    caricaReclamiRicevuti();
     if (utenteDirezioneGara()) {
         caricaReclamiDirezioneGara();
     }
@@ -474,6 +483,7 @@ async function salvaReclamo(event) {
         if(!data.success) throw new Error(data.message || 'Invio non riuscito');
 
         alert('✅ Reclamo inviato alla Direzione Gara.');
+        caricaReclamiRicevuti();
         document.getElementById('reportedName').value='';
         document.getElementById('incidentDesc').value='';
         document.getElementById('videoUrl').value='';
@@ -581,6 +591,62 @@ function escapeHtml(v) {
 }
 function escapeAttr(v) {
     return escapeHtml(v);
+}
+
+
+/* GRCC — Controreclami (12 ore). Il server applica identità e scadenza. */
+function tokenPilotaGRCC(){
+    return sessionStorage.getItem('grcc_pilot_token') || sessionStorage.getItem('grcc_pilotToken') || sessionStorage.getItem('pilotToken') || '';
+}
+async function postReclamiGRCC(payload){
+    const res=await fetch(RECLAMI_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+    if(!res.ok)throw new Error('Errore HTTP '+res.status);
+    const data=await res.json();
+    if(!data.success)throw new Error(data.message||'Richiesta non riuscita');
+    return data;
+}
+function grccTempoRimanente(iso){
+    const ms=new Date(iso).getTime()-Date.now();
+    if(!Number.isFinite(ms)||ms<=0)return 'Scaduto';
+    const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000),sec=Math.floor((ms%60000)/1000);
+    return `${h}h ${String(m).padStart(2,'0')}m ${String(sec).padStart(2,'0')}s`;
+}
+let grccTimerControreclami;
+async function caricaReclamiRicevuti(){
+    const lista=document.getElementById('reclamiRicevutiLista');
+    if(!lista)return;
+    const token=tokenPilotaGRCC();
+    if(!token){lista.innerHTML='<div class="empty-box">Per vedere e contestare i reclami è necessario effettuare nuovamente il login con la versione aggiornata di Race Control. Se il problema persiste, occorre collegare il token di accesso nella pagina index.html.</div>';return;}
+    lista.innerHTML='<div class="empty-box">Caricamento reclami ricevuti...</div>';
+    try{
+        const data=await postReclamiGRCC({action:'complaint_received',pilotToken:token});
+        const reclami=Array.isArray(data.reclami)?data.reclami:[];
+        if(!reclami.length){lista.innerHTML='<div class="empty-box">Non hai reclami ricevuti.</div>';return;}
+        lista.replaceChildren();
+        reclami.forEach((r,i)=>{
+            const box=document.createElement('div');box.className='reply-card';
+            const title=document.createElement('h4');title.textContent=`${r.round||'GP'} · Reclamo di ${r.segnalante||'Pilota'}`;box.appendChild(title);
+            const info=document.createElement('div');info.className='reply-meta';info.textContent=`Registrato: ${new Date(r.dataOra).toLocaleString('it-IT')} · Stato: ${r.stato||'DA ESAMINARE'}`;box.appendChild(info);
+            const desc=document.createElement('p');desc.textContent=r.descrizione||'';box.appendChild(desc);
+            if(r.video){const link=document.createElement('a');link.className='video-link';link.href=r.video;link.target='_blank';link.rel='noopener noreferrer';link.textContent='🎬 Guarda il video del reclamo';box.appendChild(link);}
+            const timer=document.createElement('div');timer.className='reply-timer';box.appendChild(timer);
+            const update=()=>{const remaining=grccTempoRimanente(r.scadenza);timer.textContent=remaining==='Scaduto'?'Termine per la difesa scaduto':'Tempo rimanente: '+remaining;timer.classList.toggle('reply-expired',remaining==='Scaduto');const form=box.querySelector('form');if(form&&remaining==='Scaduto'){form.remove();}};
+            if(r.risposta||r.dataRisposta){const sent=document.createElement('p');sent.className='reply-sent';sent.textContent='✓ Controreclamo già inviato: '+(r.risposta||'');box.appendChild(sent);if(r.videoRisposta){const a=document.createElement('a');a.className='video-link';a.href=r.videoRisposta;a.target='_blank';a.rel='noopener noreferrer';a.textContent='🎬 Video della difesa';box.appendChild(a);}}
+            else if(r.puoRispondere){
+                const form=document.createElement('form');form.className='reply-form';
+                const label=document.createElement('label');label.textContent='La tua versione dei fatti (minimo 10 caratteri):';form.appendChild(label);
+                const area=document.createElement('textarea');area.required=true;area.minLength=10;area.maxLength=5000;area.placeholder='Spiega cosa è successo dal tuo punto di vista...';form.appendChild(area);
+                const videoLabel=document.createElement('label');videoLabel.textContent='Link video della difesa (facoltativo, HTTPS):';form.appendChild(videoLabel);
+                const video=document.createElement('input');video.type='url';video.placeholder='https://...';form.appendChild(video);
+                const button=document.createElement('button');button.type='submit';button.textContent='Invia controreclamo';button.style.marginTop='12px';form.appendChild(button);
+                form.addEventListener('submit',async e=>{e.preventDefault();if(!confirm('Inviare definitivamente il controreclamo? Potrai inviarne uno solo.'))return;button.disabled=true;try{await postReclamiGRCC({action:'complaint_reply',pilotToken:token,id:r.id,risposta:area.value.trim(),videoUrl:video.value.trim()});alert('✓ Controreclamo registrato.');await caricaReclamiRicevuti();}catch(err){alert('❌ '+err.message);button.disabled=false;}});
+                box.appendChild(form);
+            }
+            lista.appendChild(box);update();box._updateTimer=update;
+        });
+        if(grccTimerControreclami)clearInterval(grccTimerControreclami);
+        grccTimerControreclami=setInterval(()=>lista.querySelectorAll('.reply-card').forEach(card=>card._updateTimer?.()),1000);
+    }catch(err){lista.innerHTML='<div class="empty-box">❌ '+escapeHtml(err.message)+'</div>';}
 }
 
 </script>

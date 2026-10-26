@@ -398,6 +398,12 @@
                 sessionStorage.setItem('grcc_authenticated', 'true');
                 sessionStorage.setItem('grcc_role', result.ruolo || 'PILOTA');
                 sessionStorage.setItem('grcc_pilot', pilota);
+                // Sessione autenticata per reclami e controreclami (12 ore).
+                if (result.pilotToken) {
+                    sessionStorage.setItem('grcc_pilot_token', result.pilotToken);
+                } else {
+                    sessionStorage.removeItem('grcc_pilot_token');
+                }
 
                 if (result.isAdmin === true) {
                     sessionStorage.setItem('grcc_admin', 'true');
@@ -832,6 +838,7 @@
             sessionStorage.removeItem('grcc_pilot');
             sessionStorage.removeItem('grcc_admin');
             sessionStorage.removeItem('grcc_admin_token');
+            sessionStorage.removeItem('grcc_pilot_token');
             window.location.reload();
         }
 
