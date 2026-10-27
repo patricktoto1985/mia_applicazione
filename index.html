@@ -579,6 +579,20 @@
             <button class="pwa-install-btn" id="pwa-install-btn" type="button" onclick="installaPWA()">
                 📲 INSTALLA COME APP
             </button>
+            
+<button
+  class="pwa-install-btn"
+  id="grcc-push-btn"
+  type="button"
+  style="margin-top:12px;"
+  onclick="attivaNotificheGRCC()">
+  🔔 ATTIVA NOTIFICHE
+</button>
+<div id="grcc-push-status"
+     role="status"
+     style="margin-top:8px;font-size:13px;color:#9ca3af;">
+</div>
+
         </section>
 
         <div class="grid-dashboard">
@@ -1176,6 +1190,86 @@
         });
     }
     </script>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js"></script>
+
+<script>
+async function attivaNotificheGRCC() {
+  const stato = document.getElementById('grcc-push-status');
+  const pulsante = document.getElementById('grcc-push-btn');
+
+  const aggiornaStato = messaggio => {
+    if (stato) stato.textContent = messaggio;
+  };
+
+  const pilotToken = sessionStorage.getItem('grcc_pilot_token');
+
+  if (!pilotToken) {
+    aggiornaStato('Accedi con il tuo account pilota prima di attivare le notifiche.');
+    return;
+  }
+
+  if (!('Notification' in window) ||
+      !('serviceWorker' in navigator) ||
+      !('PushManager' in window)) {
+    aggiornaStato('Le notifiche push non sono supportate su questo dispositivo.');
+    return;
+  }
+
+  if (pulsante) pulsante.disabled = true;
+
+  try {
+    const permesso = await Notification.requestPermission();
+
+    if (permesso !== 'granted') {
+      aggiornaStato('Autorizzazione alle notifiche non concessa.');
+      return;
+    }
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: 'AIzaSyC6_cvZcICon-unMDs2uCraG___Bn_Ln64',
+        authDomain: 'grccf1esports-32e7a.firebaseapp.com',
+        projectId: 'grccf1esports-32e7a',
+        messagingSenderId: '669012371039',
+        appId: '1:669012371039:web:83b4796b248d1bdaeaddea'
+      });
+    }
+
+    const registrazione = await navigator.serviceWorker.register('./service-worker.js?v2');
+    await navigator.serviceWorker.ready;
+    const messaging = firebase.messaging();
+
+    const tokenFCM = await messaging.getToken({
+      vapidKey: 'BDOw4viuOrOkj4DLBV82MfAaowE5Y_6WlkDnPTh9U9zBAzzJbONAVIOdV5FZsvDSAV9zHVWE5le7TGOvqCuGd9c',
+      serviceWorkerRegistration: registrazione
+    });
+
+    if (!tokenFCM) {
+      throw new Error('Firebase non ha restituito un token.');
+    }
+
+    const risultato = await postAccount({
+      action: 'push_register',
+      pilotaToken: pilotToken,
+      tokenFCM: tokenFCM
+    });
+
+    if (!risultato.success) {
+      throw new Error(risultato.message || 'Registrazione non riuscita.');
+    }
+
+    aggiornaStato('✅ Notifiche attivate correttamente su questo dispositivo.');
+
+  } catch (errore) {
+    console.error('GRCC Push:', errore);
+    aggiornaStato('❌ ' + (errore.message || 'Errore durante l’attivazione.'));
+  } finally {
+    if (pulsante) pulsante.disabled = false;
+  }
+}
+</script>
 
 </body>
 </html>
