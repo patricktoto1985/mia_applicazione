@@ -1204,11 +1204,12 @@ async function attivaNotificheGRCC() {
   };
 
   const pilotToken = sessionStorage.getItem('grcc_pilot_token');
+  const adminToken = sessionStorage.getItem('grcc_admin_token');
 
-  if (!pilotToken) {
-    aggiornaStato('Accedi con il tuo account pilota prima di attivare le notifiche.');
-    return;
-  }
+  if (!pilotToken && !adminToken) {
+  aggiornaStato('Accedi con il tuo account prima di attivare le notifiche.');
+  return;
+}
 
   if (!('Notification' in window) ||
       !('serviceWorker' in navigator) ||
@@ -1251,10 +1252,11 @@ async function attivaNotificheGRCC() {
     }
 
     const risultato = await postAccount({
-      action: 'push_register',
-      pilotaToken: pilotToken,
-      tokenFCM: tokenFCM
-    });
+  action: 'push_register',
+  pilotaToken: pilotToken || '',
+  adminToken: adminToken || '',
+  tokenFCM: tokenFCM
+});
 
     if (!risultato.success) {
       throw new Error(risultato.message || 'Registrazione non riuscita.');
