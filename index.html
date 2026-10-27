@@ -1186,7 +1186,7 @@
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./service-worker.js?v=2').catch(() => {});
+            navigator.serviceWorker.register('./service-worker.js?v3').catch(() => {});
         });
     }
     </script>
@@ -1237,7 +1237,7 @@ async function attivaNotificheGRCC() {
       });
     }
 
-    const registrazione = await navigator.serviceWorker.register('./service-worker.js?v2');
+    const registrazione = await navigator.serviceWorker.register('./service-worker.js?v3');
     await navigator.serviceWorker.ready;
     const messaging = firebase.messaging();
 
