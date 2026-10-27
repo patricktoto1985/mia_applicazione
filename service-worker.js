@@ -1,4 +1,4 @@
-const CACHE_NAME = 'grcc-race-control-v2';
+const CACHE_NAME = 'grcc-race-control-v3';
 const APP_SHELL = [
   './',
   './index.html',
