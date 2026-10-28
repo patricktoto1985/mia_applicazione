@@ -251,6 +251,16 @@
             cursor: default;
         }
 
+    
+/* Indicatore notifiche nella testata */
+.grcc-notify-wrap{display:flex;justify-content:center;margin:12px auto 0}
+.grcc-notify-button{display:inline-flex;align-items:center;gap:9px;background:#131a26;border:1px solid #35445b;border-radius:30px;padding:9px 15px;color:white;font-weight:800;cursor:pointer;font-family:inherit}
+.grcc-notify-button i{font-size:1.2rem}
+.grcc-notify-dot{width:9px;height:9px;border-radius:50%;background:#94a3b8}
+.grcc-notify-button[data-state="active"] .grcc-notify-dot{background:#00ffd1;box-shadow:0 0 8px #00ffd1}
+.grcc-notify-button[data-state="inactive"] .grcc-notify-dot{background:#ff6b6b}
+.grcc-notify-button[data-state="unknown"] .grcc-notify-dot{background:#ffb700}
+
     </style>
 </head>
 <body>
@@ -528,6 +538,11 @@
             </h1>
             
             <img src="logo.png.png" alt="Logo GRCC" style="width: 50px; height: 50px; object-fit: contain;">
+        </div>
+        <div class="grcc-notify-wrap">
+          <button type="button" id="grcc-notify-indicator" class="grcc-notify-button" data-state="unknown" onclick="mostraStatoNotificheGRCC()" title="Controlla lo stato delle notifiche">
+            <i class="fas fa-bell" aria-hidden="true"></i><span id="grcc-notify-label">Notifiche: verifica...</span><span class="grcc-notify-dot" aria-hidden="true"></span>
+          </button>
         </div>
     </header>
 
@@ -1262,7 +1277,9 @@ async function attivaNotificheGRCC() {
       throw new Error(risultato.message || 'Registrazione non riuscita.');
     }
 
+    localStorage.setItem('grcc_push_registered', 'true');
     aggiornaStato('✅ Notifiche attivate correttamente su questo dispositivo.');
+    aggiornaIndicatoreNotificheGRCC();
 
   } catch (errore) {
     console.error('GRCC Push:', errore);
@@ -1271,6 +1288,39 @@ async function attivaNotificheGRCC() {
     if (pulsante) pulsante.disabled = false;
   }
 }
+</script>
+
+
+<script>
+function aggiornaIndicatoreNotificheGRCC(){
+  const btn=document.getElementById('grcc-notify-indicator');
+  const label=document.getElementById('grcc-notify-label');
+  if(!btn||!label)return;
+  let state='unknown', message='Notifiche: da verificare';
+  if(!('Notification' in window)||!('serviceWorker' in navigator)||!('PushManager' in window)){
+    state='inactive';message='Notifiche: non supportate';
+  }else if(Notification.permission==='denied'){
+    state='inactive';message='Notifiche: bloccate';
+  }else if(Notification.permission==='default'){
+    state='inactive';message='Notifiche: da attivare';
+  }else if(localStorage.getItem('grcc_push_registered')==='true'){
+    state='active';message='Notifiche: autorizzate';
+  }else{
+    state='unknown';message='Notifiche: verifica iscrizione';
+  }
+  btn.dataset.state=state;label.textContent=message;
+}
+function mostraStatoNotificheGRCC(){
+  aggiornaIndicatoreNotificheGRCC();
+  const status=document.getElementById('grcc-notify-label')?.textContent||'Stato non disponibile';
+  const box=document.getElementById('pwa-install-wrap');
+  if(box)box.scrollIntoView({behavior:'smooth',block:'center'});
+  const detail=document.getElementById('grcc-push-status');
+  if(detail)detail.textContent=status+'. Usa il pulsante ATTIVA NOTIFICHE qui sopra per configurarle. Lo stato autorizzato non garantisce da solo la consegna dei messaggi.';
+}
+window.addEventListener('DOMContentLoaded',aggiornaIndicatoreNotificheGRCC);
+window.addEventListener('focus',aggiornaIndicatoreNotificheGRCC);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)aggiornaIndicatoreNotificheGRCC();});
 </script>
 
 </body>
