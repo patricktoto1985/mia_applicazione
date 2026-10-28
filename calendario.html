@@ -190,6 +190,8 @@
             if (!isRaceControl()) return;
             try {
                 const payload = collectResults(idRound, nomePista);
+                payload.adminToken = sessionStorage.getItem('grcc_admin_token') || '';
+                if (!payload.adminToken) throw new Error('Sessione amministratore mancante. Esci e accedi nuovamente come admin.');
                 if (!confirm(`Pubblicare i risultati ufficiali di ${nomePista}?\n\nLe classifiche e le schede pilota verranno aggiornate.`)) return;
                 const btn = document.querySelector(`#risultati-${idRound} .publish-results-btn`);
                 if(btn) { btn.disabled=true; btn.textContent='PUBBLICAZIONE...'; }
