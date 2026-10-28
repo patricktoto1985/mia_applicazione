@@ -172,6 +172,13 @@
         </div>
     </div>
 
+
+    <div class="grcc-video-modal" id="grccVideoModal" hidden role="dialog" aria-modal="true" aria-label="Lettore Highlights">
+      <div class="grcc-video-panel">
+        <div class="grcc-video-actions"><strong>🎬 Highlights GRCC F1 ESPORTS</strong><a id="grccVideoOriginal" target="_blank" rel="noopener noreferrer">Apri originale</a><button type="button" onclick="chiudiVideoHighlight()">✕ Chiudi</button></div>
+        <div class="grcc-video-frame" id="grccVideoFrame"></div>
+      </div>
+    </div>
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz30o3f7QkmijHWpQgwInJMIcIujmO_F070OwXhqbKnQidHdJC4iLa-rQZy0WzsN9buuA/exec';
 
@@ -192,13 +199,25 @@
                 : 'Nessun video selezionato.';
         }
 
-        function leggiFileBase64(file) {
-            return new Promise((resolve,reject)=>{
-                const reader = new FileReader();
-                reader.onload = () => resolve(String(reader.result).split(',')[1]);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
+        function tokenPilotaGRCC(){
+            return sessionStorage.getItem('grcc_pilot_token') || sessionStorage.getItem('grcc_pilotToken') || sessionStorage.getItem('pilotToken') || '';
+        }
+        async function grccUploadHighlight(file,onProgress){
+            const pilotToken=tokenPilotaGRCC();
+            if(!pilotToken)throw Error('Sessione pilota mancante: effettua nuovamente il login');
+            const initRes=await fetch('/api/upload/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pilotToken,name:file.name,size:file.size,type:file.type||'video/mp4'})});
+            const init=await initRes.json();
+            if(!initRes.ok||!init.ok)throw Error(init.error||'Impossibile iniziare il caricamento');
+            const step=1024*1024;
+            for(let offset=0;offset<file.size;offset+=step){
+                const end=Math.min(offset+step,file.size);
+                const res=await fetch('/api/upload/chunk',{method:'POST',headers:{'Content-Type':'application/octet-stream','X-GRCC-Upload-Token':init.token,'X-GRCC-Start':String(offset),'X-GRCC-Total':String(file.size)},body:file.slice(offset,end)});
+                const data=await res.json();
+                if(!res.ok||!data.ok)throw Error(data.error||'Errore durante il caricamento');
+                onProgress?.(Math.round(end/file.size*100));
+                if(data.receipt)return data.receipt;
+            }
+            throw Error('Google Drive non ha confermato il caricamento');
         }
 
         async function salvaVideo(event) {
@@ -213,13 +232,6 @@
                 alert('Inserisci un link oppure scegli un video dal telefono.');
                 return;
             }
-
-            const MAX_MB = 10;
-            if (file && file.size > MAX_MB * 1024 * 1024) {
-                alert(`La clip supera ${MAX_MB} MB. Per video più grandi usa un link Drive/YouTube/Twitch.`);
-                return;
-            }
-
             const btn = document.getElementById('submitHighlight');
             const progress = document.getElementById('uploadProgress');
             btn.disabled = true;
@@ -227,14 +239,17 @@
             progress.style.display = 'block';
 
             try {
+                const uploadReceipt = file ? await grccUploadHighlight(file, p => {
+                    progress.textContent = '⏳ Caricamento video: '+p+'% — non chiudere la pagina';
+                }) : '';
                 const payload = {
                     action: 'highlight_submit',
+                    pilotToken: tokenPilotaGRCC(),
+                    uploadReceipt,
                     round,
                     pilota: nome,
                     videoUrl: link,
-                    fileName: file ? file.name : '',
-                    mimeType: file ? (file.type || 'video/mp4') : '',
-                    base64: file ? await leggiFileBase64(file) : ''
+                    fileName: '', mimeType: '', base64: ''
                 };
 
                 const res = await fetch(SCRIPT_URL, {
@@ -286,7 +301,7 @@
                             <div>
                                 <strong style="color:#fff;">${escapeHtml(video.pilota)}</strong>
                             </div>
-                            <a href="${escapeAttr(video.link)}" target="_blank" rel="noopener" class="video-link">Guarda Video 🎥</a>
+                            <button type="button" class="video-watch" data-video-url="${escapeAttr(video.link)}">▶ Guarda video</button>
                         </div>
 
                         <div class="comments-box">
@@ -302,6 +317,9 @@
                     </div>`;
                 }).join('');
 
+                contenitore.querySelectorAll('.video-watch').forEach(btn => {
+                    btn.addEventListener('click', () => apriVideoHighlight(btn.dataset.videoUrl));
+                });
                 await Promise.all(videoSalvati.map((video, index) => {
                     const highlightId = String(video.id || video.link || `${round}-${index}`);
                     return caricaCommenti(highlightId, `hl-${index}`);
@@ -383,6 +401,55 @@
                 alert('❌ ' + err.message);
             }
         }
+
+
+        function grccVideoEmbed(raw){
+            const u=new URL(raw);
+            if(!['https:','http:'].includes(u.protocol))return null;
+            const host=u.hostname.toLowerCase();
+            if(host==='drive.google.com'){
+                let id='';
+                const match=u.pathname.match(/\/file\/d\/([A-Za-z0-9_-]+)/);
+                if(match)id=match[1];
+                else if(u.pathname==='/open'||u.pathname==='/uc')id=u.searchParams.get('id')||'';
+                if(id && /^[A-Za-z0-9_-]+$/.test(id))return {kind:'iframe',src:'https://drive.google.com/file/d/'+id+'/preview'};
+            }
+            if(host==='youtu.be'||host==='www.youtube.com'||host==='youtube.com'||host==='m.youtube.com'){
+                const id=host==='youtu.be'?u.pathname.slice(1):u.pathname.startsWith('/shorts/')?u.pathname.split('/')[2]:u.searchParams.get('v');
+                if(id&&/^[A-Za-z0-9_-]{11}$/.test(id))return {kind:'iframe',src:'https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1'};
+            }
+            if(host==='player.vimeo.com'||host==='vimeo.com'||host==='www.vimeo.com'){
+                const id=u.pathname.match(/\/(?:video\/)?(\d+)/)?.[1];
+                if(id)return {kind:'iframe',src:'https://player.vimeo.com/video/'+id};
+            }
+            if(/\.(mp4|webm|ogg)$/i.test(u.pathname))return {kind:'video',src:u.href};
+            return null;
+        }
+        function apriVideoHighlight(url){
+            let parsed;
+            try{parsed=new URL(url);if(!['https:','http:'].includes(parsed.protocol))throw Error('URL non valido')}catch(e){alert('Link video non valido');return}
+            const modal=document.getElementById('grccVideoModal');
+            const frame=document.getElementById('grccVideoFrame');
+            const original=document.getElementById('grccVideoOriginal');
+            frame.replaceChildren();original.href=parsed.href;
+            const embed=grccVideoEmbed(parsed.href);
+            if(embed){
+                const media=document.createElement(embed.kind==='video'?'video':'iframe');
+                media.src=embed.src;
+                if(embed.kind==='video'){media.controls=true;media.playsInline=true;media.autoplay=true}
+                else{media.allow='autoplay; fullscreen; picture-in-picture';media.allowFullscreen=true;media.referrerPolicy='strict-origin-when-cross-origin';media.title='Riproduzione highlight'}
+                frame.appendChild(media);
+            }else{
+                const info=document.createElement('p');info.textContent='Questa piattaforma non permette la riproduzione integrata. Premi «Apri originale» per vedere il video.';info.style.padding='24px';frame.appendChild(info);
+            }
+            modal.hidden=false;document.body.style.overflow='hidden';
+        }
+        function chiudiVideoHighlight(){
+            document.getElementById('grccVideoModal').hidden=true;
+            document.getElementById('grccVideoFrame').replaceChildren();
+            document.body.style.overflow='';
+        }
+        document.addEventListener('keydown',e=>{if(e.key==='Escape')chiudiVideoHighlight()});
 
         function escapeHtml(v) {
             return String(v ?? '').replace(/[&<>"']/g, c => ({
