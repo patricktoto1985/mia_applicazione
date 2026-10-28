@@ -264,6 +264,16 @@ async function grccUploadVideo(file,onProgress){
             <button type="button" onclick="grccCaricaLicenze()" style="width:auto;background:#243449;color:#fff;border:1px solid #39516d;border-radius:8px;padding:10px 14px;cursor:pointer;margin-bottom:14px;">↻ Aggiorna sanzioni</button>
             <div id="grccSanzioniUfficiali" aria-live="polite"><div class="empty-box">Caricamento sanzioni ufficiali...</div></div>
         </div>
+
+        <div class="card" id="grccVerbaliPubbliciCard">
+            <h3>📄 Verbali ufficiali — Decisioni Direzione Gara</h3>
+            <p style="color:var(--text-muted);font-size:.87rem">Consulta i verbali PDF pubblicati dalla Direzione Gara. Le bozze non sono visibili.</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0">
+                <select id="grccVerbaliRound" aria-label="Filtra per Gran Premio" style="flex:1;min-width:180px;padding:10px;background:#151e2d;color:#fff;border:1px solid #39516d;border-radius:8px"><option value="">Tutti i Gran Premi</option></select>
+                <button type="button" id="grccVerbaliAggiorna" style="padding:10px 14px;background:#243449;color:#fff;border:1px solid #39516d;border-radius:8px;cursor:pointer">↻ Aggiorna verbali</button>
+            </div>
+            <div id="grccVerbaliElenco" aria-live="polite" style="display:grid;gap:12px">Caricamento verbali...</div>
+        </div>
     </div>
 
 
@@ -401,7 +411,7 @@ async function caricaReclamiDirezioneGara() {
                     <div class="complaint-meta">${escapeHtml(r.dataOra || '')}</div>
                     <div style="margin-top:8px;"><strong>${escapeHtml(r.segnalante)}</strong> → <strong>${escapeHtml(r.segnalato)}</strong></div>
                     <div class="complaint-desc">${escapeHtml(r.descrizione)}</div>
-                    ${r.video ? `<button type="button" class="grcc-video-open" data-grcc-video="${escapeAttr(r.video)}">🎬 Guarda video / clip</button>` : ''}
+                    ${r.video ? `<a class="video-link" href="${escapeAttr(r.video)}" target="_blank" rel="noopener">🎬 Guarda video / clip</a>` : ''}
                 </div>
                 <button class="btn-delete" type="button" onclick="cancellaReclamoDG(${Number.isFinite(r.riga) ? r.riga : 0}, '${escapeJs(r.segnalante)}', '${escapeJs(r.segnalato)}')">🗑 Elimina</button>
             </div>
@@ -495,10 +505,10 @@ async function caricaReclamiRicevuti(){
             const title=document.createElement('h4');title.textContent=`${nomeGP(r.round)} · Reclamo di ${r.segnalante||'Pilota'}`;box.appendChild(title);
             const info=document.createElement('div');info.className='reply-meta';info.textContent=`Registrato: ${new Date(r.dataOra).toLocaleString('it-IT')} · Stato: ${r.stato||'DA ESAMINARE'}`;box.appendChild(info);
             const desc=document.createElement('p');desc.textContent=r.descrizione||'';box.appendChild(desc);
-            if(r.video){box.appendChild(grccVideoButton(r.video,'🎬 Guarda il video del reclamo'));}
+            if(r.video){const link=document.createElement('a');link.className='video-link';link.href=r.video;link.target='_blank';link.rel='noopener noreferrer';link.textContent='🎬 Guarda il video del reclamo';box.appendChild(link);}
             const timer=document.createElement('div');timer.className='reply-timer';box.appendChild(timer);
             const update=()=>{const remaining=grccTempoRimanente(r.scadenza);timer.textContent=remaining==='Scaduto'?'Termine per la difesa scaduto':'Tempo rimanente: '+remaining;timer.classList.toggle('reply-expired',remaining==='Scaduto');const form=box.querySelector('form');if(form&&remaining==='Scaduto'){form.remove();}};
-            if(r.risposta||r.dataRisposta){const sent=document.createElement('p');sent.className='reply-sent';sent.textContent='✓ Controreclamo già inviato: '+(r.risposta||'');box.appendChild(sent);if(r.videoRisposta){box.appendChild(grccVideoButton(r.videoRisposta,'🎬 Video della difesa'));}}
+            if(r.risposta||r.dataRisposta){const sent=document.createElement('p');sent.className='reply-sent';sent.textContent='✓ Controreclamo già inviato: '+(r.risposta||'');box.appendChild(sent);if(r.videoRisposta){const a=document.createElement('a');a.className='video-link';a.href=r.videoRisposta;a.target='_blank';a.rel='noopener noreferrer';a.textContent='🎬 Video della difesa';box.appendChild(a);}}
             else if(r.puoRispondere){
                 const form=document.createElement('form');form.className='reply-form';
                 const label=document.createElement('label');label.textContent='La tua versione dei fatti (minimo 10 caratteri):';form.appendChild(label);
@@ -587,53 +597,42 @@ document.addEventListener('DOMContentLoaded',()=>{
  grccCaricaLicenze();
 });
 
+
+// Archivio pubblico: usa l'endpoint verbali_list già presente nel Codice.gs.
+let grccVerbaliPubblici=[];
+function grccDisegnaVerbaliPubblici(){
+ const box=document.getElementById('grccVerbaliElenco');
+ const filtro=document.getElementById('grccVerbaliRound').value;
+ const items=grccVerbaliPubblici.filter(v=>!filtro||String(v.round)===filtro);
+ box.replaceChildren();
+ if(!items.length){box.textContent='Nessun verbale ufficiale pubblicato per questa selezione.';return;}
+ items.forEach(v=>{
+  const card=document.createElement('div');card.style.cssText='padding:14px;border:1px solid #34445b;border-left:4px solid #00ffd1;border-radius:10px;background:#0b0f19';
+  const heading=document.createElement('div');heading.style.cssText='font-weight:800;font-size:1rem;margin-bottom:6px';heading.textContent=v.titolo||'Verbale ufficiale';card.appendChild(heading);
+  const info=document.createElement('div');info.style.cssText='font-size:.83rem;color:#aab6c9;line-height:1.6';info.textContent=[v.gp||nomeGP(v.round),v.pilota,v.tipo,v.data].filter(Boolean).join(' · ');card.appendChild(info);
+  if(/^https:\/\//i.test(String(v.url||''))){const link=document.createElement('a');link.href=v.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='📄 Apri verbale PDF';link.style.cssText='display:inline-block;margin-top:11px;color:#00ffd1;font-weight:800;text-decoration:underline';card.appendChild(link);}
+  box.appendChild(card);
+ });
+}
+async function grccCaricaVerbaliPubblici(){
+ const box=document.getElementById('grccVerbaliElenco');box.textContent='Caricamento verbali ufficiali...';
+ try{
+  const response=await fetch(RECLAMI_SCRIPT_URL+'?action=verbali_list&_='+Date.now(),{cache:'no-store'});
+  if(!response.ok)throw new Error('Server non disponibile');
+  const data=await response.json();if(!data.success)throw new Error(data.message||'Errore lettura verbali');
+  grccVerbaliPubblici=Array.isArray(data.verbali)?data.verbali:[];
+  grccDisegnaVerbaliPubblici();
+ }catch(err){box.textContent='❌ Impossibile caricare i verbali: '+err.message;}
+}
+document.addEventListener('DOMContentLoaded',()=>{
+ const sel=document.getElementById('grccVerbaliRound');
+ GRCC_GP.forEach((gp,i)=>{const o=document.createElement('option');o.value=String(i+1);o.textContent='Round '+(i+1)+' — '+gp;sel.appendChild(o)});
+ sel.addEventListener('change',grccDisegnaVerbaliPubblici);
+ document.getElementById('grccVerbaliAggiorna').addEventListener('click',grccCaricaVerbaliPubblici);
+ grccCaricaVerbaliPubblici();
+});
+
 </script>
 
-<style>
-.grcc-video-open{display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:9px 13px;border:1px solid #00cdb9;border-radius:8px;background:#12333a;color:#fff;font:inherit;font-weight:700;cursor:pointer}
-.grcc-video-open:hover{background:#19505a}
-.grcc-video-modal[hidden]{display:none!important}.grcc-video-modal{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.89);display:flex;align-items:center;justify-content:center;padding:16px}
-.grcc-video-panel{background:#111b29;border:1px solid #3b5068;border-radius:14px;width:min(1050px,100%);max-height:96vh;overflow:auto;padding:15px}
-.grcc-video-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}.grcc-video-bar strong{color:white}.grcc-video-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.grcc-video-actions a{color:#60e7dc}.grcc-video-close{background:#e10600;color:white;border:0;border-radius:8px;padding:9px 15px;cursor:pointer;font:inherit;font-weight:700}
-.grcc-video-frame{display:block;width:100%;aspect-ratio:16/9;border:0;background:black;border-radius:8px}
-.grcc-video-note{font-size:12px;color:#a7b5c8;margin:10px 0 0}
-</style>
-<div id="grccVideoModal" class="grcc-video-modal" role="dialog" aria-modal="true" aria-label="Riproduzione video" hidden>
- <div class="grcc-video-panel">
-  <div class="grcc-video-bar"><strong>🎬 Video del reclamo</strong><div class="grcc-video-actions"><a id="grccVideoExternal" href="#" target="_blank" rel="noopener noreferrer">Apri originale ↗</a><button type="button" class="grcc-video-close" id="grccVideoClose">✕ Chiudi</button></div></div>
-  <iframe id="grccVideoFrame" class="grcc-video-frame" title="Video del reclamo" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
-  <p class="grcc-video-note">Per i video Google Drive la riproduzione avviene nel lettore Drive incorporato. Alcuni servizi esterni possono richiedere l'apertura del link originale.</p>
- </div>
-</div>
-<script>
-(function(){
- const modal=document.getElementById('grccVideoModal'),frame=document.getElementById('grccVideoFrame'),external=document.getElementById('grccVideoExternal'),close=document.getElementById('grccVideoClose');
- let previousFocus=null;
- function playerUrl(raw){
-  let u;try{u=new URL(raw)}catch{return null}
-  if(u.protocol!=='https:')return null;
-  const host=u.hostname.toLowerCase();let m;
-  if(host==='drive.google.com'){
-   m=u.pathname.match(/^\/file\/d\/([a-zA-Z0-9_-]+)/);
-   const id=m?.[1]||(u.pathname==='/open'||u.pathname==='/uc'?u.searchParams.get('id'):null);
-   if(id&&/^[a-zA-Z0-9_-]+$/.test(id))return 'https://drive.google.com/file/d/'+id+'/preview';
-  }
-  if(host==='youtu.be'){const id=u.pathname.slice(1);if(/^[a-zA-Z0-9_-]{11}$/.test(id))return 'https://www.youtube-nocookie.com/embed/'+id}
-  if(host==='youtube.com'||host==='www.youtube.com'||host==='m.youtube.com'){
-   const id=u.pathname.startsWith('/shorts/')?u.pathname.split('/')[2]:u.searchParams.get('v');if(id&&/^[a-zA-Z0-9_-]{11}$/.test(id))return 'https://www.youtube-nocookie.com/embed/'+id;
-  }
-  return null;
- }
- function openVideo(raw){let u;try{u=new URL(raw)}catch{return}if(!['https:','http:'].includes(u.protocol))return;
-  const embed=playerUrl(u.href);if(!embed){window.open(u.href,'_blank','noopener,noreferrer');return}
-  previousFocus=document.activeElement;external.href=u.href;frame.src=embed;modal.hidden=false;document.body.style.overflow='hidden';close.focus();
- }
- function closeVideo(){frame.removeAttribute('src');modal.hidden=true;document.body.style.overflow='';previousFocus?.focus?.()}
- document.addEventListener('click',e=>{const b=e.target.closest?.('[data-grcc-video]');if(b){e.preventDefault();openVideo(b.dataset.grccVideo)}});
- close.addEventListener('click',closeVideo);modal.addEventListener('click',e=>{if(e.target===modal)closeVideo()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)closeVideo()});
- window.grccVideoButton=function(url,label){const b=document.createElement('button');b.type='button';b.className='grcc-video-open';b.dataset.grccVideo=String(url);b.textContent=label||'🎬 Guarda video';return b};
-})();
-</script>
 </body>
 </html>
