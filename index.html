@@ -251,6 +251,13 @@
             cursor: default;
         }
 
+    .grcc-notification-control { margin: 14px auto 0; text-align:center; max-width: 440px; }
+    #grcc-notification-indicator { display:inline-flex; align-items:center; justify-content:center; gap:9px; padding:10px 17px; border-radius:999px; background:rgba(19,26,38,.94); border:1px solid #64748b; color:#dbe7f5; font-weight:800; font-size:.78rem; cursor:pointer; letter-spacing:.4px; }
+    #grcc-notification-indicator i {font-size:1.15rem;}
+    #grcc-notification-indicator.granted {border-color:#00ffd1;color:#00ffd1;}
+    #grcc-notification-indicator.denied {border-color:#ff6b6b;color:#ff6b6b;}
+    #grcc-notification-indicator.pending {border-color:#ffb700;color:#ffb700;}
+    #grcc-notification-detail {font-size:.75rem;color:#dbe7f5;margin-top:7px;line-height:1.4;}
     </style>
 </head>
 <body>
@@ -529,6 +536,13 @@
             
             <img src="logo.png.png" alt="Logo GRCC" style="width: 50px; height: 50px; object-fit: contain;">
         </div>
+        <div class="grcc-notification-control">
+          <button id="grcc-notification-indicator" type="button" onclick="gestisciNotificheHeader()" aria-label="Controlla notifiche">
+            <i class="fas fa-bell" aria-hidden="true"></i>
+            <span id="grcc-notification-label">VERIFICA NOTIFICHE</span>
+          </button>
+          <div id="grcc-notification-detail" role="status" aria-live="polite"></div>
+        </div>
     </header>
 
     <div class="dashboard-container">
@@ -584,7 +598,7 @@
   class="pwa-install-btn"
   id="grcc-push-btn"
   type="button"
-  style="margin-top:12px;"
+  style="margin-top:12px;display:none;"
   onclick="attivaNotificheGRCC()">
   🔔 ATTIVA NOTIFICHE
 </button>
@@ -1203,6 +1217,49 @@ window.addEventListener('DOMContentLoaded', () => {
   const help = document.getElementById('grcc-ios-push-help');
   if (help && ios && !standalone) help.style.display = 'block';
 });
+
+async function aggiornaIndicatoreNotificheGRCC() {
+  const btn = document.getElementById('grcc-notification-indicator');
+  const label = document.getElementById('grcc-notification-label');
+  const detail = document.getElementById('grcc-notification-detail');
+  if (!btn || !label || !detail) return;
+  btn.classList.remove('granted','denied','pending');
+  if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+    btn.classList.add('denied'); label.textContent = 'NOTIFICHE NON SUPPORTATE';
+    detail.textContent = 'Questo browser non supporta le notifiche push.'; return;
+  }
+  if (Notification.permission === 'denied') {
+    btn.classList.add('denied'); label.textContent = 'NOTIFICHE BLOCCATE';
+    detail.textContent = 'Consenti le notifiche dalle impostazioni del browser o dispositivo.'; return;
+  }
+  if (Notification.permission !== 'granted') {
+    btn.classList.add('pending'); label.textContent = 'NOTIFICHE NON ATTIVE';
+    detail.textContent = 'Tocca la campanella per richiedere l’attivazione.'; return;
+  }
+  try {
+    const registration = await navigator.serviceWorker.getRegistration('./');
+    const subscription = registration ? await registration.pushManager.getSubscription() : null;
+    if (subscription) {
+      btn.classList.add('granted'); label.textContent = 'NOTIFICHE ATTIVE';
+      detail.textContent = 'Autorizzazione e iscrizione push presenti su questo dispositivo.';
+    } else {
+      btn.classList.add('pending'); label.textContent = 'ATTIVAZIONE DA COMPLETARE';
+      detail.textContent = 'Autorizzazione concessa, ma iscrizione push non rilevata. Tocca per completare.';
+    }
+  } catch(e) {
+    btn.classList.add('pending'); label.textContent = 'STATO DA VERIFICARE';
+    detail.textContent = 'Tocca la campanella per controllare la registrazione.';
+  }
+}
+async function gestisciNotificheHeader() {
+  await attivaNotificheGRCC();
+  await aggiornaIndicatoreNotificheGRCC();
+  const status = document.getElementById('grcc-push-status');
+  const detail = document.getElementById('grcc-notification-detail');
+  if (status && status.textContent && detail) detail.textContent = status.textContent;
+}
+window.addEventListener('DOMContentLoaded', aggiornaIndicatoreNotificheGRCC);
+window.addEventListener('focus', aggiornaIndicatoreNotificheGRCC);
 
 async function attivaNotificheGRCC() {
   const stato = document.getElementById('grcc-push-status');
