@@ -503,6 +503,7 @@ async function caricaReclamiRicevuti(){
 
 /* Patenti online: sola lettura per i piloti, modifica con token amministratore. */
 function grccTokenAdminLicenze(){return sessionStorage.getItem('grcc_admin_token')||'';}
+function grccAmministratoreLicenze(){return sessionStorage.getItem('grcc_admin')==='true' && !!grccTokenAdminLicenze();}
 async function grccLicenzeRequest(payload){
  const res=await fetch(RECLAMI_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
  if(!res.ok)throw new Error('Errore HTTP '+res.status);
@@ -527,7 +528,7 @@ async function grccCaricaLicenze(){
    const heading=document.createElement('strong');heading.textContent='Round '+e.round+' · '+e.pilota+' · −'+e.punti+' punti · '+e.warning+' warning';item.appendChild(heading);
    const meta=document.createElement('div');meta.className='complaint-meta';meta.textContent=e.dataOra+' · '+e.admin+(e.annullata?' · ANNULLATO':'');item.appendChild(meta);
    const desc=document.createElement('div');desc.className='sanzione-motivazione';desc.textContent=e.motivazione;item.appendChild(desc);
-   if(utenteDirezioneGara()&&!e.annullata){const btn=document.createElement('button');btn.className='btn-delete';btn.type='button';btn.textContent='Annulla provvedimento';btn.style.marginTop='10px';btn.addEventListener('click',()=>grccAnnullaLicenza(e.id));item.appendChild(btn);}
+   if(grccAmministratoreLicenze()&&!e.annullata){const btn=document.createElement('button');btn.className='btn-delete';btn.type='button';btn.textContent='Annulla provvedimento';btn.style.marginTop='10px';btn.addEventListener('click',()=>grccAnnullaLicenza(e.id));item.appendChild(btn);}
    registro.appendChild(item);
   }
  }catch(err){tbody.innerHTML='<tr><td colspan="5">Errore caricamento patenti: '+escapeHtml(err.message)+'</td></tr>';registro.textContent='Impossibile caricare il registro: '+err.message;}
@@ -538,7 +539,7 @@ async function grccAnnullaLicenza(id){
 }
 document.addEventListener('DOMContentLoaded',()=>{
  const card=document.getElementById('grccLicenzeAdminCard');
- if(utenteDirezioneGara())card.style.display='block';
+ if(grccAmministratoreLicenze())card.style.display='block';
  const rounds=document.getElementById('grccLicenzeRound');
  for(let i=1;i<=24;i++)rounds.add(new Option('Round '+i,i));
  document.getElementById('grccLicenzeForm').addEventListener('submit',async ev=>{
