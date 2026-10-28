@@ -1,4 +1,4 @@
-const CACHE_NAME = 'grcc-race-control-v2';
+const CACHE_NAME = 'grcc-race-control-v3';
 const APP_SHELL = [
   './',
   './index.html',
@@ -78,5 +78,37 @@ self.addEventListener('fetch', event => {
         return response;
       });
     })
+  );
+});
+
+
+/* GRCC Race Control - Notifiche Firebase */
+importScripts(
+  'https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js',
+  'https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js'
+);
+
+firebase.initializeApp({
+  apiKey: 'AIzaSyC6_cvZcICon-unMDs2uCraG___Bn_Ln64',
+  authDomain: 'grccf1esports-32e7a.firebaseapp.com',
+  projectId: 'grccf1esports-32e7a',
+  messagingSenderId: '669012371039',
+  appId: '1:669012371039:web:83b4796b248d1bdaeaddea'
+});
+
+const grccMessaging = firebase.messaging();
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+
+  const target = new URL(
+    event.notification.data?.url || '/',
+    self.location.origin
+  );
+
+  if (target.origin !== self.location.origin) return;
+
+  event.waitUntil(
+    clients.openWindow(target.href)
   );
 });
