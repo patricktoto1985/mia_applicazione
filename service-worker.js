@@ -1,15 +1,18 @@
-const CACHE_NAME = 'grcc-race-control-v3';
+const CACHE_NAME = 'grcc-race-control-v4';
 const APP_SHELL = [
   './',
   './index.html',
-  './manifest.webmanifest?v=2',
-  './icon-192.png?v=2',
-  './icon-512.png?v=2'
+  './manifest.webmanifest?v=3',
+  './icon-grcc-192-v3.png',
+  './icon-grcc-512-v3.png'
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL))
+    caches.open(CACHE_NAME).then(async cache => {
+      // A missing optional asset must not prevent service worker installation.
+      await Promise.allSettled(APP_SHELL.map(asset => cache.add(asset)));
+    })
   );
   self.skipWaiting();
 });
@@ -37,8 +40,8 @@ self.addEventListener('fetch', event => {
   // Always refresh manifest and app icons from network first.
   if (
     url.pathname.endsWith('/manifest.webmanifest') ||
-    url.pathname.endsWith('/icon-192.png') ||
-    url.pathname.endsWith('/icon-512.png')
+    url.pathname.endsWith('/icon-grcc-192-v3.png') ||
+    url.pathname.endsWith('/icon-grcc-512-v3.png')
   ) {
     event.respondWith(
       fetch(req, { cache: 'reload' })
