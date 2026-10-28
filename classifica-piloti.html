@@ -139,7 +139,9 @@ async function load(){
  const totals=new Map();let count=0,failed=0;
  for(let start=1;start<=24;start+=6){
   const all=await Promise.allSettled(Array.from({length:Math.min(6,25-start)},(_,i)=>roundData(start+i)));
-  for(const response of all){
+  for(let i=0;i<all.length;i++){
+    const response=all[i];
+    const currentRound=start+i;
    if(response.status==='rejected'){failed++;continue;}
    const rows=response.value;if(rows.length)count++;
    for(const row of rows){
@@ -148,7 +150,9 @@ async function load(){
     const info=roster.get(name.toUpperCase());
     const team=info?.team||String(row.team||'').trim();
     const state=String(row.stato||'CLASSIFICATO').toUpperCase();
-    const points=['DNF','DNS','DSQ','RIT','RITIRATO'].includes(state)?0:(Number(row.punti)||0);
+    // Squalifica ufficiale TICXY13 (Williams) dal GP Australia, Round 1.
+     const disqualifiedAustralia=currentRound===1 && name.toUpperCase()==='TICXY13';
+     const points=disqualifiedAustralia || ['DNF','DNS','DSQ','RIT','RITIRATO'].includes(state)?0:(Number(row.punti)||0);
     const key=name.toUpperCase();if(!key)continue;
     const old=totals.get(key)||{name:info?.name||name,team,points:0};
     old.points+=points;totals.set(key,old);
