@@ -9,7 +9,26 @@
         if (sessionStorage.getItem('grcc_authenticated') !== 'true') {
             window.location.href = 'index.html';
         }
-    </script>
+    
+async function grccUploadVideo(file,onProgress){
+  const pilotToken=tokenPilotaGRCC();
+  if(!pilotToken)throw Error('Sessione pilota mancante: effettua di nuovo il login');
+  const json=async (url,body)=>{
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();if(!r.ok||!d.ok)throw Error(d.error||'Errore caricamento');return d;
+  };
+  const init=await json('/api/upload/start',{pilotToken,name:file.name,size:file.size,type:file.type||'video/mp4'});
+  const step=1024*1024;let offset=0;
+  while(offset<file.size){
+    const end=Math.min(offset+step,file.size);
+    const res=await fetch('/api/upload/chunk',{method:'POST',headers:{'Content-Type':'application/octet-stream','X-GRCC-Upload-Token':init.token,'X-GRCC-Start':String(offset),'X-GRCC-Total':String(file.size)},body:file.slice(offset,end)});
+    const data=await res.json();if(!res.ok||!data.ok)throw Error(data.error||'Errore invio blocco');
+    offset=end;onProgress?.(Math.round(offset/file.size*100));
+    if(data.receipt)return data.receipt;
+  }
+  throw Error('Il caricamento non è stato confermato da Google Drive');
+}
+</script>
 
     <style>
         :root {
@@ -207,7 +226,7 @@
 
                 <div class="video-or">— OPPURE —</div>
                 <div class="video-upload-box">
-                    <label for="videoFile" style="margin-top:0;">📱 Carica video dal telefono / dispositivo:</label>
+                    <label for="videoFile" style="margin-top:0;">🎬 Carica video originale HD / 4K da telefono o PC:</label>
                     <input type="file" id="videoFile" accept="video/*" onchange="aggiornaVideoSelezionato()">
                     <div id="fileStatus" class="file-status">Nessun video selezionato.</div>
                     <div id="uploadProgress" class="upload-progress">⏳ Invio in corso... non chiudere la pagina.</div>
@@ -299,12 +318,7 @@ async function salvaReclamo(event) {
         return;
     }
 
-    // Upload Base64 via Apps Script: adatto a clip brevi.
-    const MAX_MB = 10;
-    if (file && file.size > MAX_MB*1024*1024) {
-        alert(`La clip supera ${MAX_MB} MB. Per video più grandi usa il link Drive/YouTube/Twitch.`);
-        return;
-    }
+    // Caricamento a blocchi su Google Drive, senza conversione Base64.
 
     const btn=document.getElementById('submitComplaint');
     const progress=document.getElementById('uploadProgress');
@@ -313,16 +327,18 @@ async function salvaReclamo(event) {
     progress.style.display='block';
 
     try {
+        const uploadReceipt = file ? await grccUploadVideo(file, (percent) => {
+          progress.textContent='⏳ Caricamento video: '+percent+'% — non chiudere la pagina';
+        }) : '';
         const payload = {
+            pilotToken:tokenPilotaGRCC(),uploadReceipt:uploadReceipt,
             action:'complaint_submit',
             round:document.getElementById('selectRound').value,
             reporter:document.getElementById('reporterName').value.trim(),
             reported:document.getElementById('reportedName').value.trim(),
             description:document.getElementById('incidentDesc').value.trim(),
             videoUrl:link,
-            fileName:file ? file.name : '',
-            mimeType:file ? (file.type || 'video/mp4') : '',
-            base64:file ? await leggiFileBase64(file) : ''
+            fileName:'', mimeType:'', base64:''
         };
 
         const res=await fetch(RECLAMI_SCRIPT_URL,{
@@ -490,7 +506,7 @@ async function caricaReclamiRicevuti(){
                 const videoLabel=document.createElement('label');videoLabel.textContent='Link video della difesa (facoltativo, HTTPS):';form.appendChild(videoLabel);
                 const video=document.createElement('input');video.type='url';video.placeholder='https://...';form.appendChild(video);
                 const button=document.createElement('button');button.type='submit';button.textContent='Invia controreclamo';button.style.marginTop='12px';form.appendChild(button);
-                form.addEventListener('submit',async e=>{e.preventDefault();if(!confirm('Inviare definitivamente il controreclamo? Potrai inviarne uno solo.'))return;button.disabled=true;try{await postReclamiGRCC({action:'complaint_reply',pilotToken:token,id:r.id,risposta:area.value.trim(),videoUrl:video.value.trim()});alert('✓ Controreclamo registrato.');await caricaReclamiRicevuti();}catch(err){alert('❌ '+err.message);button.disabled=false;}});
+                form.addEventListener('submit',async e=>{e.preventDefault();if(!confirm('Inviare definitivamente il controreclamo? Potrai inviarne uno solo.'))return;button.disabled=true;try{const receipt=attachment.files[0]?await grccUploadVideo(attachment.files[0],p=>replyProgress.textContent='Caricamento video: '+p+'%'):'';await postReclamiGRCC({action:'complaint_reply',pilotToken:token,id:r.id,risposta:area.value.trim(),videoUrl:video.value.trim(),uploadReceipt:receipt});alert('✓ Controreclamo registrato.');await caricaReclamiRicevuti();}catch(err){alert('❌ '+err.message);button.disabled=false;}});
                 box.appendChild(form);
             }
             lista.appendChild(box);update();box._updateTimer=update;
