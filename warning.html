@@ -509,6 +509,7 @@ async function grccLicenzeRequest(payload){
 }
 async function grccCaricaLicenze(){
  const tbody=document.getElementById('grccLicenzeCorpo'),registro=document.getElementById('grccLicenzeRegistro'),ufficiali=document.getElementById('grccSanzioniUfficiali');
+ if(ufficiali)ufficiali.innerHTML='<div class="empty-box">Aggiornamento sanzioni in corso...</div>';
  try{
   const data=await grccLicenzeRequest({action:'licenze_list'});
   tbody.replaceChildren();
@@ -520,7 +521,7 @@ async function grccCaricaLicenze(){
   const select=document.getElementById('grccLicenzePilota');select.replaceChildren();
   data.piloti.forEach(p=>{const o=new Option(p.pilota+' — '+p.team,p.pilota);select.add(o);});
   registro.replaceChildren();
-  if(!data.eventi.length){registro.innerHTML='<div class="empty-box">Nessun provvedimento registrato.</div>';return;}
+  if(!data.eventi.length){registro.innerHTML='<div class="empty-box">Nessun provvedimento registrato.</div>';if(ufficiali)ufficiali.innerHTML='<div class="empty-box">Nessuna sanzione ufficiale registrata.</div>';return;}
   for(const e of data.eventi){
    const item=document.createElement('div');item.className='sanzione-item';
    const heading=document.createElement('strong');heading.textContent='Round '+e.round+' · '+e.pilota+' · −'+e.punti+' punti · '+e.warning+' warning';item.appendChild(heading);
@@ -528,6 +529,24 @@ async function grccCaricaLicenze(){
    const desc=document.createElement('div');desc.className='sanzione-motivazione';desc.textContent=e.motivazione;item.appendChild(desc);
    if(grccAmministratoreLicenze()&&!e.annullata){const btn=document.createElement('button');btn.className='btn-delete';btn.type='button';btn.textContent='Annulla provvedimento';btn.style.marginTop='10px';btn.addEventListener('click',()=>grccAnnullaLicenza(e.id));item.appendChild(btn);}
    registro.appendChild(item);
+  }
+  if(ufficiali){
+   ufficiali.replaceChildren();
+   const eventiAttivi=data.eventi.filter(e=>!e.annullata);
+   if(!eventiAttivi.length){ufficiali.innerHTML='<div class="empty-box">Nessuna sanzione ufficiale attiva.</div>';}
+   for(const e of eventiAttivi){
+    const box=document.createElement('div');box.className='sanzione-item';
+    const titolo=document.createElement('div');titolo.className='sanzione-header';
+    const gp=document.createElement('span');gp.className='sanzione-gp';gp.textContent='ROUND '+e.round;
+    const pilota=document.createElement('span');pilota.className='sanzione-piloti';pilota.textContent=e.pilota;
+    titolo.append(gp,pilota);box.appendChild(titolo);
+    const misura=document.createElement('div');misura.className='sanzione-decisione';
+    misura.textContent=(Number(e.punti)>0?'−'+e.punti+' punti patente':'')+(Number(e.punti)>0&&Number(e.warning)>0?' · ':'')+(Number(e.warning)>0?e.warning+' warning':'Provvedimento registrato');
+    box.appendChild(misura);
+    const motivo=document.createElement('div');motivo.className='sanzione-motivazione';motivo.style.marginTop='10px';motivo.textContent=e.motivazione||'';box.appendChild(motivo);
+    const meta=document.createElement('div');meta.className='complaint-meta';meta.textContent=e.dataOra||'';box.appendChild(meta);
+    ufficiali.appendChild(box);
+   }
   }
  }catch(err){tbody.innerHTML='<tr><td colspan="5">Errore caricamento patenti: '+escapeHtml(err.message)+'</td></tr>';registro.textContent='Impossibile caricare il registro: '+err.message;if(ufficiali)ufficiali.textContent='Impossibile caricare le sanzioni: '+err.message;}
 }
