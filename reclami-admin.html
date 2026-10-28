@@ -20,7 +20,7 @@ function render(){
   const card=el('article','item'),top=el('div','top');
   top.append(el('strong','',`${nomeGP(r.round)} · ${r.segnalante||'—'} → ${r.segnalato||'—'}`),el('span','tag',r.stato||'DA ESAMINARE'));
   card.append(top,el('p','meta',r.dataOra||''),el('h2','','Descrizione del reclamo'),el('p','desc',r.descrizione||'Nessuna descrizione'));
-  function addLink(url,label){if(!url)return;try{const u=new URL(String(url));if(['https:','http:'].includes(u.protocol)){const a=el('a','video',label);a.href=u.href;a.target='_blank';a.rel='noopener noreferrer';card.append(a)}}catch(e){}}
+  function addLink(url,label){if(!url)return;try{const u=new URL(String(url));if(['https:','http:'].includes(u.protocol)){card.append(grccVideoButton(u.href,label))}}catch(e){}}
   addLink(r.video,'▶ Apri video allegato');
   if(r.risposta){const reply=el('div','reply');reply.append(el('strong','','Difesa del pilota'),el('p','desc',r.risposta));card.append(reply)}
   addLink(r.videoRisposta,'▶ Video controreclamo');
@@ -42,4 +42,50 @@ function render(){
 }
 async function load(){if(!isAdmin||!token){status.className='error';status.textContent='Accesso riservato agli amministratori: effettua il login da Race Control.';return}status.className='';status.textContent='Caricamento reclami…';results.replaceChildren();try{const res=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'complaint_admin_list',adminToken:token})});const data=await res.json();if(!data.success)throw Error(data.message||'Risposta non valida');all=Array.isArray(data.reclami)?data.reclami:[];status.textContent=`${all.length} reclami totali`;render()}catch(err){status.className='error';status.textContent='Impossibile caricare i reclami: '+err.message}}
 select.addEventListener('change',render);document.getElementById('reload').addEventListener('click',load);load();
-</script></body></html>
+</script><style>
+.grcc-video-open{display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:9px 13px;border:1px solid #00cdb9;border-radius:8px;background:#12333a;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+.grcc-video-open:hover{background:#19505a}
+.grcc-video-modal[hidden]{display:none!important}.grcc-video-modal{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.89);display:flex;align-items:center;justify-content:center;padding:16px}
+.grcc-video-panel{background:#111b29;border:1px solid #3b5068;border-radius:14px;width:min(1050px,100%);max-height:96vh;overflow:auto;padding:15px}
+.grcc-video-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}.grcc-video-bar strong{color:white}.grcc-video-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.grcc-video-actions a{color:#60e7dc}.grcc-video-close{background:#e10600;color:white;border:0;border-radius:8px;padding:9px 15px;cursor:pointer;font:inherit;font-weight:700}
+.grcc-video-frame{display:block;width:100%;aspect-ratio:16/9;border:0;background:black;border-radius:8px}
+.grcc-video-note{font-size:12px;color:#a7b5c8;margin:10px 0 0}
+</style>
+<div id="grccVideoModal" class="grcc-video-modal" role="dialog" aria-modal="true" aria-label="Riproduzione video" hidden>
+ <div class="grcc-video-panel">
+  <div class="grcc-video-bar"><strong>🎬 Video del reclamo</strong><div class="grcc-video-actions"><a id="grccVideoExternal" href="#" target="_blank" rel="noopener noreferrer">Apri originale ↗</a><button type="button" class="grcc-video-close" id="grccVideoClose">✕ Chiudi</button></div></div>
+  <iframe id="grccVideoFrame" class="grcc-video-frame" title="Video del reclamo" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+  <p class="grcc-video-note">Per i video Google Drive la riproduzione avviene nel lettore Drive incorporato. Alcuni servizi esterni possono richiedere l'apertura del link originale.</p>
+ </div>
+</div>
+<script>
+(function(){
+ const modal=document.getElementById('grccVideoModal'),frame=document.getElementById('grccVideoFrame'),external=document.getElementById('grccVideoExternal'),close=document.getElementById('grccVideoClose');
+ let previousFocus=null;
+ function playerUrl(raw){
+  let u;try{u=new URL(raw)}catch{return null}
+  if(u.protocol!=='https:')return null;
+  const host=u.hostname.toLowerCase();let m;
+  if(host==='drive.google.com'){
+   m=u.pathname.match(/^\/file\/d\/([a-zA-Z0-9_-]+)/);
+   const id=m?.[1]||(u.pathname==='/open'||u.pathname==='/uc'?u.searchParams.get('id'):null);
+   if(id&&/^[a-zA-Z0-9_-]+$/.test(id))return 'https://drive.google.com/file/d/'+id+'/preview';
+  }
+  if(host==='youtu.be'){const id=u.pathname.slice(1);if(/^[a-zA-Z0-9_-]{11}$/.test(id))return 'https://www.youtube-nocookie.com/embed/'+id}
+  if(host==='youtube.com'||host==='www.youtube.com'||host==='m.youtube.com'){
+   const id=u.pathname.startsWith('/shorts/')?u.pathname.split('/')[2]:u.searchParams.get('v');if(id&&/^[a-zA-Z0-9_-]{11}$/.test(id))return 'https://www.youtube-nocookie.com/embed/'+id;
+  }
+  return null;
+ }
+ function openVideo(raw){let u;try{u=new URL(raw)}catch{return}if(!['https:','http:'].includes(u.protocol))return;
+  const embed=playerUrl(u.href);if(!embed){window.open(u.href,'_blank','noopener,noreferrer');return}
+  previousFocus=document.activeElement;external.href=u.href;frame.src=embed;modal.hidden=false;document.body.style.overflow='hidden';close.focus();
+ }
+ function closeVideo(){frame.removeAttribute('src');modal.hidden=true;document.body.style.overflow='';previousFocus?.focus?.()}
+ document.addEventListener('click',e=>{const b=e.target.closest?.('[data-grcc-video]');if(b){e.preventDefault();openVideo(b.dataset.grccVideo)}});
+ close.addEventListener('click',closeVideo);modal.addEventListener('click',e=>{if(e.target===modal)closeVideo()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)closeVideo()});
+ window.grccVideoButton=function(url,label){const b=document.createElement('button');b.type='button';b.className='grcc-video-open';b.dataset.grccVideo=String(url);b.textContent=label||'🎬 Guarda video';return b};
+})();
+</script>
+</body></html>
