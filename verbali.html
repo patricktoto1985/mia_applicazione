@@ -1,174 +1,46 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Archivio Verbali | GRCCF1ESPORT</title>
-    
-    <script>
-        // 1. Controlla prima se l'utente è loggato genericalmente
-        if (sessionStorage.getItem('grcc_authenticated') !== 'true') {
-            window.location.href = 'index.html';
-        }
-        
-        // 2. Consenti l'accesso sia alla Direzione Gara pura sia ai piloti con doppio ruolo admin.
-        const ruolo = sessionStorage.getItem('grcc_role');
-        const isAdmin = sessionStorage.getItem('grcc_admin') === 'true';
-
-        if (ruolo !== 'DIREZIONE GARA' && !isAdmin) {
-            alert('⚠️ ACCESSO NEGATO: Questa pagina è riservata esclusivamente alla Direzione Gara.');
-            window.location.href = 'index.html';
-        }
-    </script>
-
-    <style>
-        :root {
-            --f1-red: #e10600;
-            --dark-bg: #0b0f19;
-            --card-bg: #131a26;
-            --accent-cyan: #00ffd1;
-            --text-light: #ffffff;
-            --text-muted: #8fa0b5;
-            --pdf-color: #ff4a4a;
-        }
-        body {
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--dark-bg);
-            color: var(--text-light);
-            margin: 0;
-            padding: 15px;
-        }
-        .container { max-width: 900px; margin: 10px auto; }
-        
-        .back-btn {
-            display: inline-block;
-            color: var(--accent-cyan);
-            text-decoration: none;
-            font-weight: bold;
-            margin-bottom: 20px;
-            border: 1px solid var(--accent-cyan);
-            padding: 8px 16px;
-            border-radius: 8px;
-            transition: 0.2s;
-        }
-        .back-btn:hover { background-color: var(--accent-cyan); color: #000; }
-        
-        .card { background-color: var(--card-bg); padding: 25px; border-radius: 16px; border: 1px solid #1f2c3f; margin-bottom: 25px; }
-        h2 { color: var(--f1-red); margin-top: 0; text-transform: uppercase; border-bottom: 1px solid #1f2c3f; padding-bottom: 10px; margin-bottom: 5px; }
-        .status-text { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px; }
-        
-        /* STRUTTURA ROUND */
-        .round-block {
-            background: #0b0f19;
-            border: 1px solid #1f2c3f;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .round-title {
-            color: var(--accent-cyan);
-            font-size: 1.2rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-top: 0;
-            margin-bottom: 15px;
-            border-bottom: 1px dashed #1f2c3f;
-            padding-bottom: 8px;
-        }
-
-        /* LISTA DOCUMENTI */
-        .document-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .document-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #131a26;
-            padding: 12px 16px;
-            border-radius: 8px;
-            border: 1px solid #24344d;
-            transition: 0.2s;
-        }
-        .document-item:hover {
-            border-color: var(--f1-red);
-            transform: translateX(5px);
-        }
-        .doc-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .pdf-icon {
-            color: var(--pdf-color);
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        .doc-name {
-            font-weight: 500;
-            color: #fff;
-        }
-        .doc-date {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-        
-        /* PULSANTE SCARICA */
-        .download-btn {
-            background-color: transparent;
-            color: var(--accent-cyan);
-            border: 1px solid var(--accent-cyan);
-            padding: 6px 14px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: bold;
-            transition: 0.2s;
-        }
-        .download-btn:hover {
-            background-color: var(--accent-cyan);
-            color: #000;
-        }
-        
-        /* STATO VUOTO */
-        .empty-state {
-            text-align: center;
-            padding: 20px;
-            color: var(--text-muted);
-            font-style: italic;
-            font-size: 0.95rem;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        <a href="index.html" class="back-btn">⬅ Torna al Race Control</a>
-
-        <div class="card">
-            <h2>Archivio Verbali Ufficiali</h2>
-            <div class="status-text">GRCCF1ESPORTS — Raccolta Documenti e Decisioni Integrali in PDF</div>
-            
-            <div class="round-block">
-    <div class="round-title">🏁 Round 1 — GP d'Australia (Melbourne)</div>
-
-    <div class="empty-state">
-        🕭 Nessun verbale emesso per questo evento. La sessione non è ancora stata disputata.
-    </div>
-</div>
-
-            <div class="round-block">
-                <div class="round-title">🏁 Round 2 — GP della Cina (Shanghai)</div>
-                <div class="empty-state">
-                    🕭 Nessun verbale emesso per questo evento. La sessione non è ancora stata disputata.
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-</body>
-</html>
+<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Archivio Verbali | GRCC F1 ESPORTS</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0f19;--card:#131a26;--line:#29374c;--cyan:#00ffd1;--muted:#a5b6ce}*{box-sizing:border-box}body{font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:white;margin:0;padding:16px}.container{max-width:980px;margin:auto}.back{display:inline-block;padding:11px 16px;border:1px solid var(--cyan);color:var(--cyan);border-radius:9px;text-decoration:none;font-weight:700;margin:12px 0 20px}.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:20px}h1{color:#f33434;font-size:24px;margin:0 0 9px}.sub{color:var(--muted);font-size:13px;letter-spacing:.07em}h2{font-size:18px;color:var(--cyan);margin:0 0 16px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:13px}label{display:block;font-weight:600;color:#a4c5e6;font-size:13px;margin-bottom:6px}input,select{width:100%;background:#0b111e;border:1px solid #33455e;border-radius:8px;color:#fff;padding:11px;font-size:14px}button{background:#00dfba;color:#08111a;border:0;border-radius:8px;padding:11px 16px;font-weight:750;cursor:pointer}button:disabled{opacity:.5;cursor:wait}.secondary{background:#26374c;color:#fff}.danger{background:#57242b;color:#fff}.row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.gp{border:1px solid var(--line);background:#0b111e;border-radius:12px;padding:18px;margin-top:16px}.gp h3{color:var(--cyan);margin:0 0 14px;font-size:17px}.doc{display:flex;justify-content:space-between;align-items:center;gap:14px;background:#172234;border-radius:9px;padding:13px;margin-top:10px;flex-wrap:wrap}.doc strong{display:block}.meta{color:var(--muted);font-size:12px;margin-top:5px}.actions{display:flex;gap:8px;align-items:center}.actions a{border:1px solid var(--cyan);border-radius:7px;color:var(--cyan);padding:8px 12px;text-decoration:none;font-size:13px}.empty{color:var(--muted);font-style:italic;text-align:center;padding:16px}.status{padding:12px;margin-top:12px;border-radius:8px;background:#1c2c3b;color:#c7e1f7;white-space:pre-wrap}.hidden{display:none!important}.hint{color:var(--muted);font-size:12px;margin-top:10px}@media(max-width:650px){.fields{grid-template-columns:1fr}.panel{padding:16px}.doc{align-items:flex-start}}
+</style></head><body><main class="container"><a class="back" href="index.html">← Torna al Race Control</a><section class="panel"><h1>ARCHIVIO VERBALI UFFICIALI</h1><div class="sub">GRCC F1 ESPORTS · STAGIONE 2026/27 · DOCUMENTI DELLA DIREZIONE GARA</div></section>
+<section id="adminPanel" class="panel hidden"><h2>📤 Pubblica un verbale PDF</h2><form id="uploadForm"><div class="fields"><div><label for="round">Gran Premio</label><select id="round" required><option value="1">R1 · GP Australia — Melbourne</option>
+<option value="2">R2 · GP Cina — Shanghai</option>
+<option value="3">R3 · GP Giappone — Suzuka</option>
+<option value="4">R4 · GP Bahrain — Sakhir</option>
+<option value="5">R5 · GP Arabia Saudita — Jeddah</option>
+<option value="6">R6 · GP Miami</option>
+<option value="7">R7 · GP Canada — Montréal</option>
+<option value="8">R8 · GP Monaco — Monte Carlo</option>
+<option value="9">R9 · GP Spagna — Barcellona</option>
+<option value="10">R10 · GP Austria — Spielberg</option>
+<option value="11">R11 · GP Gran Bretagna — Silverstone</option>
+<option value="12">R12 · GP Belgio — Spa</option>
+<option value="13">R13 · GP Ungheria — Budapest</option>
+<option value="14">R14 · GP Paesi Bassi — Zandvoort</option>
+<option value="15">R15 · GP Italia — Monza</option>
+<option value="16">R16 · GP Madrid</option>
+<option value="17">R17 · GP Azerbaijan — Baku</option>
+<option value="18">R18 · GP Singapore</option>
+<option value="19">R19 · GP Austin — Stati Uniti</option>
+<option value="20">R20 · GP Messico</option>
+<option value="21">R21 · GP Brasile — Interlagos</option>
+<option value="22">R22 · GP Las Vegas</option>
+<option value="23">R23 · GP Qatar — Lusail</option>
+<option value="24">R24 · GP Abu Dhabi — Yas Marina</option></select></div><div><label for="tipo">Tipo di provvedimento</label><select id="tipo"><option>Decisione Direzione Gara</option><option>Squalifica (DSQ)</option><option>Penalità</option><option>Reprimenda</option><option>Verbale generale</option><option>Altro</option></select></div><div><label for="titolo">Titolo documento</label><input id="titolo" required maxlength="180" placeholder="Es. Decisione n. 01 - GP Australia"></div><div><label for="pilota">Pilota coinvolto (facoltativo)</label><input id="pilota" maxlength="80" placeholder="Es. TICXY13"></div><div><label for="pdf">File PDF (dimensione soggetta ai limiti di Google Apps Script)</label><input id="pdf" type="file" accept="application/pdf,.pdf" required></div></div><p class="hint">I PDF pubblicati saranno accessibili tramite link a chi consulta l'archivio. Non caricare dati riservati.</p><button id="publish" type="submit">Pubblica verbale</button><div id="uploadStatus" class="status hidden" role="status"></div></form></section>
+<section class="panel"><div class="row"><h2>📚 Verbali pubblicati</h2><button class="secondary" id="refresh">↻ Aggiorna archivio</button></div><div id="listStatus" class="status" role="status">Caricamento archivio...</div><div id="archive"></div></section></main>
+<script>
+'use strict';
+const API='https://script.google.com/macros/s/AKfycbz30o3f7QkmijHWpQgwInJMIcIujmO_F070OwXhqbKnQidHdJC4iLa-rQZy0WzsN9buuA/exec';
+const gps=["Australia — Melbourne", "Cina — Shanghai", "Giappone — Suzuka", "Bahrain — Sakhir", "Arabia Saudita — Jeddah", "Miami", "Canada — Montréal", "Monaco — Monte Carlo", "Spagna — Barcellona", "Austria — Spielberg", "Gran Bretagna — Silverstone", "Belgio — Spa", "Ungheria — Budapest", "Paesi Bassi — Zandvoort", "Italia — Monza", "Madrid", "Azerbaijan — Baku", "Singapore", "Austin — Stati Uniti", "Messico", "Brasile — Interlagos", "Las Vegas", "Qatar — Lusail", "Abu Dhabi — Yas Marina"];
+const token=sessionStorage.getItem('grcc_admin_token')||'';
+const isAdmin=sessionStorage.getItem('grcc_admin')==='true' && !!token;
+const $=id=>document.getElementById(id);
+if(isAdmin)$('adminPanel').classList.remove('hidden');
+function status(el,msg,show=true){el.textContent=msg;el.classList.toggle('hidden',!show)}
+async function getData(){const res=await fetch(API+'?action=verbali_list&_='+Date.now(),{redirect:'follow'});if(!res.ok)throw Error('HTTP '+res.status);return await res.json()}
+async function postData(payload){const res=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),redirect:'follow'});if(!res.ok)throw Error('HTTP '+res.status);return await res.json()}
+function node(tag,txt,cls){const e=document.createElement(tag);if(txt!==undefined)e.textContent=txt;if(cls)e.className=cls;return e}
+async function refresh(){const list=$('archive');list.replaceChildren();status($('listStatus'),'Caricamento archivio...');try{const data=await getData();if(!data.success)throw Error(data.message||'Errore server');status($('listStatus'),'',false);const groups=new Map();for(const v of (data.verbali||[])){const n=Number(v.round);if(n>=1&&n<=24){if(!groups.has(n))groups.set(n,[]);groups.get(n).push(v)}}for(let n=1;n<=24;n++){const gp=node('section',undefined,'gp');gp.append(node('h3','🏁 ROUND '+n+' — GP '+gps[n-1].toUpperCase()));const docs=groups.get(n)||[];if(!docs.length){gp.append(node('div','Nessun verbale ufficiale pubblicato.','empty'))}else for(const d of docs){const item=node('div',undefined,'doc'),info=node('div');info.append(node('strong','📄 '+(d.titolo||'Verbale')));info.append(node('div',[d.tipo,d.pilota&&'Pilota: '+d.pilota,d.data].filter(Boolean).join(' · '),'meta'));const actions=node('div',undefined,'actions');if(/^https:\/\//.test(d.url||'')){const a=node('a','Apri PDF');a.href=d.url;a.target='_blank';a.rel='noopener noreferrer';actions.append(a)}if(isAdmin){const b=node('button','Ritira','danger');b.type='button';b.onclick=()=>removeDoc(d);actions.append(b)}item.append(info,actions);gp.append(item)}list.append(gp)}}catch(err){status($('listStatus'),'Impossibile caricare i verbali: '+err.message+'\nVerifica il deployment aggiornato di Apps Script e la connessione.')}}
+async function removeDoc(d){if(!confirm('Ritirare il verbale "'+d.titolo+'"? Il PDF verrà spostato nel cestino Drive.'))return;try{const result=await postData({action:'verbali_delete',adminToken:token,id:d.id});if(!result.success)throw Error(result.message||'Errore');await refresh()}catch(err){alert('Ritiro non riuscito: '+err.message)}}
+$('uploadForm').addEventListener('submit',async ev=>{ev.preventDefault();const file=$('pdf').files[0];if(!file)return;const msg=$('uploadStatus');if(!file.name.toLowerCase().endsWith('.pdf')){status(msg,'Seleziona un file PDF');return}if(!confirm('Pubblicare questo verbale nell’archivio ufficiale?'))return;const button=$('publish');button.disabled=true;status(msg,'Caricamento PDF in corso...');try{const b64=await new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=()=>reject(Error('Impossibile leggere il PDF'));r.onload=()=>resolve(String(r.result).split(',')[1]||'');r.readAsDataURL(file)});const n=Number($('round').value);const payload={action:'verbali_upload',adminToken:token,round:n,gp:gps[n-1],tipo:$('tipo').value,titolo:$('titolo').value.trim(),pilota:$('pilota').value.trim(),base64:b64};const result=await postData(payload);if(!result.success)throw Error(result.message||'Errore di salvataggio');status(msg,'Verbale pubblicato correttamente.');$('uploadForm').reset();await refresh()}catch(err){status(msg,'Pubblicazione non riuscita: '+err.message+'\nSe la richiesta è stata interrotta, aggiorna l’archivio prima di riprovare.')}finally{button.disabled=false}});
+$('refresh').addEventListener('click',refresh);refresh();
+</script></body></html>
