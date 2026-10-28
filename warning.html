@@ -162,30 +162,30 @@
             <form id="incidentForm" onsubmit="salvaReclamo(event)">
                 <label for="selectRound">Seleziona il GP / Round dell'incidente:</label>
                 <select id="selectRound" onchange="mostraReclami()" required>
-                    <option value="R1">Round 1 - Australia</option>
-                    <option value="R2">Round 2 - Cina</option>
-                    <option value="R3">Round 3 - Giappone</option>
-                    <option value="R4">Round 4 - Bahrain</option>
-                    <option value="R5">Round 5 - Arabia Saudita</option>
-                    <option value="R6">Round 6 - Miami</option>
-                    <option value="R7">Round 7 - Canada</option>
-                    <option value="R8">Round 8 - Monaco</option>
-                    <option value="R9">Round 9 - Barcellona</option>
-                    <option value="R10">Round 10 - Austria</option>
-                    <option value="R11">Round 11 - Gran Bretagna</option>
-                    <option value="R12">Round 12 - Belgio</option>
-                    <option value="R13">Round 13 - Ungheria</option>
-                    <option value="R14">Round 14 - Olanda</option>
-                    <option value="R15">Round 15 - Italia</option>
-                    <option value="R16">Round 16 - Spagna</option>
-                    <option value="R17">Round 17 - Azerbaijan</option>
-                    <option value="R18">Round 18 - Singapore</option>
-                    <option value="R19">Round 19 - Stati Uniti</option>
-                    <option value="R20">Round 20 - Messico</option>
-                    <option value="R21">Round 21 - San Paolo</option>
-                    <option value="R22">Round 22 - Las Vegas</option>
-                    <option value="R23">Round 23 - Qatar</option>
-                    <option value="R24">Round 24 - Abu Dhabi</option>
+                    <option value="R1">GP Australia</option>
+                    <option value="R2">GP Cina</option>
+                    <option value="R3">GP Giappone</option>
+                    <option value="R4">GP Bahrain</option>
+                    <option value="R5">GP Arabia Saudita</option>
+                    <option value="R6">GP Miami</option>
+                    <option value="R7">GP Canada</option>
+                    <option value="R8">GP Monaco</option>
+                    <option value="R9">GP Barcellona</option>
+                    <option value="R10">GP Austria</option>
+                    <option value="R11">GP Gran Bretagna</option>
+                    <option value="R12">GP Belgio</option>
+                    <option value="R13">GP Ungheria</option>
+                    <option value="R14">GP Olanda</option>
+                    <option value="R15">GP Italia</option>
+                    <option value="R16">GP Spagna</option>
+                    <option value="R17">GP Azerbaijan</option>
+                    <option value="R18">GP Singapore</option>
+                    <option value="R19">GP Stati Uniti</option>
+                    <option value="R20">GP Messico</option>
+                    <option value="R21">GP San Paolo</option>
+                    <option value="R22">GP Las Vegas</option>
+                    <option value="R23">GP Qatar</option>
+                    <option value="R24">GP Abu Dhabi</option>
                 </select>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -250,6 +250,8 @@
 
 <script>
 /* GRCC - Reclami online + video da telefono */
+const GRCC_GP = ["Australia", "Cina", "Giappone", "Bahrain", "Arabia Saudita", "Miami", "Canada", "Monaco", "Barcellona", "Austria", "Gran Bretagna", "Belgio", "Ungheria", "Olanda", "Italia", "Spagna", "Azerbaijan", "Singapore", "Stati Uniti", "Messico", "San Paolo", "Las Vegas", "Qatar", "Abu Dhabi"];
+function nomeGP(round){const n=Number(String(round??'').replace(/^R/i,''));return Number.isInteger(n)&&n>=1&&n<=GRCC_GP.length?'GP '+GRCC_GP[n-1]:'Round '+(round||'—');}
 const RECLAMI_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz30o3f7QkmijHWpQgwInJMIcIujmO_F070OwXhqbKnQidHdJC4iLa-rQZy0WzsN9buuA/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -379,7 +381,7 @@ async function caricaReclamiDirezioneGara() {
         lista.innerHTML = reclami.map(r => `
             <div class="complaint-item">
                 <div class="complaint-info">
-                    <div><strong>${escapeHtml(r.round)}</strong> · <span class="status-da-esaminare">${escapeHtml(r.stato || 'DA ESAMINARE')}</span></div>
+                    <div><strong>${escapeHtml(nomeGP(r.round))}</strong> · <span class="status-da-esaminare">${escapeHtml(r.stato || 'DA ESAMINARE')}</span></div>
                     <div class="complaint-meta">${escapeHtml(r.dataOra || '')}</div>
                     <div style="margin-top:8px;"><strong>${escapeHtml(r.segnalante)}</strong> → <strong>${escapeHtml(r.segnalato)}</strong></div>
                     <div class="complaint-desc">${escapeHtml(r.descrizione)}</div>
@@ -474,7 +476,7 @@ async function caricaReclamiRicevuti(){
         lista.replaceChildren();
         reclami.forEach((r,i)=>{
             const box=document.createElement('div');box.className='reply-card';
-            const title=document.createElement('h4');title.textContent=`${r.round||'GP'} · Reclamo di ${r.segnalante||'Pilota'}`;box.appendChild(title);
+            const title=document.createElement('h4');title.textContent=`${nomeGP(r.round)} · Reclamo di ${r.segnalante||'Pilota'}`;box.appendChild(title);
             const info=document.createElement('div');info.className='reply-meta';info.textContent=`Registrato: ${new Date(r.dataOra).toLocaleString('it-IT')} · Stato: ${r.stato||'DA ESAMINARE'}`;box.appendChild(info);
             const desc=document.createElement('p');desc.textContent=r.descrizione||'';box.appendChild(desc);
             if(r.video){const link=document.createElement('a');link.className='video-link';link.href=r.video;link.target='_blank';link.rel='noopener noreferrer';link.textContent='🎬 Guarda il video del reclamo';box.appendChild(link);}
@@ -524,7 +526,7 @@ async function grccCaricaLicenze(){
   if(!data.eventi.length){registro.innerHTML='<div class="empty-box">Nessun provvedimento registrato.</div>';if(ufficiali)ufficiali.innerHTML='<div class="empty-box">Nessuna sanzione ufficiale registrata.</div>';return;}
   for(const e of data.eventi){
    const item=document.createElement('div');item.className='sanzione-item';
-   const heading=document.createElement('strong');heading.textContent='Round '+e.round+' · '+e.pilota+' · −'+e.punti+' punti · '+e.warning+' warning';item.appendChild(heading);
+   const heading=document.createElement('strong');heading.textContent=nomeGP(e.round)+' · '+e.pilota+' · −'+e.punti+' punti · '+e.warning+' warning';item.appendChild(heading);
    const meta=document.createElement('div');meta.className='complaint-meta';meta.textContent=e.dataOra+' · '+e.admin+(e.annullata?' · ANNULLATO':'');item.appendChild(meta);
    const desc=document.createElement('div');desc.className='sanzione-motivazione';desc.textContent=e.motivazione;item.appendChild(desc);
    if(grccAmministratoreLicenze()&&!e.annullata){const btn=document.createElement('button');btn.className='btn-delete';btn.type='button';btn.textContent='Annulla provvedimento';btn.style.marginTop='10px';btn.addEventListener('click',()=>grccAnnullaLicenza(e.id));item.appendChild(btn);}
@@ -537,7 +539,7 @@ async function grccCaricaLicenze(){
    for(const e of eventiAttivi){
     const box=document.createElement('div');box.className='sanzione-item';
     const titolo=document.createElement('div');titolo.className='sanzione-header';
-    const gp=document.createElement('span');gp.className='sanzione-gp';gp.textContent='ROUND '+e.round;
+    const gp=document.createElement('span');gp.className='sanzione-gp';gp.textContent=nomeGP(e.round);
     const pilota=document.createElement('span');pilota.className='sanzione-piloti';pilota.textContent=e.pilota;
     titolo.append(gp,pilota);box.appendChild(titolo);
     const misura=document.createElement('div');misura.className='sanzione-decisione';
@@ -558,7 +560,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  const card=document.getElementById('grccLicenzeAdminCard');
  if(grccAmministratoreLicenze())card.style.display='block';
  const rounds=document.getElementById('grccLicenzeRound');
- for(let i=1;i<=24;i++)rounds.add(new Option('Round '+i,i));
+ for(let i=1;i<=24;i++)rounds.add(new Option(nomeGP(i),i));
  document.getElementById('grccLicenzeForm').addEventListener('submit',async ev=>{
   ev.preventDefault();
   const payload={action:'licenze_add',adminToken:grccTokenAdminLicenze(),pilota:document.getElementById('grccLicenzePilota').value,round:Number(rounds.value),punti:Number(document.getElementById('grccLicenzePunti').value),warning:Number(document.getElementById('grccLicenzeWarning').value),motivazione:document.getElementById('grccLicenzeMotivo').value.trim()};
