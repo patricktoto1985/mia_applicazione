@@ -237,15 +237,13 @@
         
 
 
+        <div class="card" id="grccSanzioniUfficialiCard">
             <h3>⚖️ Registro Sanzioni Ufficiali Direzione Gara</h3>
-            <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; font-style: italic;">
-                Ultimi provvedimenti applicati dai commissari dopo l'analisi dei replay e delle segnalazioni video:
+            <div style="color:var(--text-muted);font-size:.85rem;margin-bottom:16px;font-style:italic;">
+                Provvedimenti disciplinari registrati dalla Direzione Gara. Visibili a tutti gli utenti di Race Control.
             </div>
-
-            <div class="empty-box">
-    Nessuna sanzione ufficiale registrata. Il campionato non è ancora iniziato.
-</div>
-
+            <button type="button" onclick="grccCaricaLicenze()" style="width:auto;background:#243449;color:#fff;border:1px solid #39516d;border-radius:8px;padding:10px 14px;cursor:pointer;margin-bottom:14px;">↻ Aggiorna sanzioni</button>
+            <div id="grccSanzioniUfficiali" aria-live="polite"><div class="empty-box">Caricamento sanzioni ufficiali...</div></div>
         </div>
     </div>
 
@@ -510,7 +508,7 @@ async function grccLicenzeRequest(payload){
  const data=await res.json();if(!data.success)throw new Error(data.message||'Richiesta fallita');return data;
 }
 async function grccCaricaLicenze(){
- const tbody=document.getElementById('grccLicenzeCorpo'),registro=document.getElementById('grccLicenzeRegistro');
+ const tbody=document.getElementById('grccLicenzeCorpo'),registro=document.getElementById('grccLicenzeRegistro'),ufficiali=document.getElementById('grccSanzioniUfficiali');
  try{
   const data=await grccLicenzeRequest({action:'licenze_list'});
   tbody.replaceChildren();
@@ -531,7 +529,7 @@ async function grccCaricaLicenze(){
    if(grccAmministratoreLicenze()&&!e.annullata){const btn=document.createElement('button');btn.className='btn-delete';btn.type='button';btn.textContent='Annulla provvedimento';btn.style.marginTop='10px';btn.addEventListener('click',()=>grccAnnullaLicenza(e.id));item.appendChild(btn);}
    registro.appendChild(item);
   }
- }catch(err){tbody.innerHTML='<tr><td colspan="5">Errore caricamento patenti: '+escapeHtml(err.message)+'</td></tr>';registro.textContent='Impossibile caricare il registro: '+err.message;}
+ }catch(err){tbody.innerHTML='<tr><td colspan="5">Errore caricamento patenti: '+escapeHtml(err.message)+'</td></tr>';registro.textContent='Impossibile caricare il registro: '+err.message;if(ufficiali)ufficiali.textContent='Impossibile caricare le sanzioni: '+err.message;}
 }
 async function grccAnnullaLicenza(id){
  if(!confirm('Annullare il provvedimento e ripristinare i punti corrispondenti?'))return;
