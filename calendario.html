@@ -143,9 +143,11 @@
                         `<button class="publish-results-btn" onclick="salvaRisultati('${idRound}', getGpName('${idRound}'))">PUBBLICA RISULTATI</button>
                          <button class="reset-results-btn" onclick="resetResultForm('${idRound}')">SVUOTA CAMPI</button>`}
                     </div>
+                    ${GRCC_SPRINT_ROUNDS_UI.includes(Number(idRound.slice(1))) ? grccSprintEditorHtml_(idRound,readonly) : ''}
                 </div>`;
 
             loadRoundResults(idRound);
+            if(GRCC_SPRINT_ROUNDS_UI.includes(Number(idRound.slice(1))))grccCaricaSprint_(idRound);
         }
 
         function collectResults(idRound, gpName) {
@@ -290,6 +292,77 @@
                 teamSelect.disabled = true;
             }
         });
+
+        // ===== GRCC: editor separato Sprint =====
+        const GRCC_SPRINT_ROUNDS_UI=[2,6,7,11,14,18];
+        const GRCC_SPRINT_PUNTI=[8,7,6,5,4,3,2,1];
+        function grccSprintEditorHtml_(id,readonly){
+          const rows=GRCC_DRIVERS.map((_,i)=>`<div class="race-result-row grcc-sprint-row">
+            <div class="position-box">${i+1}°</div>
+            <div class="driver-team-wrap"><select class="sprint-driver" ${readonly?'disabled':''}>${driverOptions()}</select><select class="sprint-team" disabled>${teamOptions()}</select></div>
+            <select class="sprint-status" ${readonly?'disabled':''}><option>CLASSIFICATO</option><option>DNF</option><option>DNS</option><option>DSQ</option></select>
+            <div class="sprint-points">${GRCC_SPRINT_PUNTI[i]||0} pt</div>
+          </div>`).join('');
+          return `<section class="grcc-sprint-editor" style="margin-top:26px;border-top:2px solid #ffb700;padding-top:18px">
+            <h3 style="color:#ffb700">⚡ RISULTATI SPRINT — ${id.toUpperCase()}</h3>
+            <p style="color:#b8c4d6;font-size:.85rem">Punti assegnati automaticamente: 8, 7, 6, 5, 4, 3, 2, 1 ai primi 8 classificati. I ritirati e squalificati ricevono 0 punti.</p>
+            <div class="race-result-header"><span>POS</span><span>PILOTA / TEAM</span><span>STATO</span><span>PUNTI</span></div>
+            <div class="grcc-sprint-list">${rows}</div>
+            <div class="result-actions">${readonly?'<span class="read-only-note">Solo lettura</span>':`<button class="publish-results-btn" type="button" onclick="grccSalvaSprintUI_('${id}')">⚡ PUBBLICA SPRINT</button>`}</div>
+            <div class="grcc-sprint-message" style="margin-top:8px;color:#ffb700"></div>
+          </section>`;
+        }
+        document.addEventListener('change',e=>{
+          if(e.target.classList.contains('sprint-driver')){
+            const row=e.target.closest('.grcc-sprint-row');
+            const info=GRCC_DRIVERS.find(d=>d.name===e.target.value);
+            row.querySelector('.sprint-team').value=info?.team||'';
+          }
+          if(e.target.classList.contains('sprint-status')){
+            const row=e.target.closest('.grcc-sprint-row'),i=[...row.parentElement.children].indexOf(row);
+            row.querySelector('.sprint-points').textContent=(['DNF','DNS','DSQ'].includes(e.target.value)?0:(GRCC_SPRINT_PUNTI[i]||0))+' pt';
+          }
+        });
+        async function grccCaricaSprint_(id){
+          const box=document.querySelector('#risultati-'+id+' .grcc-sprint-editor');if(!box)return;
+          try{
+            const response=await fetch(`${SCRIPT_URL}?action=results_sprint&round=${Number(id.slice(1))}&_=${Date.now()}`,{cache:'no-store'});
+            const data=await response.json();if(data.success===false)throw Error(data.message||'Errore server');
+            const rows=box.querySelectorAll('.grcc-sprint-row');
+            (data.risultati||[]).forEach(item=>{
+              const row=rows[Number(item.posizione)-1];if(!row)return;
+              row.querySelector('.sprint-driver').value=item.pilota;
+              row.querySelector('.sprint-team').value=item.team;
+              row.querySelector('.sprint-status').value=item.stato;
+              row.querySelector('.sprint-points').textContent=item.punti+' pt';
+            });
+            if(data.risultati?.length)box.querySelector('.grcc-sprint-message').textContent='Sprint pubblicata: '+data.risultati.length+' risultati';
+          }catch(err){box.querySelector('.grcc-sprint-message').textContent='Impossibile leggere la Sprint: '+err.message;}
+        }
+        async function grccSalvaSprintUI_(id){
+          if(!isRaceControl())return;
+          const box=document.querySelector('#risultati-'+id+' .grcc-sprint-editor');
+          const token=sessionStorage.getItem('grcc_admin_token')||'';
+          if(!token){alert('Effettua nuovamente il login come Direzione Gara');return;}
+          const seen=new Set(),risultati=[];
+          for(const [i,row] of [...box.querySelectorAll('.grcc-sprint-row')].entries()){
+            const pilota=row.querySelector('.sprint-driver').value;
+            if(!pilota)continue;
+            if(seen.has(pilota)){alert('Pilota duplicato: '+pilota);return;}seen.add(pilota);
+            const info=GRCC_DRIVERS.find(d=>d.name===pilota);
+            risultati.push({posizione:i+1,pilota,team:info?.team||'',stato:row.querySelector('.sprint-status').value});
+          }
+          if(!risultati.length){alert('Seleziona almeno un pilota Sprint');return;}
+          if(!confirm('Pubblicare i risultati Sprint? I punti saranno aggiunti alle classifiche generali.'))return;
+          const btn=box.querySelector('.publish-results-btn');btn.disabled=true;btn.textContent='INVIO SPRINT...';
+          try{
+            // Apps Script accetta text/plain senza preflight; risposta no-cors non leggibile.
+            await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'sprint_save',adminToken:token,round:Number(id.slice(1)),gp:getGpName(id),risultati})});
+            await new Promise(r=>setTimeout(r,1600));
+            await grccCaricaSprint_(id);
+            alert('Invio effettuato. Verifica il messaggio Sprint pubblicata e i punti nelle classifiche.');
+          }catch(e){alert('Errore invio Sprint: '+e.message);}finally{btn.disabled=false;btn.textContent='⚡ PUBBLICA SPRINT';}
+        }
     </script>
 
 
@@ -470,7 +543,8 @@
   .results-editor, .race-result-list, .race-result-row, .driver-team-wrap { min-width:0; max-width:100%; }
   .race-result-row { overflow-wrap:anywhere; }
 }
-</style>
+@media(max-width:700px){.grcc-sprint-editor,.grcc-sprint-list{width:100%;min-width:0;max-width:100%}.grcc-sprint-row{grid-template-columns:38px minmax(0,1fr)!important}.grcc-sprint-row .sprint-status,.grcc-sprint-row .sprint-points{grid-column:2}.grcc-sprint-row select{max-width:100%;min-width:0}.grcc-sprint-row .sprint-points{color:#ffb700;font-weight:800}}
+    </style>
 <style>
 
 </style>
