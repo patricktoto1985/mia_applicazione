@@ -420,29 +420,56 @@
         @media(max-width:760px){.race-result-header{display:none}.race-result-row{grid-template-columns:42px 1fr}.result-status,.result-points{grid-column:2}.results-editor-head{align-items:flex-start;flex-direction:column}}
 
     
-/* GRCC: adattamento mobile senza alterare le funzioni JavaScript */
-*,*::before,*::after{box-sizing:border-box}
-html{max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
-body{max-width:100%;overflow-x:hidden}
-.container,.card{min-width:0;max-width:100%}
-.card{overflow-wrap:anywhere}
-.table-responsive{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
-.table-responsive table{width:100%}
-input,select,textarea{max-width:100%;min-width:0}
-img,video,iframe{max-width:100%}
-@media(max-width:600px){
- body{padding:10px}
- .container{margin:6px auto}
- .card{padding:14px;border-radius:12px;margin-bottom:14px}
- h2{font-size:clamp(1.12rem,5vw,1.5rem);line-height:1.3}
- h3{font-size:1rem;line-height:1.4}
- .status-text{font-size:.77rem;letter-spacing:.3px;line-height:1.5}
- .back-btn{max-width:100%;font-size:.85rem;padding:10px 12px}
- th,td{padding:10px 8px}
- button,.btn-attendance{touch-action:manipulation}
+/* GRCC — calendario a schede su smartphone: nessuno scorrimento laterale */
+@media (max-width: 700px) {
+  html, body { max-width:100%; overflow-x:clip; }
+  *, *::before, *::after { box-sizing:border-box; }
+  body { padding:10px; }
+  .container, .card, .table-responsive { width:100%; max-width:100%; min-width:0; }
+  .card { padding:14px 12px; }
+  h2 { font-size:clamp(1.25rem,5vw,1.65rem); overflow-wrap:anywhere; }
+  .status-text { font-size:.78rem; overflow-wrap:anywhere; }
+  .table-responsive { overflow-x:visible; }
+  .table-responsive > table { display:block; width:100%; min-width:0; margin-top:12px; }
+  .table-responsive > table > thead { display:none; }
+  .table-responsive > table > tbody { display:block; width:100%; }
+  .table-responsive > table > tbody > tr:not([id^="risultati-"]) {
+    display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    gap:8px 12px; width:100%; padding:14px 12px; margin-bottom:10px;
+    background:#0b0f19; border:1px solid #28384d; border-radius:12px;
+  }
+  .table-responsive > table > tbody > tr:not([id^="risultati-"]) > td {
+    display:block; min-width:0; width:auto; padding:0; border:0;
+    overflow-wrap:anywhere; white-space:normal;
+  }
+  .table-responsive > table > tbody > tr:not([id^="risultati-"]) > td:nth-child(1) {
+    grid-column:1; color:#e10600; font-size:1.05rem; font-weight:900;
+  }
+  .table-responsive > table > tbody > tr:not([id^="risultati-"]) > td:nth-child(2) {
+    grid-column:1 / -1; grid-row:2; font-weight:800; line-height:1.4;
+  }
+  .table-responsive > table > tbody > tr:not([id^="risultati-"]) > td:nth-child(3) {
+    grid-column:2; grid-row:1; text-align:right; font-size:.87rem;
+  }
+  .table-responsive > table > tbody > tr:not([id^="risultati-"]) > td:nth-child(4) {
+    grid-column:1 / -1; grid-row:3; display:flex; flex-wrap:wrap;
+    align-items:center; gap:8px;
+  }
+  .table-responsive > table > tbody > tr:not([id^="risultati-"]) > td:nth-child(4) button {
+    display:inline-block !important; margin-top:0 !important; min-height:36px;
+  }
+  .table-responsive > table > tbody > tr[id^="risultati-"] { width:100%; max-width:100%; }
+  .table-responsive > table > tbody > tr[id^="risultati-"][style*="table-row"] { display:block !important; }
+  .table-responsive > table > tbody > tr[id^="risultati-"] > td {
+    display:block; width:100%; max-width:100%; min-width:0; padding:10px !important;
+    overflow-wrap:anywhere;
+  }
+  .table-responsive > table > tbody > tr[id^="risultati-"] input,
+  .table-responsive > table > tbody > tr[id^="risultati-"] textarea,
+  .table-responsive > table > tbody > tr[id^="risultati-"] select { max-width:100%; min-width:0; }
+  .results-editor, .race-result-list, .race-result-row, .driver-team-wrap { min-width:0; max-width:100%; }
+  .race-result-row { overflow-wrap:anywhere; }
 }
-
-@media(max-width:760px){.table-responsive table{min-width:740px}.results-editor{padding:10px;max-width:100%;overflow:hidden}.race-result-row{grid-template-columns:36px minmax(0,1fr)!important;gap:6px}.driver-team-wrap{min-width:0}.race-result-row select,.race-result-row input{max-width:100%;width:100%}.race-result-row .result-status,.race-result-row .result-points{grid-column:2}.results-editor-head{flex-wrap:wrap}.special-awards,.extra-race-data{min-width:0}.results-editor select,.results-editor input,.results-editor textarea{max-width:100%}}
 </style>
 <style>
 .dotd-hall{margin-bottom:25px;border:1px solid #6d5525;background:linear-gradient(135deg,#201b17,#101722);border-radius:16px;padding:20px}.dotd-hall h2{color:#ffd166;border-bottom:1px solid #6d5525}.dotd-hall-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:12px;margin-top:16px}.dotd-hall-card{border:1px solid #354052;border-radius:12px;background:#111b29;padding:14px}.dotd-hall-card strong{color:#ffd166}.dotd-hall-card small{display:block;color:#9eafc2;margin:5px 0}.dotd-hall-card .champ{font-size:1.1rem;font-weight:900;color:white}.dotd-hall-note{color:#a9b8c9;font-size:.85rem}
