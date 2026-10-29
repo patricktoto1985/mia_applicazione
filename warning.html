@@ -128,6 +128,7 @@ async function grccUploadVideo(file,onProgress){
         .status-da-esaminare { color:var(--warning-orange); font-weight:bold; }
         .empty-box { color:var(--text-muted); padding:14px; text-align:center; border:1px dashed #1f2c3f; border-radius:8px; }
 
+@media(max-width:600px){.grcc-reclamo-piloti{grid-template-columns:1fr!important}}
 </style>
 </head>
 <body>
@@ -207,14 +208,39 @@ async function grccUploadVideo(file,onProgress){
                     <option value="R24">GP Abu Dhabi</option>
                 </select>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="grcc-reclamo-piloti" style="display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 15px;">
                     <div>
                         <label for="reporterName">Tuo Nome / Gamertag:</label>
                         <input type="text" id="reporterName" placeholder="Chi segnala" required>
                     </div>
                     <div>
                         <label for="reportedName">Pilota Coinvolto / Segnalato:</label>
-                        <input type="text" id="reportedName" placeholder="Contro chi" required>
+                        <select id="reportedName" required style="width:100%;padding:12px;background:#0b0f19;border:1px solid #34445c;border-radius:8px;color:#fff;box-sizing:border-box;font:inherit;min-width:0;">
+                            <option value="" selected disabled>— Seleziona il pilota —</option>
+                            <option value="SICKMIRKO">SICKMIRKO</option>
+                            <option value="MIKYPOWER">MIKYPOWER</option>
+                            <option value="SALVOTD91">SALVOTD91</option>
+                            <option value="MKI-110">MKI-110</option>
+                            <option value="RAO-783">RAO-783</option>
+                            <option value="BENE20DOMENICO">BENE20DOMENICO</option>
+                            <option value="LRT_KURAMA">LRT_KURAMA</option>
+                            <option value="FRA319153">FRA319153</option>
+                            <option value="GIUMEND29">GIUMEND29</option>
+                            <option value="TOTO&#x27;F1">TOTO&#x27;F1</option>
+                            <option value="DANIELE251191">DANIELE251191</option>
+                            <option value="NXS_ODI">NXS_ODI</option>
+                            <option value="KEIDIKID2">KEIDIKID2</option>
+                            <option value="GRCC F1 VITTORIO">GRCC F1 VITTORIO</option>
+                            <option value="LILLUPAZZU">LILLUPAZZU</option>
+                            <option value="CONDE785">CONDE785</option>
+                            <option value="PEPPEFLE_IRT">PEPPEFLE_IRT</option>
+                            <option value="ICEANT16">ICEANT16</option>
+                            <option value="DAVIARCO1999">DAVIARCO1999</option>
+                            <option value="BRA_FOSY89">BRA_FOSY89</option>
+                            <option value="CECCO67_SCAI">CECCO67_SCAI</option>
+                            <option value="DAGGER74SUN">DAGGER74SUN</option>
+                            <option value="TICXY13">TICXY13</option>
+                        </select>
                     </div>
                 </div>
 
