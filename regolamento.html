@@ -142,10 +142,6 @@
         }
 
 
-        .rule-update {border:1px solid #e5a32b;background:linear-gradient(135deg,#242014,#171b25);padding:22px;border-radius:14px;margin-bottom:25px;line-height:1.65}
-        .rule-update h2{color:#ffcb57;border-bottom-color:#574421;font-size:1.2rem}
-        .rule-update strong{color:#fff}
-        .rule-update .rule-note{font-size:.85rem;color:#e3bb70;margin-bottom:0}
     </style>
 </head>
 <body>
@@ -153,25 +149,11 @@
     <div class="container">
         <a href="index.html" class="back-btn">⬅ Torna al Race Control</a>
 
-        <div id="adminPanel" class="admin-upload-box">
-            <h3>🛠️ Pannello Amministratore: Aggiorna Regolamento</h3>
-            <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Seleziona il nuovo file PDF del regolamento per renderlo disponibile a tutti i piloti.</p>
-            
-            <div class="file-input-wrapper">
-                <input type="file" id="pdfFile" accept="application/pdf">
-                <button onclick="caricaRegolamento()" class="btn-save-pdf">Pubblica PDF 🚀</button>
-            </div>
+
         </div>
 
 
-        <section class="rule-update" aria-labelledby="assenza-tardiva-title">
-            <h2 id="assenza-tardiva-title">⚠️ Nuova norma — Assenza tardiva dopo conferma</h2>
-            <p>Il pilota che abbia <strong>confermato la propria presenza</strong> a un Gran Premio e che <strong>dopo le ore 19:00 del giorno di gara oppure nei 30 minuti precedenti la partenza</strong> comunichi di non poter partecipare, o risulti assente, riceverà la seguente sanzione:</p>
-            <p><strong>Esclusione dalla sessione di qualifica del Gran Premio successivo.</strong> Il pilota potrà disputare la gara, partendo dal fondo della griglia senza prendere parte alla qualifica del Gran Premio principale.</p>
-            <p><strong>Weekend Sprint:</strong> il pilota potrà partecipare regolarmente alle qualifiche della Sprint. La sanzione si applica esclusivamente alle qualifiche del Gran Premio principale.</p>
-            <p>La Direzione Gara registrerà e comunicherà il provvedimento al pilota interessato.</p>
-            <p class="rule-note">Questa disposizione è pubblicata nella pagina web. Per includerla anche nel PDF ufficiale, è necessario aggiornare separatamente il documento PDF.</p>
-        </section>
+
 
         <div class="card">
             <h2>Regolamento Ufficiale GRCC</h2>
@@ -193,86 +175,22 @@
     </div>
 
     <script>
-        const ruoloUtente = sessionStorage.getItem('grcc_role');
-
-        window.onload = function() {
-            // Mostra il pannello di upload solo se l'utente è Direzione Gara
-            if (ruoloUtente === 'DIREZIONE GARA') {
-                document.getElementById('adminPanel').style.display = 'block';
-            }
-
-            // Controlla se c'è un regolamento salvato nel localStorage
-            checkRegolamentoEsistente();
-        };
-
-        function caricaRegolamento() {
-            const fileInput = document.getElementById('pdfFile');
-            
-            if (fileInput.files.length === 0) {
-                alert("Seleziona prima un file PDF!");
-                return;
-            }
-
-            const file = fileInput.files[0];
-            
-            if (file.type !== "application/pdf") {
-                alert("Puoi caricare esclusivamente file in formato PDF!");
-                return;
-            }
-
-            // Usiamo FileReader per convertire il PDF in una stringa Base64 per salvarla nel LocalStorage (funziona offline senza server)
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64Data = e.target.result;
-                
-                try {
-                    localStorage.setItem('grcc_regolamento_pdf', base64Data);
-                    localStorage.setItem('grcc_regolamento_name', file.name);
-                    alert("✅ Regolamento aggiornato con successo!");
-                    checkRegolamentoEsistente();
-                } catch (error) {
-                    // Gestione errore spazio LocalStorage (limite ~5MB)
-                    alert("⚠️ Il file è troppo pesante per la memoria locale. Ti consigliamo di inserire un PDF inferiore a 4MB, oppure di caricare il file direttamente nella cartella del progetto rinominandolo 'regolamento.pdf'.");
-                }
-            };
-            
-            reader.readAsDataURL(file);
-        }
+        window.addEventListener('load', checkRegolamentoEsistente);
 
         function checkRegolamentoEsistente() {
-            const savedPdf = localStorage.getItem('grcc_regolamento_pdf');
-            const savedName = localStorage.getItem('grcc_regolamento_name');
-            
+            // Il PDF ufficiale e' pubblicato nel repository, non nel browser locale.
+            const pdfUrl = 'regolamento.pdf';
             const statusText = document.getElementById('pdfStatusText');
             const downloadLink = document.getElementById('downloadLink');
             const pdfPreview = document.getElementById('pdfPreview');
-
-            // 1. Controllo se è stato caricato tramite pannello di controllo (LocalStorage)
-            if (savedPdf) {
-                statusText.innerText = `Documento attivo: ${savedName}`;
-                downloadLink.href = savedPdf;
-                downloadLink.setAttribute('download', savedName || 'regolamento.pdf');
-                downloadLink.style.display = 'inline-flex';
-                pdfPreview.src = savedPdf;
-                if (window.innerWidth > 768) {
-                    pdfPreview.style.display = 'block';
-                } else {
-                    pdfPreview.style.display = 'none';
-                }
-            } else {
-                // 2. Fallback automatico: controlla se hai inserito un file chiamato "regolamento.pdf" nella stessa cartella
-                statusText.innerText = "Clicca sotto per aprire il file regolamento.pdf ufficiale.";
-                downloadLink.href = "regolamento.pdf"; // Punta al file locale nella cartella
-                downloadLink.setAttribute('download', 'regolamento.pdf');
-                downloadLink.style.display = 'inline-flex';
-                pdfPreview.src = "regolamento.pdf";
-                if (window.innerWidth > 768) {
-                    pdfPreview.style.display = 'block';
-                } else {
-                    pdfPreview.style.display = 'none';
-                }
-            }
+            statusText.innerText = 'Clicca sotto per aprire il regolamento ufficiale aggiornato.';
+            downloadLink.href = pdfUrl;
+            downloadLink.setAttribute('download', 'regolamento.pdf');
+            downloadLink.style.display = 'inline-flex';
+            pdfPreview.src = pdfUrl;
+            pdfPreview.style.display = window.innerWidth > 768 ? 'block' : 'none';
         }
+
     </script>
 </body>
 </html>
