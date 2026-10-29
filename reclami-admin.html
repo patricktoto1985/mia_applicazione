@@ -45,24 +45,45 @@ select.addEventListener('change',render);document.getElementById('reload').addEv
 </script><style>
 .grcc-video-open{display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:9px 13px;border:1px solid #00cdb9;border-radius:8px;background:#12333a;color:#fff;font:inherit;font-weight:700;cursor:pointer}
 .grcc-video-open:hover{background:#19505a}
-.grcc-video-modal[hidden]{display:none!important}.grcc-video-modal{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.89);display:flex;align-items:center;justify-content:center;padding:16px}
-.grcc-video-panel{background:#111b29;border:1px solid #3b5068;border-radius:14px;width:min(1050px,100%);max-height:96vh;overflow:auto;padding:15px}
-.grcc-video-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}.grcc-video-bar strong{color:white}.grcc-video-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.grcc-video-actions a{color:#60e7dc}.grcc-video-close{background:#e10600;color:white;border:0;border-radius:8px;padding:9px 15px;cursor:pointer;font:inherit;font-weight:700}
-.grcc-video-frame{display:block;width:100%;aspect-ratio:16/9;border:0;background:black;border-radius:8px}
-.grcc-video-note{font-size:12px;color:#a7b5c8;margin:10px 0 0}
+/* Lettore responsive: area visibile anche con barre browser mobile */
+.grcc-video-modal[hidden]{display:none!important}
+.grcc-video-modal{position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.94);display:flex;align-items:center;justify-content:center;padding:12px;overscroll-behavior:contain}
+.grcc-video-panel{background:#111b29;border:1px solid #3b5068;border-radius:14px;width:min(1050px,100%);max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain;padding:14px;display:flex;flex-direction:column;gap:10px}
+.grcc-video-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;flex:none}.grcc-video-bar strong{color:#fff}.grcc-video-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.grcc-video-actions a{color:#60e7dc}.grcc-video-close,.grcc-video-fullscreen{background:#e10600;color:white;border:0;border-radius:8px;padding:10px 13px;cursor:pointer;font:inherit;font-weight:700}.grcc-video-fullscreen{background:#263c58}
+.grcc-video-stage{position:relative;width:100%;aspect-ratio:16/9;min-height:0;flex:none;background:#000;border-radius:8px;overflow:hidden}
+.grcc-video-frame{position:absolute;inset:0;display:block;width:100%;height:100%;border:0;background:#000}
+.grcc-video-note{font-size:12px;color:#a7b5c8;margin:0;line-height:1.4;flex:none}
+.grcc-video-stage:fullscreen,.grcc-video-stage:-webkit-full-screen{width:100vw;height:100vh;height:100dvh;aspect-ratio:auto;border-radius:0;background:#000}
+.grcc-video-stage:fullscreen .grcc-video-frame,.grcc-video-stage:-webkit-full-screen .grcc-video-frame{width:100%;height:100%}
+@media(max-width:650px){
+ .grcc-video-modal{padding:8px;align-items:center}
+ .grcc-video-panel{width:100%;max-height:calc(100dvh - 16px);padding:10px;border-radius:12px;gap:10px}
+ .grcc-video-bar{gap:8px}.grcc-video-bar strong{font-size:15px}
+ .grcc-video-actions{width:100%;justify-content:space-between;gap:6px}
+ .grcc-video-actions a{font-size:13px}
+ .grcc-video-close,.grcc-video-fullscreen{font-size:13px;padding:10px 9px}
+ .grcc-video-stage{aspect-ratio:16/9}
+ .grcc-video-note{font-size:11px}
+}
+@media(max-width:650px) and (orientation:landscape){
+ .grcc-video-panel{max-height:calc(100dvh - 12px);padding:8px}
+ .grcc-video-bar{flex-wrap:nowrap}.grcc-video-actions{width:auto}
+ .grcc-video-note{display:none}
+ .grcc-video-stage{aspect-ratio:auto;height:calc(100dvh - 90px);min-height:100px}
+}
 </style>
 <div id="grccVideoModal" class="grcc-video-modal" role="dialog" aria-modal="true" aria-label="Riproduzione video" hidden>
  <div class="grcc-video-panel">
-  <div class="grcc-video-bar"><strong>🎬 Video del reclamo</strong><div class="grcc-video-actions"><a id="grccVideoExternal" href="#" target="_blank" rel="noopener noreferrer">Apri originale ↗</a><button type="button" class="grcc-video-close" id="grccVideoClose">✕ Chiudi</button></div></div>
-  <iframe id="grccVideoFrame" class="grcc-video-frame" title="Video del reclamo" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+  <div class="grcc-video-bar"><strong>🎬 Video del reclamo</strong><div class="grcc-video-actions"><a id="grccVideoExternal" href="#" target="_blank" rel="noopener noreferrer">Apri originale ↗</a><button type="button" class="grcc-video-fullscreen" id="grccVideoFullscreen">⛶ Schermo intero</button><button type="button" class="grcc-video-close" id="grccVideoClose">✕ Chiudi</button></div></div>
+  <div class="grcc-video-stage" id="grccVideoStage"><iframe id="grccVideoFrame" class="grcc-video-frame" title="Video del reclamo" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
   <p class="grcc-video-note">Per i video Google Drive la riproduzione avviene nel lettore Drive incorporato. Alcuni servizi esterni possono richiedere l'apertura del link originale.</p>
  </div>
 </div>
 <script>
 (function(){
- const modal=document.getElementById('grccVideoModal'),frame=document.getElementById('grccVideoFrame'),external=document.getElementById('grccVideoExternal'),close=document.getElementById('grccVideoClose');
- let previousFocus=null;
+ const modal=document.getElementById('grccVideoModal'),frame=document.getElementById('grccVideoFrame'),external=document.getElementById('grccVideoExternal'),close=document.getElementById('grccVideoClose'),stage=document.getElementById('grccVideoStage'),full=document.getElementById('grccVideoFullscreen');
+ let previousFocus=null,previousOverflow='';
  function playerUrl(raw){
   let u;try{u=new URL(raw)}catch{return null}
   if(u.protocol!=='https:')return null;
@@ -80,11 +101,11 @@ select.addEventListener('change',render);document.getElementById('reload').addEv
  }
  function openVideo(raw){let u;try{u=new URL(raw)}catch{return}if(!['https:','http:'].includes(u.protocol))return;
   const embed=playerUrl(u.href);if(!embed){window.open(u.href,'_blank','noopener,noreferrer');return}
-  previousFocus=document.activeElement;external.href=u.href;frame.src=embed;modal.hidden=false;document.body.style.overflow='hidden';close.focus();
+  previousFocus=document.activeElement;external.href=u.href;frame.src=embed;modal.hidden=false;previousOverflow=document.body.style.overflow;document.body.style.overflow='hidden';close.focus();
  }
- function closeVideo(){frame.removeAttribute('src');modal.hidden=true;document.body.style.overflow='';previousFocus?.focus?.()}
+ function closeVideo(){if(document.fullscreenElement===stage)document.exitFullscreen?.().catch(()=>{});frame.removeAttribute('src');modal.hidden=true;document.body.style.overflow=previousOverflow;previousFocus?.focus?.()}
  document.addEventListener('click',e=>{const b=e.target.closest?.('[data-grcc-video]');if(b){e.preventDefault();openVideo(b.dataset.grccVideo)}});
- close.addEventListener('click',closeVideo);modal.addEventListener('click',e=>{if(e.target===modal)closeVideo()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)closeVideo()});
+ full.addEventListener('click',async()=>{try{if(document.fullscreenElement===stage){await document.exitFullscreen();return}if(stage.requestFullscreen){await stage.requestFullscreen();return}if(stage.webkitRequestFullscreen){stage.webkitRequestFullscreen();return}alert('Schermo intero non disponibile in questo browser. Prova Apri originale o ruota il telefono.')}catch(e){alert('Il browser non consente lo schermo intero per questo video. Prova Apri originale.')}});close.addEventListener('click',closeVideo);modal.addEventListener('click',e=>{if(e.target===modal)closeVideo()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)closeVideo()});
  window.grccVideoButton=function(url,label){const b=document.createElement('button');b.type='button';b.className='grcc-video-open';b.dataset.grccVideo=String(url);b.textContent=label||'🎬 Guarda video';return b};
 })();
 </script>
