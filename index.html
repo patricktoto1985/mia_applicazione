@@ -665,6 +665,12 @@
                 <p class="dash-desc">Controlla presenti, assenti e piloti ancora da confermare.</p>
             </a>
 
+            <a id="assenze-management-btn" href="assenze.html" class="dash-btn admin-only-card" style="display:none;">
+                <span class="admin-only-badge" title="Solo amministratori"><i class="fas fa-shield-alt"></i> ADMIN</span>
+                <div class="dash-icon">📊</div><h2 class="dash-title">Controllo Assenze</h2>
+                <p class="dash-desc">Totali, consecutive e soglie regolamentari per pilota.</p>
+            </a>
+
             <a href="campionati.html" class="dash-btn">
                 <span class="status-dot dot-cyan"></span>
                 <div class="dash-icon">📅</div>
@@ -814,11 +820,13 @@
             const btn = document.getElementById('account-management-btn');
             const candidatureBtn = document.getElementById('candidature-management-btn');
             const presenzeBtn = document.getElementById('presenze-management-btn');
+            const assenzeBtn = document.getElementById('assenze-management-btn');
             const reclamiBtn = document.getElementById('reclami-management-btn');
             const isAdmin = sessionStorage.getItem('grcc_role') === 'DIREZIONE GARA' || sessionStorage.getItem('grcc_admin') === 'true';
             if (btn) btn.style.display = isAdmin ? 'flex' : 'none';
             if (candidatureBtn) candidatureBtn.style.display = isAdmin ? 'flex' : 'none';
             if (presenzeBtn) presenzeBtn.style.display = isAdmin ? 'flex' : 'none';
+            if (assenzeBtn) assenzeBtn.style.display = isAdmin ? 'flex' : 'none';
             if (reclamiBtn) reclamiBtn.style.display = isAdmin ? 'flex' : 'none';
         }
 
