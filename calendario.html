@@ -472,14 +472,13 @@
 }
 </style>
 <style>
-.dotd-hall{margin-bottom:25px;border:1px solid #6d5525;background:linear-gradient(135deg,#201b17,#101722);border-radius:16px;padding:20px}.dotd-hall h2{color:#ffd166;border-bottom:1px solid #6d5525}.dotd-hall-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:12px;margin-top:16px}.dotd-hall-card{border:1px solid #354052;border-radius:12px;background:#111b29;padding:14px}.dotd-hall-card strong{color:#ffd166}.dotd-hall-card small{display:block;color:#9eafc2;margin:5px 0}.dotd-hall-card .champ{font-size:1.1rem;font-weight:900;color:white}.dotd-hall-note{color:#a9b8c9;font-size:.85rem}
+
 </style>
 </head>
 <body>
 
     <div class="container">
-<section class="dotd-hall" id="albo-dotd"><h2>🏆 Albo dei Gran Premi · Pilota del Giorno</h2><p class="dotd-hall-note">Vincitori ufficiali DOTD proclamati dalla Direzione Gara. I risultati vengono letti da Google Sheets.</p><div id="dotd-hall-grid" class="dotd-hall-grid"><div class="dotd-hall-note">Caricamento vincitori...</div></div><p id="dotd-hall-status" class="dotd-hall-note"></p></section>
-        <a href="./index.html" class="back-btn" onclick="window.location.href='./index.html'; return false;">⬅ Torna al Race Control</a>
+<a href="./index.html" class="back-btn" onclick="window.location.href='./index.html'; return false;">⬅ Torna al Race Control</a>
 
         <div class="card">
             <h2>Calendario Gare Ufficiale 2026</h2>
@@ -1373,35 +1372,5 @@
     </script>
 
 
-<script>
-(function(){
- const gpNames=['Australia','Cina','Giappone','Bahrain','Arabia Saudita','Miami','Canada','Monaco','Spagna','Austria','Gran Bretagna','Belgio','Ungheria','Paesi Bassi','Italia','Madrid','Azerbaijan','Singapore','Stati Uniti','Messico','São Paulo','Las Vegas','Qatar','Abu Dhabi'];
- async function loadHall(){
-  const grid=document.getElementById('dotd-hall-grid'),status=document.getElementById('dotd-hall-status');
-  try{
-   const response=await fetch(SCRIPT_URL+'?action=dotd_all&_='+Date.now(),{cache:'no-store'});
-   if(!response.ok)throw new Error('Connessione non disponibile');
-   const data=await response.json();
-   if(data.success===false)throw new Error(data.message||'Errore server');
-   const gare=Array.isArray(data.gare)?data.gare:[];
-   grid.replaceChildren();
-   for(const gara of gare){
-    const round=Number(gara.round);if(!round||round>24)continue;
-    const card=document.createElement('div');card.className='dotd-hall-card';
-    const title=document.createElement('strong');title.textContent='ROUND '+round+' · '+(gpNames[round-1]||gara.gp||'GP');card.appendChild(title);
-    const label=document.createElement('small');label.textContent='DRIVER OF THE DAY';card.appendChild(label);
-    const winner=document.createElement('div');winner.className='champ';
-    const published=String(gara.stato||'').toUpperCase()==='CHIUSA' && String(gara.vincitore||'').trim();
-    winner.textContent=published?'🏆 '+gara.vincitore:'In attesa di proclamazione';card.appendChild(winner);
-    if(published){const meta=document.createElement('small');meta.textContent=(gara.team?gara.team+' · ':'')+Number(gara.voti||0)+' voti';card.appendChild(meta);}
-    grid.appendChild(card);
-   }
-   if(!grid.children.length)grid.textContent='Nessun GP presente nel registro DOTD.';
-   status.textContent='I vincitori compaiono soltanto dopo la chiusura ufficiale della votazione.';
-  }catch(err){grid.textContent='Impossibile caricare l’Albo DOTD.';status.textContent=err.message;}
- }
- document.addEventListener('DOMContentLoaded',loadHall);
-})();
-</script>
 </body>
 </html>
