@@ -289,7 +289,7 @@ img,video,iframe{max-width:100%}
 
         <div class="card" id="reclamiRicevutiCard">
             <h3>⚖️ Reclami ricevuti — La tua difesa</h3>
-            <div class="status-text">Hai 12 ore dalla registrazione del reclamo per inviare un controreclamo.</div>
+            <div class="status-text">Hai 24 ore dalla registrazione del reclamo per inviare un controreclamo.</div>
             <div id="reclamiRicevutiLista" class="complaint-list"><div class="empty-box">Caricamento reclami ricevuti...</div></div>
             <button type="button" onclick="caricaReclamiRicevuti()" style="margin-top:12px;background:#243449;color:white;border:1px solid #39516d;border-radius:8px;padding:10px;cursor:pointer">↻ Aggiorna reclami ricevuti</button>
         </div>
@@ -521,7 +521,7 @@ function escapeAttr(v) {
 }
 
 
-/* GRCC — Controreclami (12 ore). Il server applica identità e scadenza. */
+/* GRCC — Controreclami (24 ore). Il server applica identità e scadenza. */
 function tokenPilotaGRCC(){
     return sessionStorage.getItem('grcc_pilot_token') || sessionStorage.getItem('grcc_pilotToken') || sessionStorage.getItem('pilotToken') || '';
 }
