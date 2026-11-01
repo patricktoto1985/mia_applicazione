@@ -1,5 +1,9 @@
 const {unseal, seal, access, fail} = require('./_shared');
-
+module.exports.config = {
+  api: {
+    bodyParser: false
+  }
+};
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).end();
   try {
