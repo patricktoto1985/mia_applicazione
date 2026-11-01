@@ -45,6 +45,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;ba
   <div class="message" id="votedMessage"><div class="big-icon"><i class="fa-solid fa-circle-check"></i></div><h3>Voto registrato</h3><p id="votedText"></p></div>
   <section id="votingArea">
     <div class="section-head"><div><h2>Scegli il tuo pilota</h2><p>Tocca una card e conferma il voto.</p></div><div class="counter"><span id="driverCount">20</span> PILOTI</div></div>
+    <div id="votingNotice" class="message" role="status" style="display:none;margin:0 0 20px;padding:18px"></div>
     <div class="grid" id="driverGrid"></div>
   </section>
   <section class="admin" id="adminPanel">
@@ -143,7 +144,10 @@ async function loadState(){
     state.loading=false;
     document.getElementById('statusText').textContent='Server non raggiungibile';
     document.getElementById('statusBadge').classList.add('closed');
-    document.getElementById('votingArea').style.display='none';
+    document.getElementById('votingArea').style.display='block';
+    document.getElementById('votingNotice').style.display='block';
+    document.getElementById('votingNotice').textContent='Impossibile verificare la votazione: controlla la connessione e ricarica la pagina. I voti sono temporaneamente disabilitati.';
+    document.getElementById('driverGrid').innerHTML='';
     console.error(err);
   }
 }
@@ -166,7 +170,7 @@ function render(){
     card.style.setProperty('--team',d.color);
     card.style.animationDelay=(Math.min(index,12)*45)+'ms';
     card.innerHTML=`<div class="shine"></div><div class="check"><i class="fa-solid fa-check"></i></div><img class="driver-img" src="${d.img}" alt="${d.name}"><div class="number">#${d.number}</div><div class="driver-info"><h3 class="driver-name">${d.name}</h3><div class="team">${d.team}</div></div>`;
-    card.onclick=()=>{if(isSelfVote(d.name)){alert('Non puoi votare per te stesso.');return;}selectDriver(d,card);};
+    card.onclick=()=>{if(!state.open||alreadyVoted||isAdmin())return;if(isSelfVote(d.name)){alert('Non puoi votare per te stesso.');return;}selectDriver(d,card);};
     grid.appendChild(card);
   });
 
@@ -175,7 +179,10 @@ function render(){
     const choice=localStorage.getItem(voteKey+'_choice')||'';
     document.getElementById('votedText').textContent=`Voto registrato da ${pilot}${choice?` per ${choice}`:''}. Grazie per aver partecipato.`;
   }
-  document.getElementById('votingArea').style.display=(!isAdmin()&&state.open&&!alreadyVoted)?'block':'none';
+  document.getElementById('votingArea').style.display='block';
+  const notice=document.getElementById('votingNotice');
+  const reason=isAdmin()?'Modalità Direzione Gara: puoi consultare i candidati, ma non votare.':alreadyVoted?'Hai già votato per questo Round: puoi consultare i candidati, ma non votare di nuovo.':!state.open?'Votazione chiusa: i candidati restano visibili per consultazione.':'';
+  notice.textContent=reason;notice.style.display=reason?'block':'none';
   document.getElementById('voteDock').classList.remove('show');
   renderWinner();
   renderAdminInfo();
@@ -211,7 +218,7 @@ function launchConfetti(){
   }
 }
 async function confirmVote(){
-  if(!selected||!state.open||isAdmin())return closeConfirm();
+  if(!selected||!state.open||isAdmin()||localStorage.getItem(voteKey)==='true')return closeConfirm();
   if(isSelfVote(selected.name)){closeConfirm();alert('Non puoi votare per te stesso.');return;}
   const button=document.querySelector('.modal .confirm');
   button.disabled=true;button.textContent='Invio...';
