@@ -224,7 +224,7 @@ async function confirmVote(){
   const button=document.querySelector('.modal .confirm');
   button.disabled=true;button.textContent='Invio...';
   try{
-    await apiPost({action:'dotd_vote',round:ROUND,pilota:selected.name,dispositivo:voterId,votante:voterId});
+    await apiPost({action:'dotd_vote',round:ROUND,pilota:selected.name,dispositivo:voterId,votante:voterId,adminToken:isAdmin()?(sessionStorage.getItem('grcc_admin_token')||''):''});
     localStorage.setItem(voteKey,'true');
     localStorage.setItem(voteKey+'_choice',selected.name);
     closeConfirm();render();launchConfetti();
