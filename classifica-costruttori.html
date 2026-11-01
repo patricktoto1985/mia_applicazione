@@ -88,6 +88,19 @@
     .team-name { grid-column:1; grid-row:1; padding-left:9px; border-left:4px solid #00ffd1; font-size:1.05rem; }
     .punti { grid-column:2; grid-row:1; }
   }
+
+/* GRCC: correzione centratura e larghezza effettiva su mobile */
+*, *::before, *::after { box-sizing: border-box; }
+@media (max-width:640px) {
+  html,body { width:100%; max-width:100%; overflow-x:clip; }
+  body { margin:0; padding:12px; }
+  .container { width:100%; max-width:100%; margin:8px auto; }
+  .card { width:100%; max-width:100%; padding:15px 12px; overflow:hidden; }
+  .table-responsive, table, tbody { width:100%; max-width:100%; min-width:0; }
+  tbody tr { box-sizing:border-box; width:100%; max-width:100%; margin:11px 0; }
+  tbody td { min-width:0; }
+  .back-btn { max-width:100%; }
+}
 </style>
 </head>
 <body>
