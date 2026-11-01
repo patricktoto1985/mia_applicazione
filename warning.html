@@ -186,6 +186,13 @@ img,video,iframe{max-width:100%}
   .table-responsive tbody td[colspan]::before { content: none; }
   .table-responsive .points-badge { flex-shrink: 0; }
 }
+.grcc-pilot-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;max-height:260px;overflow-y:auto;padding:10px;border:1px solid #34445c;border-radius:10px;background:#0b0f19;margin-top:8px}
+.grcc-pilot-option{display:flex;align-items:center;gap:9px;margin:0;padding:9px;border:1px solid #253348;border-radius:8px;cursor:pointer;color:#fff;font-size:.83rem;min-width:0}
+.grcc-pilot-option input{width:18px;height:18px;flex-shrink:0;margin:0;accent-color:#00ffd1}
+.grcc-pilot-option span{overflow-wrap:anywhere}
+.grcc-pilot-option:has(input:checked){border-color:#00ffd1;background:#14352f}
+.grcc-pilot-help{font-size:.8rem;color:#8fa0b5;margin-top:7px}
+@media(max-width:600px){.grcc-pilot-choices{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -271,33 +278,34 @@ img,video,iframe{max-width:100%}
                         <input type="text" id="reporterName" placeholder="Chi segnala" required>
                     </div>
                     <div>
-                        <label for="reportedName">Pilota Coinvolto / Segnalato:</label>
-                        <select id="reportedName" required style="width:100%;padding:12px;background:#0b0f19;border:1px solid #34445c;border-radius:8px;color:#fff;box-sizing:border-box;font:inherit;min-width:0;">
-                            <option value="" selected disabled>— Seleziona il pilota —</option>
-                            <option value="SICKMIRKO">SICKMIRKO</option>
-                            <option value="MIKYPOWER">MIKYPOWER</option>
-                            <option value="SALVOTD91">SALVOTD91</option>
-                            <option value="MKI-110">MKI-110</option>
-                            <option value="RAO-783">RAO-783</option>
-                            <option value="BENE20DOMENICO">BENE20DOMENICO</option>
-                            <option value="LRT_KURAMA">LRT_KURAMA</option>
-                            <option value="FRA319153">FRA319153</option>
-                            <option value="GIUMEND29">GIUMEND29</option>
-                            <option value="TOTO&#x27;F1">TOTO&#x27;F1</option>
-                            <option value="DANIELE251191">DANIELE251191</option>
-                            <option value="NXS_ODI">NXS_ODI</option>
-                            <option value="KEIDIKID2">KEIDIKID2</option>
-                            <option value="GRCC F1 VITTORIO">GRCC F1 VITTORIO</option>
-                            <option value="LILLUPAZZU">LILLUPAZZU</option>
-                            <option value="CONDE785">CONDE785</option>
-                            <option value="PEPPEFLE_IRT">PEPPEFLE_IRT</option>
-                            <option value="ICEANT16">ICEANT16</option>
-                            <option value="DAVIARCO1999">DAVIARCO1999</option>
-                            <option value="BRA_FOSY89">BRA_FOSY89</option>
-                            <option value="CECCO67_SCAI">CECCO67_SCAI</option>
-                            <option value="DAGGER74SUN">DAGGER74SUN</option>
-                            <option value="TICXY13">TICXY13</option>
-                        </select>
+                        <label>Piloti coinvolti / segnalati:</label>
+                        <div class="grcc-pilot-help">Seleziona uno o più piloti. Ogni pilota potrà presentare la propria difesa.</div>
+                        <div id="reportedPilots" class="grcc-pilot-choices" role="group" aria-label="Piloti coinvolti">
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="SICKMIRKO"><span>SICKMIRKO</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="MIKYPOWER"><span>MIKYPOWER</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="SALVOTD91"><span>SALVOTD91</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="MKI-110"><span>MKI-110</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="RAO-783"><span>RAO-783</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="BENE20DOMENICO"><span>BENE20DOMENICO</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="LRT_KURAMA"><span>LRT_KURAMA</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="FRA319153"><span>FRA319153</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="GIUMEND29"><span>GIUMEND29</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="TOTO&#x27;F1"><span>TOTO&#x27;F1</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="DANIELE251191"><span>DANIELE251191</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="NXS_ODI"><span>NXS_ODI</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="KEIDIKID2"><span>KEIDIKID2</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="GRCC F1 VITTORIO"><span>GRCC F1 VITTORIO</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="LILLUPAZZU"><span>LILLUPAZZU</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="CONDE785"><span>CONDE785</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="PEPPEFLE_IRT"><span>PEPPEFLE_IRT</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="ICEANT16"><span>ICEANT16</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="DAVIARCO1999"><span>DAVIARCO1999</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="BRA_FOSY89"><span>BRA_FOSY89</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="CECCO67_SCAI"><span>CECCO67_SCAI</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="DAGGER74SUN"><span>DAGGER74SUN</span></label>
+  <label class="grcc-pilot-option"><input type="checkbox" name="reportedPilots" value="TICXY13"><span>TICXY13</span></label>
+                        </div>
+                        <div id="reportedPilotsCount" class="grcc-pilot-help" aria-live="polite">Nessun pilota selezionato</div>
                     </div>
                 </div>
 
@@ -374,6 +382,10 @@ document.addEventListener('DOMContentLoaded', () => {
         reporter.readOnly = true;
     }
 
+    document.querySelectorAll('input[name="reportedPilots"]').forEach(el=>el.addEventListener('change',()=>{
+      const n=document.querySelectorAll('input[name="reportedPilots"]:checked').length;
+      document.getElementById('reportedPilotsCount').textContent=n?n+' pilota/i selezionato/i':'Nessun pilota selezionato';
+    }));
     caricaReclamiRicevuti();
     if (utenteDirezioneGara()) {
         caricaReclamiDirezioneGara();
@@ -411,6 +423,10 @@ async function salvaReclamo(event) {
         return;
     }
 
+    const selectedPilots=Array.from(document.querySelectorAll('input[name="reportedPilots"]:checked')).map(x=>x.value);
+    const reporterName=document.getElementById('reporterName').value.trim();
+    if(!selectedPilots.length){alert('Seleziona almeno un pilota coinvolto.');return;}
+    if(selectedPilots.some(p=>p.toUpperCase()===reporterName.toUpperCase())){alert('Non puoi segnalare te stesso.');return;}
     // Caricamento a blocchi su Google Drive, senza conversione Base64.
 
     const btn=document.getElementById('submitComplaint');
@@ -428,7 +444,8 @@ async function salvaReclamo(event) {
             action:'complaint_submit',
             round:document.getElementById('selectRound').value,
             reporter:document.getElementById('reporterName').value.trim(),
-            reported:document.getElementById('reportedName').value.trim(),
+            reported:selectedPilots[0],
+            reportedPilots:selectedPilots,
             description:document.getElementById('incidentDesc').value.trim(),
             videoUrl:link,
             fileName:'', mimeType:'', base64:''
@@ -444,7 +461,8 @@ async function salvaReclamo(event) {
 
         alert('✅ Reclamo inviato alla Direzione Gara.');
         caricaReclamiRicevuti();
-        document.getElementById('reportedName').value='';
+        document.querySelectorAll('input[name="reportedPilots"]').forEach(el=>el.checked=false);
+        document.getElementById('reportedPilotsCount').textContent='Nessun pilota selezionato';
         document.getElementById('incidentDesc').value='';
         document.getElementById('videoUrl').value='';
         document.getElementById('videoFile').value='';
