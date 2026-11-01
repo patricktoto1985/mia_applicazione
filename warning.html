@@ -153,6 +153,39 @@ img,video,iframe{max-width:100%}
 }
 
 @media(max-width:600px){.complaint-item{flex-direction:column;gap:12px}.complaint-info{padding-right:0;width:100%;min-width:0}.btn-delete{align-self:flex-start}.table-responsive table{min-width:620px} .grcc-reclamo-piloti{grid-template-columns:minmax(0,1fr)!important}.video-upload-box{padding:10px}input[type=file]{width:100%}.sanzione-header{flex-direction:column;align-items:flex-start}}
+
+/* GRCC — Patenti leggibili su smartphone: righe in schede, nessuno scorrimento orizzontale. */
+@media (max-width: 650px) {
+  .table-responsive { overflow: visible; width: 100%; max-width: 100%; }
+  .table-responsive table { min-width: 0 !important; width: 100%; display: block; }
+  .table-responsive thead { display: none; }
+  .table-responsive tbody { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .table-responsive tbody tr {
+    display: grid; grid-template-columns: minmax(0, 1fr);
+    padding: 12px 14px; border: 1px solid #30415a;
+    border-radius: 12px; background: #0b0f19; min-width: 0;
+  }
+  .table-responsive tbody td {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px; min-width: 0; padding: 9px 0;
+    border-bottom: 1px solid #263348;
+    text-align: right; overflow-wrap: anywhere; word-break: normal;
+  }
+  .table-responsive tbody td:last-child { border-bottom: 0; }
+  .table-responsive tbody td::before {
+    flex: 0 0 43%; text-align: left; font-weight: 700;
+    font-size: .76rem; text-transform: uppercase; letter-spacing: .2px;
+    color: var(--text-muted); overflow-wrap: normal;
+  }
+  .table-responsive tbody td:nth-child(1)::before { content: 'Pilota'; }
+  .table-responsive tbody td:nth-child(2)::before { content: 'Scuderia'; }
+  .table-responsive tbody td:nth-child(3)::before { content: 'Warning totali'; }
+  .table-responsive tbody td:nth-child(4)::before { content: 'Punti patente'; }
+  .table-responsive tbody td:nth-child(5)::before { content: 'Stato licenza'; }
+  .table-responsive tbody td[colspan] { display: block; text-align: center; }
+  .table-responsive tbody td[colspan]::before { content: none; }
+  .table-responsive .points-badge { flex-shrink: 0; }
+}
 </style>
 </head>
 <body>
