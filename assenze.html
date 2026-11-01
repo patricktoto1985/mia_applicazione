@@ -11,8 +11,64 @@ tr.soglia-lampeggiante td{border-bottom-color:rgba(255,80,80,.4)}
 .soglia-banner.visibile{display:block}
 .soglia-banner strong{color:#ff7777}
 @media(prefers-reduced-motion:reduce){tr.soglia-lampeggiante,.soglia-lampeggiante .critical,.soglia-banner strong{animation:none}tr.soglia-lampeggiante{background:rgba(225,6,0,.25)}}
-</style></head><body><main><a href="index.html">← Torna al Race Control</a><h1>📊 Controllo Assenze Piloti</h1><p class="sub">🔐 Riservato alla Direzione Gara · Stagione 2026/27</p><div id="sogliaBanner" class="soglia-banner" role="alert" aria-live="polite"></div><div class="stats"><div class="stat"><strong id="g">—</strong>GP conclusi</div><div class="stat"><strong id="p">—</strong>Piloti registrati</div><div class="stat"><strong id="a">—</strong>Segnalazioni soglia</div></div><div class="toolbar"><button onclick="carica()">↻ Aggiorna dati</button><span id="msg" class="status" role="status">Caricamento…</span></div><div class="wrap"><table><thead><tr><th>Pilota</th><th>Assenze registrate</th><th>Di cui future</th><th>Assenze maturate</th><th>Consecutive attuali</th><th>Massima serie</th><th>GP senza conferma</th><th>Situazione</th><th>Dettaglio</th></tr></thead><tbody id="body"></tbody></table></div><p class="hint">⚠️ Le assenze registrate includono anche i GP futuri, mentre le assenze maturate e le soglie disciplinari considerano soltanto i GP già conclusi. Una mancata risposta non viene conteggiata come assenza né utilizzata per stabilire una serie consecutiva. Le soglie di 3 consecutive o 8 totali segnalano una possibile valutazione della Direzione Gara: non applicano automaticamente la perdita del sedile. Le serie sono calcolate solo sulle registrazioni disponibili.</p></main><script>
+
+/* Layout mobile: ogni pilota diventa una scheda leggibile */
+@media(max-width:760px){
+ main{padding:18px 12px} .stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .stat{padding:12px;min-width:0}.stat strong{font-size:1.3rem}
+ .toolbar{align-items:stretch}.toolbar button{width:100%}
+ .wrap{border:0;overflow:visible;border-radius:0}
+ table,tbody{display:block;width:100%;min-width:0}thead{display:none}
+ tbody tr{display:block;margin:0 0 14px;padding:12px 14px;border:1px solid #30435c;border-radius:13px;background:#111a29;overflow-wrap:anywhere}
+ tbody td{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;width:100%;padding:10px 0;border-bottom:1px solid #29374b;text-align:right;font-size:.93rem}
+ tbody td:last-child{border-bottom:0}
+ tbody td:before{content:attr(data-label);display:block;flex:0 0 48%;text-align:left;color:#9eafc3;font-size:.8rem;font-weight:700}
+ tbody td:first-child{display:block;text-align:left;font-size:1.12rem;color:#fff;padding:6px 0 13px}
+ tbody td:first-child:before{content:none}
+ tbody td:nth-child(8){display:block;text-align:left;line-height:1.5}
+ tbody td:nth-child(8):before{content:'Situazione';margin-bottom:6px}
+ tbody td:nth-child(9) details{text-align:left;max-width:100%;overflow-wrap:anywhere}
+ tbody td:nth-child(9) summary{white-space:nowrap}
+ tbody tr.soglia-lampeggiante{border-color:#ff5555}
+}
+/* Avviso preventivo: non confondere con soglia disciplinare raggiunta */
+@keyframes grccRischioPulse{0%,100%{box-shadow:inset 4px 0 #ffb703;background:rgba(255,183,3,.06)}50%{box-shadow:inset 4px 0 #ffb703;background:rgba(255,183,3,.21)}}
+tr.rischio-lampeggiante{animation:grccRischioPulse 1.8s ease-in-out infinite}
+.rischio-banner{display:none;margin:14px 0;padding:14px 17px;border:1px solid #ffb703;border-radius:12px;background:rgba(255,183,3,.12);line-height:1.6}
+.rischio-banner.visibile{display:block}.rischio-banner strong{color:#ffcf65}
+@media(prefers-reduced-motion:reduce){tr.rischio-lampeggiante{animation:none;background:rgba(255,183,3,.15)}}
+</style></head><body><main><a href="index.html">← Torna al Race Control</a><h1>📊 Controllo Assenze Piloti</h1><p class="sub">🔐 Riservato alla Direzione Gara · Stagione 2026/27</p><div id="rischioBanner" class="rischio-banner" role="status" aria-live="polite"></div><div id="sogliaBanner" class="soglia-banner" role="alert" aria-live="polite"></div><div class="stats"><div class="stat"><strong id="g">—</strong>GP conclusi</div><div class="stat"><strong id="p">—</strong>Piloti registrati</div><div class="stat"><strong id="a">—</strong>Segnalazioni soglia</div></div><div class="toolbar"><button onclick="carica()">↻ Aggiorna dati</button><span id="msg" class="status" role="status">Caricamento…</span></div><div class="wrap"><table><thead><tr><th>Pilota</th><th>Assenze registrate</th><th>Di cui future</th><th>Assenze maturate</th><th>Consecutive attuali</th><th>Massima serie</th><th>GP senza conferma</th><th>Situazione</th><th>Dettaglio</th></tr></thead><tbody id="body"></tbody></table></div><p class="hint">⚠️ Le assenze registrate includono anche i GP futuri, mentre le assenze maturate e le soglie disciplinari considerano soltanto i GP già conclusi. Una mancata risposta non viene conteggiata come assenza né utilizzata per stabilire una serie consecutiva. Le soglie di 3 consecutive o 8 totali segnalano una possibile valutazione della Direzione Gara: non applicano automaticamente la perdita del sedile. Le serie sono calcolate solo sulle registrazioni disponibili.</p></main><script>
 const URL="https://script.google.com/macros/s/AKfycbz30o3f7QkmijHWpQgwInJMIcIujmO_F070OwXhqbKnQidHdJC4iLa-rQZy0WzsN9buuA/exec";
 function safe(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-async function carica(){const msg=document.getElementById('msg');msg.textContent='Aggiornamento…';try{const token=sessionStorage.getItem('grcc_admin_token');if(sessionStorage.getItem('grcc_authenticated')!=='true'||sessionStorage.getItem('grcc_admin')!=='true'||!token){location.replace('index.html');return;}const res=await fetch(URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'assenze_admin',adminToken:token})});const data=await res.json();if(!data.success)throw Error(data.message||'Impossibile caricare le assenze');document.getElementById('g').textContent=data.conclusi;document.getElementById('p').textContent=data.piloti.length;document.getElementById('a').textContent=data.piloti.filter(p=>p.sogliaTre||p.sogliaOtto).length;const segnalati=data.piloti.filter(p=>p.sogliaTre||p.sogliaOtto);const banner=document.getElementById('sogliaBanner');banner.classList.toggle('visibile',segnalati.length>0);banner.innerHTML=segnalati.length?`🚨 <strong>ATTENZIONE DIREZIONE GARA: ${segnalati.length} ${segnalati.length===1?'pilota ha':'piloti hanno'} raggiunto una soglia disciplinare.</strong><div>${segnalati.map(p=>safe(p.pilota)+' ('+[p.sogliaTre?'3 assenze consecutive':'',p.sogliaOtto?'8 assenze complessive':''].filter(Boolean).join(' e ')+')').join(' · ')}</div><small>Valutare il provvedimento: nessuna penalità automatica.</small>`:'';document.getElementById('body').innerHTML=data.piloti.map(p=>`<tr class="${p.sogliaTre||p.sogliaOtto?'soglia-lampeggiante':''}"><td><b>${safe(p.pilota)}</b></td><td>${p.registrate}</td><td>${p.programmate}</td><td>${p.totale}</td><td>${p.consecutive}</td><td>${p.massime}</td><td>${p.nonConfermate}</td><td class="${p.sogliaTre||p.sogliaOtto?'critical':p.registrate>=2||p.consecutive>=2?'alert':'ok'}">${p.sogliaTre||p.sogliaOtto?'🚨 SOGLIA RAGGIUNTA — VALUTARE PROVVEDIMENTO':p.registrate>=2||p.consecutive>=2?'Attenzione':'Regolare'}</td><td><details><summary>Visualizza</summary>GP già disputati: ${p.assenze.length?p.assenze.map(n=>'Round '+n).join(', '):'nessuno'}<br>GP futuri con assenza registrata: ${p.future.length?p.future.map(n=>'Round '+n).join(', '):'nessuno'}</details></td></tr>`).join('')||'<tr><td colspan="10">Nessuna registrazione disponibile.</td></tr>';msg.textContent='Dati aggiornati.';}catch(e){msg.textContent='Errore: '+e.message;}}
+async function carica(){
+ const msg=document.getElementById('msg');msg.textContent='Aggiornamento…';
+ try{
+  const token=sessionStorage.getItem('grcc_admin_token');
+  if(sessionStorage.getItem('grcc_authenticated')!=='true'||sessionStorage.getItem('grcc_admin')!=='true'||!token){location.replace('index.html');return;}
+  const res=await fetch(URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'assenze_admin',adminToken:token})});
+  if(!res.ok)throw Error('Errore HTTP '+res.status);
+  const data=await res.json();if(!data.success)throw Error(data.message||'Impossibile caricare le assenze');
+  const piloti=Array.isArray(data.piloti)?data.piloti:[];
+  const soglia=p=>Boolean(p.sogliaTre||p.sogliaOtto);
+  const rischio=p=>!soglia(p)&&(Number(p.consecutive)>=2||Number(p.totale)>=6);
+  const segnalati=piloti.filter(soglia), aRischio=piloti.filter(rischio);
+  document.getElementById('g').textContent=data.conclusi;
+  document.getElementById('p').textContent=piloti.length;
+  document.getElementById('a').textContent=segnalati.length;
+  const banner=document.getElementById('sogliaBanner');banner.classList.toggle('visibile',segnalati.length>0);
+  banner.innerHTML=segnalati.length?`🚨 <strong>ATTENZIONE DIREZIONE GARA: ${segnalati.length} ${segnalati.length===1?'pilota ha':'piloti hanno'} raggiunto una soglia disciplinare.</strong><div>${segnalati.map(p=>safe(p.pilota)+' ('+[p.sogliaTre?'3 assenze consecutive':'',p.sogliaOtto?'8 assenze complessive':''].filter(Boolean).join(' e ')+')').join(' · ')}</div><small>Valutare il provvedimento: nessuna penalità automatica.</small>`:'';
+  const rischioBanner=document.getElementById('rischioBanner');rischioBanner.classList.toggle('visibile',aRischio.length>0);
+  rischioBanner.innerHTML=aRischio.length?`⚠️ <strong>${aRischio.length} ${aRischio.length===1?'pilota vicino':'piloti vicini'} alla soglia:</strong><div>${aRischio.map(p=>safe(p.pilota)+' ('+[Number(p.consecutive)>=2?'2 consecutive':'',Number(p.totale)>=6?Number(p.totale)+' totali':''].filter(Boolean).join(' · ')+')').join(' · ')}</div><small>Avviso preventivo basato sulle assenze maturate, non sulle future.</small>`:'';
+  const labels=['Pilota','Assenze registrate','Di cui future','Assenze maturate','Consecutive attuali','Massima serie','GP senza conferma','Situazione','Dettaglio'];
+  const cell=(i,value,cls='')=>`<td data-label="${labels[i]}"${cls?' class="'+cls+'"':''}>${value}</td>`;
+  document.getElementById('body').innerHTML=piloti.map(p=>{
+   const critical=soglia(p),warn=rischio(p);
+   const stato=critical?'🚨 SOGLIA RAGGIUNTA — VALUTARE PROVVEDIMENTO':warn?'⚠️ A RISCHIO — VICINO ALLA SOGLIA':'Regolare';
+   const dettaglio=`<details><summary>Visualizza</summary>GP già disputati: ${Array.isArray(p.assenze)&&p.assenze.length?p.assenze.map(n=>'Round '+safe(n)).join(', '):'nessuno'}<br>GP futuri con assenza registrata: ${Array.isArray(p.future)&&p.future.length?p.future.map(n=>'Round '+safe(n)).join(', '):'nessuno'}</details>`;
+   const vals=[`<b>${safe(p.pilota)}</b>`,safe(p.registrate),safe(p.programmate),safe(p.totale),safe(p.consecutive),safe(p.massime),safe(p.nonConfermate),stato,dettaglio];
+   return `<tr class="${critical?'soglia-lampeggiante':warn?'rischio-lampeggiante':''}">${vals.map((v,i)=>cell(i,v,i===7?(critical?'critical':warn?'alert':'ok'):'')).join('')}</tr>`;
+  }).join('')||'<tr><td colspan="9">Nessuna registrazione disponibile.</td></tr>';
+  msg.textContent='Dati aggiornati.';
+ }catch(e){msg.textContent='Errore: '+e.message;}
+}
 carica();</script></body></html>
