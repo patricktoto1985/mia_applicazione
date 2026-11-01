@@ -77,7 +77,33 @@
             .team { font-size: 0.85rem; }
             .pilot-name { font-size: 0.85rem; }
         }
-    </style>
+    
+/* GRCC: visualizzazione integrale delle classifiche su smartphone */
+@media (max-width: 640px) {
+  html, body { max-width:100%; overflow-x:hidden; }
+  body { padding:12px; }
+  .container { width:100%; max-width:100%; margin:8px auto; min-width:0; }
+  .card { padding:15px 12px; min-width:0; }
+  h2 { font-size:clamp(1.25rem,5.5vw,1.65rem); line-height:1.2; overflow-wrap:anywhere; }
+  .status-text { font-size:.74rem; line-height:1.5; letter-spacing:.3px; overflow-wrap:anywhere; }
+  .table-responsive { overflow:visible; width:100%; }
+  table, tbody { display:block; width:100%; min-width:0; margin:0; }
+  thead { display:none; }
+  tbody tr { display:grid; width:100%; min-width:0; grid-template-columns:minmax(0,1fr) auto; gap:9px 10px; align-items:center; background:#0d1522; border:1px solid #2b3b50; border-radius:13px; margin:11px 0; padding:14px 12px; }
+  tbody td { display:block; min-width:0; padding:0; border:0; overflow-wrap:anywhere; }
+  tbody tr td[colspan] { grid-column:1/-1; text-align:center; }
+  .punti { text-align:right; color:#00ffd1; font-size:1.3rem; font-weight:900; }
+  .punti::before { content:'PUNTI'; display:block; color:#9eafc3; font-size:.65rem; font-weight:700; letter-spacing:1px; margin-bottom:3px; }
+}
+@media (max-width:640px) {
+   tbody tr { grid-template-columns:42px minmax(0,1fr) auto; }
+   .race-num { grid-column:1; grid-row:1/3; width:auto; align-self:center; font-size:1.2rem; color:#00ffd1; }
+   .race-num::before { content:'#'; font-size:.85rem; }
+   .pilot-name { grid-column:2; grid-row:1; font-weight:900; font-size:1rem; }
+   .team-cell { grid-column:2; grid-row:2; white-space:normal; color:#a9bad0; font-size:.84rem; }
+   .punti { grid-column:3; grid-row:1/3; }
+  }
+</style>
 </head>
 <body>
 
@@ -133,7 +159,20 @@ async function roundData(round){
  return Array.isArray(data.risultati)?data.risultati:[];
 }
 function td(tr,text,cls){const el=document.createElement('td');el.textContent=text;if(cls)el.className=cls;tr.appendChild(el)}
+const GRCC_CACHE_KEY='grcc_classifica_piloti_v2';
+const GRCC_CACHE_MS=10*60*1000;
+function grccDisegnaClassifica(rows, count, failed=0, cached=false){
+ const body=document.querySelector('tbody'),status=document.querySelector('.status-text');
+ body.replaceChildren();
+ rows.forEach((entry,i)=>{const tr=document.createElement('tr');td(tr,i+1,'race-num');td(tr,entry.name,'pilot-name');td(tr,entry.team,'team-cell');td(tr,entry.points,'punti');body.appendChild(tr)});
+ status.textContent=`GRCCF1ESPORTS — 2026/27 — ${count} GP pubblicati${failed?' · '+failed+' richieste non riuscite':''}${cached?' · dati salvati':''}`;
+}
+function grccLeggiCache(){try{const v=JSON.parse(localStorage.getItem(GRCC_CACHE_KEY)||'null');return v&&Array.isArray(v.rows)&&Number.isFinite(v.time)?v:null;}catch(e){return null;}}
+function grccSalvaCache(rows,count){try{localStorage.setItem(GRCC_CACHE_KEY,JSON.stringify({rows,count,time:Date.now()}));}catch(e){}}
+
 async function load(){
+ const cached=grccLeggiCache();
+ if(cached){grccDisegnaClassifica(cached.rows,cached.count,0,true);if(Date.now()-cached.time<GRCC_CACHE_MS)return;}
  const body=document.querySelector('tbody'),status=document.querySelector('.status-text');
  status.textContent='Caricamento risultati da Google Sheets...';
  const totals=new Map();let count=0,failed=0;
@@ -177,10 +216,11 @@ async function load(){
       }
     }catch(err){console.warn('Sprint round '+round+' non disponibile',err);}
   }
+ if(!totals.size && cached){status.textContent='Risultati salvati · aggiornamento non disponibile';return;}
  if(!totals.size){body.innerHTML='<tr><td colspan="4" style="text-align:center;padding:25px">'+(failed?'Impossibile caricare i risultati dal server.':'Nessun risultato pubblicato.')+'</td></tr>';status.textContent=failed?'Errore collegamento Google Apps Script':'Campionato non ancora iniziato';return;}
  const rows=[...totals.values()].sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name,'it'));
- body.replaceChildren();rows.forEach((entry,i)=>{const tr=document.createElement('tr');td(tr,i+1,'race-num');td(tr,entry.name,'pilot-name');td(tr,entry.team,'team-cell');td(tr,entry.points,'punti');body.appendChild(tr)});
- status.textContent=`GRCCF1ESPORTS — 2026/27 — ${count} GP pubblicati${failed?' · '+failed+' richieste non riuscite':''}`;
+ if(failed===0)grccSalvaCache(rows,count);
+ grccDisegnaClassifica(rows,count,failed);
 }
 document.addEventListener('DOMContentLoaded',load);
 
