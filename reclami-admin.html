@@ -15,6 +15,7 @@ function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=
 let all=[];
 function render(){
  results.replaceChildren();const chosen=select.value;const rows=all.filter(r=>!chosen||String(r.round).replace(/^R/i,'')===chosen);
+  status.textContent=`${rows.length} ${rows.length===1?'reclamo':'reclami'} ${chosen?'· '+nomeGP(chosen):'totali'}`;
  if(!rows.length){results.appendChild(el('p','empty','Nessun reclamo trovato.'));return}
  for(const r of rows){
   const card=el('article','item'),top=el('div','top');
@@ -40,7 +41,7 @@ function render(){
   results.append(card)
  }
 }
-async function load(){if(!isAdmin||!token){status.className='error';status.textContent='Accesso riservato agli amministratori: effettua il login da Race Control.';return}status.className='';status.textContent='Caricamento reclami…';results.replaceChildren();try{const res=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'complaint_admin_list',adminToken:token})});const data=await res.json();if(!data.success)throw Error(data.message||'Risposta non valida');all=Array.isArray(data.reclami)?data.reclami:[];status.textContent=`${all.length} reclami totali`;render()}catch(err){status.className='error';status.textContent='Impossibile caricare i reclami: '+err.message}}
+async function load(){if(!isAdmin||!token){status.className='error';status.textContent='Accesso riservato agli amministratori: effettua il login da Race Control.';return}status.className='';status.textContent='Caricamento reclami…';results.replaceChildren();try{const res=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'complaint_admin_list',adminToken:token})});const data=await res.json();if(!data.success)throw Error(data.message||'Risposta non valida');all=Array.isArray(data.reclami)?data.reclami:[];render()}catch(err){status.className='error';status.textContent='Impossibile caricare i reclami: '+err.message}}
 select.addEventListener('change',render);document.getElementById('reload').addEventListener('click',load);load();
 </script><style>
 .grcc-video-open{display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:9px 13px;border:1px solid #00cdb9;border-radius:8px;background:#12333a;color:#fff;font:inherit;font-weight:700;cursor:pointer}
