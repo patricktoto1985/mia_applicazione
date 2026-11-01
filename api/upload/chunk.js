@@ -9,7 +9,14 @@ module.exports = async (req, res) => {
     const chunks = [];
     for await (const b of req) chunks.push(b);
     const buf = Buffer.concat(chunks);
-
+console.log('GRCC UPLOAD DEBUG', {
+  start,
+  total,
+  expectedSize: s.size,
+  receivedBytes: buf.length,
+  contentLength: req.headers['content-length'],
+  bodyAlreadyParsed: req.body !== undefined
+});
     if (!Number.isSafeInteger(start) || start < 0 || total !== s.size ||
         buf.length < 1 || buf.length > 1024 * 1024 || start + buf.length > total) {
       throw Error('Blocco non valido');
