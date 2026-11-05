@@ -191,7 +191,7 @@
         function collectResults(idRound, gpName) {
             const row = document.getElementById(`risultati-${idRound}`);
             const seen = new Set();
-            const results = [...row.querySelectorAll('.race-result-row')].map((r,i) => {
+            const results = [...row.querySelectorAll('.race-result-list > .race-result-row')].map((r,i) => {
                 const pilota = r.querySelector('.result-driver').value;
                 if (pilota && seen.has(pilota)) throw new Error(`Il pilota ${pilota} è stato inserito più di una volta.`);
                 if (pilota) seen.add(pilota);
