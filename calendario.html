@@ -46,6 +46,44 @@
         };
 
 
+        // GRCC Round 2: bozze locali. NON vengono inviate automaticamente al server.
+        const GRCC_CINA_R2 = {
+            risultati: [
+                'SICKMIRKO','GIUMEND29','RAO-783','CECCO67_SCAI',
+                'DAVIARCO1999','GRCC F1 VITTORIO','PEPPEFLE_IRT','SALVOTD91',
+                'MIKYPOWER','CONDE785','DAGGER74SUN','BRA_FOSY89',
+                'BENE20DOMENICO','ICEANT16'
+            ].map((pilota,i)=>({posizione:i+1,pilota,
+                team:GRCC_DRIVERS.find(d=>d.name===pilota)?.team||'',
+                punti:F1_POINTS[i]||0,stato:'CLASSIFICATO'})),
+            note:'BOZZA: GP Cina. Verificare le penalità e i punti prima della pubblicazione.'
+        };
+        const GRCC_CINA_SPRINT_R2 = [
+            'CECCO67_SCAI','DAVIARCO1999','GRCC F1 VITTORIO','CONDE785',
+            'MIKYPOWER','GIUMEND29','SICKMIRKO','PEPPEFLE_IRT',
+            'SALVOTD91','DAGGER74SUN','BRA_FOSY89','RAO-783',
+            'BENE20DOMENICO','ICEANT16'
+        ];
+        function grccAvvisoBozza_(elemento,messaggio){
+            if(!elemento || elemento.querySelector('.grcc-draft-warning'))return;
+            const avviso=document.createElement('p');avviso.className='grcc-draft-warning';
+            avviso.style.cssText='color:#ffd166;font-weight:700;font-size:.85rem;line-height:1.5';
+            avviso.textContent=messaggio;elemento.prepend(avviso);
+        }
+        function grccPrecompilaSprintCina_(box){
+            const rows=[...box.querySelectorAll('.grcc-sprint-row')];
+            GRCC_CINA_SPRINT_R2.forEach((pilota,i)=>{
+                const row=rows[i];if(!row)return;
+                const info=GRCC_DRIVERS.find(d=>d.name===pilota);
+                row.querySelector('.sprint-driver').value=pilota;
+                row.querySelector('.sprint-team').value=info?.team||'';
+                const stato=i>=11?'DNF':'CLASSIFICATO';
+                row.querySelector('.sprint-status').value=stato;
+                row.querySelector('.sprint-points').textContent=(stato==='DNF'?0:GRCC_SPRINT_PUNTI[i]||0)+' pt';
+            });
+            grccAvvisoBozza_(box,'BOZZA SPRINT CINA: ordine d’arrivo confermato. Verifica tutti i dati prima di pubblicare.');
+        }
+
         function isRaceControl() {
             return sessionStorage.getItem('grcc_role') === 'DIREZIONE GARA' ||
                    sessionStorage.getItem('grcc_admin') === 'true';
@@ -225,6 +263,10 @@
                     resultCache[idRound] = data;
                 }
                 if (!data || !Array.isArray(data.risultati) || !data.risultati.length) {
+                    if (idRound === 'r2') {
+                        populateResultForm(idRound, GRCC_CINA_R2);
+                        grccAvvisoBozza_(document.querySelector('#risultati-r2 .results-editor-head'),'BOZZA GARA CINA: non pubblicata. Verificare posizioni, penalità e punti prima di premere PUBBLICA RISULTATI.');
+                    }
                     if (idRound === 'r1') {
                         populateResultForm(idRound, GRCC_AUSTRALIA_R1);
                         const head = document.querySelector('#risultati-r1 .results-editor-head');
@@ -329,6 +371,7 @@
             const response=await fetch(`${SCRIPT_URL}?action=results_sprint&round=${Number(id.slice(1))}&_=${Date.now()}`,{cache:'no-store'});
             const data=await response.json();if(data.success===false)throw Error(data.message||'Errore server');
             const rows=box.querySelectorAll('.grcc-sprint-row');
+            if(id==='r2' && !(data.risultati||[]).length)grccPrecompilaSprintCina_(box);
             (data.risultati||[]).forEach(item=>{
               const row=rows[Number(item.posizione)-1];if(!row)return;
               row.querySelector('.sprint-driver').value=item.pilota;
