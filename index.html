@@ -280,6 +280,13 @@
             pointer-events: none;
         }
         .dash-btn.admin-only-card > .status-dot { display: none; }
+
+        /* GRCC: stato Google Drive, visibile solo alla Direzione Gara */
+        #grcc-drive-monitor { display:none; margin:0 0 18px; padding:15px; background:#131a26; border:1px solid #26364b; border-radius:14px; }
+        #grcc-drive-monitor h2 { margin:0 0 8px; font-size:1rem; }
+        #grcc-drive-monitor-status { font-size:.88rem; font-weight:800; }
+        #grcc-drive-monitor-detail { margin-top:6px; color:#8fa0b5; font-size:.78rem; }
+        #grcc-drive-monitor button { margin-top:10px; padding:8px 12px; background:#182231; color:#fff; border:1px solid #45556a; border-radius:8px; cursor:pointer; }
     </style>
 </head>
 <body>
@@ -631,6 +638,14 @@
 
         </section>
 
+
+        <section id="grcc-drive-monitor" aria-live="polite">
+            <h2>🛡️ ADMIN · Monitor Google Drive</h2>
+            <div id="grcc-drive-monitor-status">⏳ Controllo collegamento...</div>
+            <div id="grcc-drive-monitor-detail">Controllo automatico ogni 5 minuti mentre questa pagina è aperta.</div>
+            <button type="button" onclick="controllaDriveGRCC()">🔄 Controlla ora</button>
+        </section>
+
         <div class="grid-dashboard">
 
             <a id="account-management-btn" onclick="apriGestioneAccount()" class="dash-btn admin-only-card" style="display:none;">
@@ -828,6 +843,9 @@
             if (presenzeBtn) presenzeBtn.style.display = isAdmin ? 'flex' : 'none';
             if (assenzeBtn) assenzeBtn.style.display = isAdmin ? 'flex' : 'none';
             if (reclamiBtn) reclamiBtn.style.display = isAdmin ? 'flex' : 'none';
+            const monitor = document.getElementById('grcc-drive-monitor');
+            if (monitor) monitor.style.display = isAdmin ? 'block' : 'none';
+            if (isAdmin) controllaDriveGRCC();
         }
 
         function apriGestioneAccount() {
@@ -1397,6 +1415,45 @@ async function attivaNotificheGRCC() {
     if (pulsante) pulsante.disabled = false;
   }
 }
+</script>
+
+
+<script>
+// Monitor non invasivo: controlla il server senza caricare file né mostrare credenziali.
+let grccDriveLastCheck = 0;
+let grccDriveChecking = false;
+async function controllaDriveGRCC() {
+  const isAdmin = sessionStorage.getItem('grcc_authenticated') === 'true' &&
+    (sessionStorage.getItem('grcc_role') === 'DIREZIONE GARA' || sessionStorage.getItem('grcc_admin') === 'true');
+  if (!isAdmin || grccDriveChecking) return;
+  const status = document.getElementById('grcc-drive-monitor-status');
+  const detail = document.getElementById('grcc-drive-monitor-detail');
+  if (!status || !detail) return;
+  grccDriveChecking = true;
+  status.textContent = '⏳ Verifica Google Drive...';
+  status.style.color = '#ffb700';
+  try {
+    const response = await fetch('/api/upload/health', {cache:'no-store'});
+    const data = await response.json();
+    if (!response.ok || !data.ok) throw new Error('Servizio Drive non disponibile');
+    status.textContent = '✅ GOOGLE DRIVE OPERATIVO';
+    status.style.color = '#00ffd1';
+    detail.textContent = 'Autorizzazione Google e accesso alla cartella verificati. Ultimo controllo: ' + new Date().toLocaleTimeString('it-IT');
+  } catch (err) {
+    status.textContent = '🚨 GOOGLE DRIVE DA VERIFICARE';
+    status.style.color = '#ff6b6b';
+    detail.textContent = 'Il controllo server non è riuscito. Verifica i log Vercel e le credenziali Google. Ultimo controllo: ' + new Date().toLocaleTimeString('it-IT');
+  } finally {
+    grccDriveChecking = false;
+    grccDriveLastCheck = Date.now();
+  }
+}
+setInterval(() => {
+  if (Date.now() - grccDriveLastCheck >= 5*60*1000) controllaDriveGRCC();
+}, 60*1000);
+window.addEventListener('focus', () => {
+  if (Date.now() - grccDriveLastCheck >= 5*60*1000) controllaDriveGRCC();
+});
 </script>
 
 </body>
