@@ -24,6 +24,8 @@
             --williams: #005aff;
             --cadillac: #ddc48c;
             --ferrari: #e10600;
+            --mercedes: #27f4d2;
+            --rb: #6692ff;
         }
         body {
             font-family: 'Segoe UI', Roboto, sans-serif;
@@ -99,6 +101,9 @@
     object-position: top;
 }
         
+        .vacant-seat { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; width:100%; height:100%; background:linear-gradient(145deg,#192637,#0b111d); color:#b7c5d6; }
+        .vacant-seat svg { width:100px; height:100px; opacity:.75; }
+        .vacant-seat span { font-weight:800; letter-spacing:2px; font-size:.95rem; }
         .driver-info {
             padding: 15px;
             border-top: 3px solid var(--team-color);
@@ -349,12 +354,11 @@
             <div class="drivers-grid">
                 <div class="driver-card">
                     <div class="driver-img-container">
-                        <img src="MKI-110.png" alt="Pilota MKI-110" class="driver-img" style="background-color: var(--mercedes);">
-                        <div class="driver-number">#28</div>
+                        <div class="vacant-seat" aria-label="Sedile vacante"><svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M34 12h32l6 34-9 14H37L28 46l6-34Z" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M36 63h28l10 20H26l10-20Z" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M22 37 12 52v21m66-36 10 15v21" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></svg><span>SEDILE VACANTE</span></div>
                     </div>
                     <div class="driver-info" style="--team-color: var(--mercedes);">
-                        <p class="driver-name">MKI-110</p>
-                        <p class="driver-psNme">ID PSN: MKI-110</p>
+                        <p class="driver-name">SEDILE VACANTE</p>
+                        <p class="driver-psNme">In attesa di un nuovo pilota</p>
                     </div>
                 </div>
                 <div class="driver-card">
@@ -411,12 +415,11 @@
                 </div>
                 <div class="driver-card">
                     <div class="driver-img-container">
-                        <img src="TICXY13.png" alt="Pilota TICXY13" class="driver-img" style="background-color: var(--williams);">
-                        <div class="driver-number">#92</div>
+                        <div class="vacant-seat" aria-label="Sedile vacante"><svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M34 12h32l6 34-9 14H37L28 46l6-34Z" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M36 63h28l10 20H26l10-20Z" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M22 37 12 52v21m66-36 10 15v21" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></svg><span>SEDILE VACANTE</span></div>
                     </div>
                     <div class="driver-info" style="--team-color: var(--williams);">
-                        <p class="driver-name">TICXY13</p>
-                        <p class="driver-psNme">ID STEAM: TICXY13</p>
+                        <p class="driver-name">SEDILE VACANTE</p>
+                        <p class="driver-psNme">In attesa di un nuovo pilota</p>
                     </div>
                 </div>
             </div>
