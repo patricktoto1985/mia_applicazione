@@ -656,6 +656,12 @@
                 <p class="dash-desc">Reset password e nuovo codice di attivazione piloti.</p>
             </a>
 
+            <a id="piloti-management-btn" href="gestione-piloti.html" class="dash-btn admin-only-card" style="display:none;">
+                <span class="admin-only-badge"><i class="fas fa-shield-alt"></i> ADMIN</span>
+                <div class="dash-icon">🏎️</div><h2 class="dash-title">Gestione Piloti</h2>
+                <p class="dash-desc">Esclusioni, riattivazioni e sostituzioni dei sedili.</p>
+            </a>
+
             <a id="candidature-management-btn" href="candidature.html" class="dash-btn admin-only-card" style="display:none;">
                 <span class="admin-only-badge" title="Solo amministratori"><i class="fas fa-shield-alt" aria-hidden="true"></i> ADMIN</span>
                 <span class="status-dot dot-cyan"></span>
@@ -842,12 +848,14 @@
         function aggiornaVisibilitaGestioneAccount() {
             const btn = document.getElementById('account-management-btn');
             const candidatureBtn = document.getElementById('candidature-management-btn');
+            const pilotiBtn = document.getElementById('piloti-management-btn');
             const presenzeBtn = document.getElementById('presenze-management-btn');
             const assenzeBtn = document.getElementById('assenze-management-btn');
             const reclamiBtn = document.getElementById('reclami-management-btn');
             const isAdmin = sessionStorage.getItem('grcc_role') === 'DIREZIONE GARA' || sessionStorage.getItem('grcc_admin') === 'true';
             if (btn) btn.style.display = isAdmin ? 'flex' : 'none';
             if (candidatureBtn) candidatureBtn.style.display = isAdmin ? 'flex' : 'none';
+            if (pilotiBtn) pilotiBtn.style.display = isAdmin ? 'flex' : 'none';
             if (presenzeBtn) presenzeBtn.style.display = isAdmin ? 'flex' : 'none';
             if (assenzeBtn) assenzeBtn.style.display = isAdmin ? 'flex' : 'none';
             if (reclamiBtn) reclamiBtn.style.display = isAdmin ? 'flex' : 'none';
