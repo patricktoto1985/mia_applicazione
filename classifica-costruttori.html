@@ -131,6 +131,7 @@
     <script>
 
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbz30o3f7QkmijHWpQgwInJMIcIujmO_F070OwXhqbKnQidHdJC4iLa-rQZy0WzsN9buuA/exec';
+// Mantieni anche i piloti usciti dal campionato per attribuire i punti storici alle scuderie.
 const DRIVERS=[
 {"name":"SICKMIRKO","team":"Ferrari"},{"name":"MIKYPOWER","team":"Ferrari"},
 {"name":"SALVOTD91","team":"Mercedes"},{"name":"MKI-110","team":"Mercedes"},
@@ -155,7 +156,7 @@ async function roundData(round){
  return Array.isArray(data.risultati)?data.risultati:[];
 }
 function td(tr,text,cls){const el=document.createElement('td');el.textContent=text;if(cls)el.className=cls;tr.appendChild(el)}
-const GRCC_CACHE_KEY='grcc_classifica_costruttori_v2';
+const GRCC_CACHE_KEY='grcc_classifica_costruttori_v3_storico';
 const GRCC_CACHE_MS=10*60*1000;
 function grccDisegnaClassifica(rows, count, failed=0, cached=false){
  const body=document.querySelector('tbody'),status=document.querySelector('.status-text');

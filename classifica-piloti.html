@@ -172,12 +172,13 @@ async function roundData(round){
  return Array.isArray(data.risultati)?data.risultati:[];
 }
 function td(tr,text,cls){const el=document.createElement('td');el.textContent=text;if(cls)el.className=cls;tr.appendChild(el)}
-const GRCC_CACHE_KEY='grcc_classifica_piloti_v2';
+const GRCC_CACHE_KEY='grcc_classifica_piloti_v3_esclusioni';
+const GRCC_EXCLUDED_DRIVERS=new Set(['TICXY13','MKI-110']);
 const GRCC_CACHE_MS=10*60*1000;
 function grccDisegnaClassifica(rows, count, failed=0, cached=false){
  const body=document.querySelector('tbody'),status=document.querySelector('.status-text');
  body.replaceChildren();
- rows.forEach((entry,i)=>{const tr=document.createElement('tr');td(tr,i+1,'race-num');td(tr,entry.name,'pilot-name');td(tr,entry.team,'team-cell');td(tr,entry.points,'punti');body.appendChild(tr)});
+ rows.filter(entry=>!GRCC_EXCLUDED_DRIVERS.has(String(entry.name||'').trim().toUpperCase())).forEach((entry,i)=>{const tr=document.createElement('tr');td(tr,i+1,'race-num');td(tr,entry.name,'pilot-name');td(tr,entry.team,'team-cell');td(tr,entry.points,'punti');body.appendChild(tr)});
  status.textContent=`GRCCF1ESPORTS — 2026/27 — ${count} GP pubblicati${failed?' · '+failed+' richieste non riuscite':''}${cached?' · dati salvati':''}`;
 }
 function grccLeggiCache(){try{const v=JSON.parse(localStorage.getItem(GRCC_CACHE_KEY)||'null');return v&&Array.isArray(v.rows)&&Number.isFinite(v.time)?v:null;}catch(e){return null;}}
@@ -231,7 +232,7 @@ async function load(){
   }
  if(!totals.size && cached){status.textContent='Risultati salvati · aggiornamento non disponibile';return;}
  if(!totals.size){body.innerHTML='<tr><td colspan="4" style="text-align:center;padding:25px">'+(failed?'Impossibile caricare i risultati dal server.':'Nessun risultato pubblicato.')+'</td></tr>';status.textContent=failed?'Errore collegamento Google Apps Script':'Campionato non ancora iniziato';return;}
- const rows=[...totals.values()].sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name,'it'));
+ const rows=[...totals.values()].filter(entry=>!GRCC_EXCLUDED_DRIVERS.has(String(entry.name||'').trim().toUpperCase())).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name,'it'));
  if(failed===0)grccSalvaCache(rows,count);
  grccDisegnaClassifica(rows,count,failed);
 }
