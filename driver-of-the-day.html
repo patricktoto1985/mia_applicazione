@@ -96,12 +96,10 @@ const drivers=[
 {name:'KEIDIKID2',number:19,team:'Cadillac F1 Team',img:'KEIDIKID2.png',color:'#9da7b1'},
 {name:'FRA319153',number:31,team:'McLaren Formula 1 Team',img:'FRA319153.png',color:'#ff8000'},
 {name:'LRT_KURAMA',number:17,team:'McLaren Formula 1 Team',img:'LRT_KURAMA.png',color:'#ff8000'},
-{name:'MKI-110',number:28,team:'Mercedes-AMG Petronas',img:'MKI-110.png',color:'#27f4d2'},
 {name:'SALVOTD91',number:6,team:'Mercedes-AMG Petronas',img:'SALVOTD91.png',color:'#27f4d2'},
 {name:'GRCC F1 VITTORIO',number:26,team:'Visa Cash App RB',img:'GRCC F1 VITTORIO.jpeg',color:'#6692ff'},
 {name:'LILLUPAZZU',number:84,team:'Visa Cash App RB',img:'LILLUPAZZU.png',color:'#6692ff'},
 {name:'ICEANT16',number:35,team:'Williams Racing',img:'ICEANT16.jpeg',color:'#64c4ff'},
-{name:'TICXY13',number:92,team:'Williams Racing',img:'TICXY13.png',color:'#64c4ff'}
 ];
 
 let selected=null;
@@ -220,7 +218,7 @@ function launchConfetti(){
   }
 }
 async function confirmVote(){
-  if(!selected||!state.open||!voterId||localStorage.getItem(voteKey)==='true')return closeConfirm();
+  if(!selected||!drivers.some(d=>d.name===selected.name)||!state.open||!voterId||localStorage.getItem(voteKey)==='true')return closeConfirm();
   if(isSelfVote(selected.name)){closeConfirm();alert('Non puoi votare per te stesso.');return;}
   const button=document.querySelector('.modal .confirm');
   button.disabled=true;button.textContent='Invio...';
