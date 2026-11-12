@@ -37,9 +37,13 @@
 }
 
 #f1-video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Ritaglia il video per coprire lo schermo senza distorcerlo */
+    position:absolute;
+    width: max(100vw, 177.78vh);
+    height: max(100vh, 56.25vw);
+    top:50%; left:50%;
+    transform:translate(-50%, -50%);
+    border:0;
+    pointer-events:none;
 }
 
 /* Il velo scuro per non far "sparire" i testi chiari */
@@ -301,9 +305,7 @@
 <body>
 <div id="grcc-fanta-promo" role="region" aria-label="Promemoria Fanta GRCC"><span>🏎️ FANTA GRCC — Hai già fatto i tuoi pronostici? 🏆</span><a href="https://fanta-grcc.vercel.app/" target="_blank" rel="noopener noreferrer">GIOCA ORA →</a><button type="button" aria-label="Chiudi promemoria Fanta GRCC" onclick="this.parentElement.remove()">×</button></div>
     <div class="video-bg-container">
-        <video autoplay muted loop playsinline id="f1-video">
-            <source src="https://www.pexels.com/download/video/16726088/" type="video/mp4">
-        </video>
+        <iframe id="f1-video" title="Video Kimi Antonelli - GRCC" src="https://www.youtube-nocookie.com/embed/603c9tS3o5I?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist=603c9tS3o5I&amp;controls=0&amp;playsinline=1&amp;rel=0&amp;modestbranding=1" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" tabindex="-1" aria-hidden="true"></iframe>
         <div class="video-overlay"></div>
     </div>
 <div id="login-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #0b0f19; z-index: 99999; display: flex; justify-content: center; align-items: center; font-family: 'Segoe UI', sans-serif;">
