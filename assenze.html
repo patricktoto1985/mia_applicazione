@@ -71,4 +71,39 @@ async function carica(){
   msg.textContent='Dati aggiornati.';
  }catch(e){msg.textContent='Errore: '+e.message;}
 }
-carica();</script></body></html>
+carica();</script>
+<!-- GRCC: pulsante torna su, tutte le pagine -->
+<style id="grcc-back-to-top-style">
+#grcc-back-to-top{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:calc(22px + env(safe-area-inset-bottom));z-index:2147483000;width:52px;height:52px;border:2px solid rgba(255,255,255,.32);border-radius:50%;background:#e10600;color:#fff;box-shadow:0 6px 22px rgba(0,0,0,.4);font:800 27px/1 system-ui,Arial,sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;visibility:hidden;transform:translateY(12px);pointer-events:none;transition:opacity .2s ease,transform .2s ease,visibility .2s ease}
+#grcc-back-to-top.grcc-visible{opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto}
+#grcc-back-to-top:hover{background:#b90500}
+#grcc-back-to-top:focus-visible{outline:3px solid #00ffd1;outline-offset:3px}
+@media(max-width:640px){#grcc-back-to-top{width:46px;height:46px;right:15px;bottom:calc(18px + env(safe-area-inset-bottom));font-size:25px}}
+@media(prefers-reduced-motion:reduce){#grcc-back-to-top{transition:none}}
+</style>
+<script id="grcc-back-to-top-script">
+(function(){
+  function init(){
+    if(document.getElementById('grcc-back-to-top'))return;
+    var button=document.createElement('button');
+    button.type='button';button.id='grcc-back-to-top';button.textContent='↑';
+    button.setAttribute('aria-label','Torna in cima alla pagina');button.title='Torna su';
+    document.body.appendChild(button);
+    function update(){
+      var y=Math.max(window.scrollY||0,document.documentElement.scrollTop||0,document.body.scrollTop||0);
+      button.classList.toggle('grcc-visible',y>250);
+    }
+    button.addEventListener('click',function(){
+      var smooth=!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({top:0,behavior:smooth?'smooth':'auto'});
+      document.documentElement.scrollTo({top:0,behavior:smooth?'smooth':'auto'});
+    });
+    window.addEventListener('scroll',update,{passive:true});
+    window.addEventListener('resize',update,{passive:true});
+    update();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+
+</body></html>

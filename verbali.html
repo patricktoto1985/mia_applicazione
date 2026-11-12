@@ -44,4 +44,39 @@ async function removeDoc(d){if(!confirm('Ritirare il verbale "'+d.titolo+'"? Il 
 $('uploadForm').addEventListener('submit',async ev=>{ev.preventDefault();const file=$('pdf').files[0];if(!file)return;const msg=$('uploadStatus');if(!file.name.toLowerCase().endsWith('.pdf')){status(msg,'Seleziona un file PDF');return}if(!confirm('Pubblicare questo verbale nell’archivio ufficiale?'))return;const button=$('publish');button.disabled=true;status(msg,'Caricamento PDF in corso...');try{const b64=await new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=()=>reject(Error('Impossibile leggere il PDF'));r.onload=()=>resolve(String(r.result).split(',')[1]||'');r.readAsDataURL(file)});const n=Number($('round').value);const payload={action:'verbali_upload',adminToken:token,round:n,gp:gps[n-1],tipo:$('tipo').value,titolo:$('titolo').value.trim(),pilota:$('pilota').value.trim(),base64:b64};const result=await postData(payload);if(!result.success)throw Error(result.message||'Errore di salvataggio');status(msg,'Verbale pubblicato correttamente.');$('uploadForm').reset();await refresh()}catch(err){status(msg,'Pubblicazione non riuscita: '+err.message+'\nSe la richiesta è stata interrotta, aggiorna l’archivio prima di riprovare.')}finally{button.disabled=false}});
 $('sync').addEventListener('click',async()=>{if(!confirm('Generare i PDF per tutte le decisioni ufficiali già pubblicate? I verbali esistenti non saranno duplicati.'))return;const b=$('sync');b.disabled=true;status($('listStatus'),'Generazione verbali in corso...');try{const d=await postData({action:'verbali_sync_decisions',adminToken:token});status($('listStatus'),d.message||'Sincronizzazione terminata');await refresh();if(!d.success)alert((d.message||'Errori durante la generazione')+'\n'+(d.errori||[]).join('\n'));else alert(d.message||'Verbali aggiornati')}catch(e){status($('listStatus'),'Errore generazione: '+e.message)}finally{b.disabled=false}});
 $('refresh').addEventListener('click',refresh);refresh();
-</script></body></html>
+</script>
+<!-- GRCC: pulsante torna su, tutte le pagine -->
+<style id="grcc-back-to-top-style">
+#grcc-back-to-top{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:calc(22px + env(safe-area-inset-bottom));z-index:2147483000;width:52px;height:52px;border:2px solid rgba(255,255,255,.32);border-radius:50%;background:#e10600;color:#fff;box-shadow:0 6px 22px rgba(0,0,0,.4);font:800 27px/1 system-ui,Arial,sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;visibility:hidden;transform:translateY(12px);pointer-events:none;transition:opacity .2s ease,transform .2s ease,visibility .2s ease}
+#grcc-back-to-top.grcc-visible{opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto}
+#grcc-back-to-top:hover{background:#b90500}
+#grcc-back-to-top:focus-visible{outline:3px solid #00ffd1;outline-offset:3px}
+@media(max-width:640px){#grcc-back-to-top{width:46px;height:46px;right:15px;bottom:calc(18px + env(safe-area-inset-bottom));font-size:25px}}
+@media(prefers-reduced-motion:reduce){#grcc-back-to-top{transition:none}}
+</style>
+<script id="grcc-back-to-top-script">
+(function(){
+  function init(){
+    if(document.getElementById('grcc-back-to-top'))return;
+    var button=document.createElement('button');
+    button.type='button';button.id='grcc-back-to-top';button.textContent='↑';
+    button.setAttribute('aria-label','Torna in cima alla pagina');button.title='Torna su';
+    document.body.appendChild(button);
+    function update(){
+      var y=Math.max(window.scrollY||0,document.documentElement.scrollTop||0,document.body.scrollTop||0);
+      button.classList.toggle('grcc-visible',y>250);
+    }
+    button.addEventListener('click',function(){
+      var smooth=!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({top:0,behavior:smooth?'smooth':'auto'});
+      document.documentElement.scrollTo({top:0,behavior:smooth?'smooth':'auto'});
+    });
+    window.addEventListener('scroll',update,{passive:true});
+    window.addEventListener('resize',update,{passive:true});
+    update();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+
+</body></html>
