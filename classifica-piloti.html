@@ -172,9 +172,9 @@ async function roundData(round){
  return Array.isArray(data.risultati)?data.risultati:[];
 }
 function td(tr,text,cls){const el=document.createElement('td');el.textContent=text;if(cls)el.className=cls;tr.appendChild(el)}
-const GRCC_CACHE_KEY='grcc_classifica_piloti_v3_esclusioni';
+const GRCC_CACHE_KEY='grcc_classifica_piloti_v4_sprint_live';
 const GRCC_EXCLUDED_DRIVERS=new Set(['TICXY13','MKI-110']);
-const GRCC_CACHE_MS=10*60*1000;
+const GRCC_CACHE_MS=0; // Aggiorna sempre all'apertura; cache solo come ripiego
 function grccDisegnaClassifica(rows, count, failed=0, cached=false){
  const body=document.querySelector('tbody'),status=document.querySelector('.status-text');
  body.replaceChildren();
@@ -186,10 +186,10 @@ function grccSalvaCache(rows,count){try{localStorage.setItem(GRCC_CACHE_KEY,JSON
 
 async function load(){
  const cached=grccLeggiCache();
- if(cached){grccDisegnaClassifica(cached.rows,cached.count,0,true);if(Date.now()-cached.time<GRCC_CACHE_MS)return;}
+ if(cached){grccDisegnaClassifica(cached.rows,cached.count,0,true);} // Mostra cache, ma aggiorna sempre
  const body=document.querySelector('tbody'),status=document.querySelector('.status-text');
  status.textContent='Caricamento risultati da Google Sheets...';
- const totals=new Map();let count=0,failed=0;
+ const totals=new Map();let count=0,failed=0,sprintCount=0,sprintFailed=0;
  for(let start=1;start<=24;start+=6){
   const all=await Promise.allSettled(Array.from({length:Math.min(6,25-start)},(_,i)=>roundData(start+i)));
   for(let i=0;i<all.length;i++){
@@ -217,9 +217,11 @@ async function load(){
   for(const round of [2,6,7,11,14,18]){
     try{
       const response=await fetch(`${SCRIPT_URL}?action=results_sprint&round=${round}&_=${Date.now()}`,{cache:'no-store'});
-      if(!response.ok)continue;
+      if(!response.ok)throw Error('HTTP '+response.status);
       const data=await response.json();
-      if(!data.success||!Array.isArray(data.risultati))continue;
+      if(data.success===false)throw Error(data.message||'Risposta server negativa');
+      if(!Array.isArray(data.risultati))throw Error('Formato Sprint non valido');
+      if(data.risultati.length)sprintCount++;
       for(const r of data.risultati){
         const raw=String(r.pilota||'').trim();if(!raw)continue;
         const name=aliases[raw.toUpperCase()]||raw;
@@ -228,13 +230,14 @@ async function load(){
         const pts=Number(r.punti)||0;
         const key=name.toUpperCase();const old=totals.get(key)||{name:info?.name||name,team,points:0};old.points+=pts;totals.set(key,old);
       }
-    }catch(err){console.warn('Sprint round '+round+' non disponibile',err);}
+    }catch(err){sprintFailed++;console.warn('Sprint round '+round+' non disponibile',err);}
   }
  if(!totals.size && cached){status.textContent='Risultati salvati · aggiornamento non disponibile';return;}
  if(!totals.size){body.innerHTML='<tr><td colspan="4" style="text-align:center;padding:25px">'+(failed?'Impossibile caricare i risultati dal server.':'Nessun risultato pubblicato.')+'</td></tr>';status.textContent=failed?'Errore collegamento Google Apps Script':'Campionato non ancora iniziato';return;}
  const rows=[...totals.values()].filter(entry=>!GRCC_EXCLUDED_DRIVERS.has(String(entry.name||'').trim().toUpperCase())).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name,'it'));
- if(failed===0)grccSalvaCache(rows,count);
+ if(failed===0 && sprintFailed===0)grccSalvaCache(rows,count);
  grccDisegnaClassifica(rows,count,failed);
+  status.textContent += ` · ${sprintCount} Sprint caricate` + (count>=2 && sprintCount===0?` · ATTENZIONE: nessun risultato Sprint ricevuto`:``) + (sprintFailed?` · ATTENZIONE: ${sprintFailed} richieste Sprint fallite`:``);
 }
 document.addEventListener('DOMContentLoaded',load);
 
