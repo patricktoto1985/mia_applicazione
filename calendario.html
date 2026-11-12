@@ -58,6 +58,25 @@
                 punti:F1_POINTS[i]||0,stato:'CLASSIFICATO'})),
             note:'BOZZA: GP Cina. Verificare le penalità e i punti prima della pubblicazione.'
         };
+        // GP Giappone (R3): classifica finale ricevuta dalla Direzione Gara.
+        // Bozza locale: eventuali dati già pubblicati sul server hanno la precedenza.
+        const GRCC_GIAPPONE_R3 = {
+            note:'CLASSIFICA FINALE AGGIORNATA GP GIAPPONE. 1 CECCO (intervallo); 2 SICKMIRKO +1,555; 3 DAVIARCO1999 +14,892; 4 LRT_KURAMA +19,034; 5 SALVOTD91 +26,143; 6 GIUMEND29 +29,431; 7 GRCC F1 VITTORIO_F1- +36,708; 8 RAO-783 +38,847 (guadagna 1 posizione, -10s); 9 FRA319153 +46,485 (perde 1 posizione); 10 BENE20DOMENICO +70,812 (include 5s penalità); 11 CONDE785 +78,356 (include 5s penalità); 12 NXS_ODI +1 giro; 13 DAGGER74SUN +1 giro; 14 MIKYPOWER +1 giro, +5,000 (include 5s penalità); 15 ICESHOX7 +1 giro (LILLUPAZZU); 16 BRA_FOSY89 +1 giro; 17 GRCC-ICEANT16 ritirato; 18 KEIDIKID2 ritirato; 19 TICXY13 ritirato; 20 PEPPEFLE_IRT ritirato. Nickname uniformati al calendario Race Control; verificare prima di pubblicare.',
+            risultati: [
+                ['CECCO67_SCAI','CLASSIFICATO'],['SICKMIRKO','CLASSIFICATO'],
+                ['DAVIARCO1999','CLASSIFICATO'],['LRT_KURAMA','CLASSIFICATO'],
+                ['SALVOTD91','CLASSIFICATO'],['GIUMEND29','CLASSIFICATO'],
+                ['GRCC F1 VITTORIO','CLASSIFICATO'],['RAO-783','CLASSIFICATO'],
+                ['FRA319153','CLASSIFICATO'],['BENE20DOMENICO','CLASSIFICATO'],
+                ['CONDE785','CLASSIFICATO'],['NXS_ODI','CLASSIFICATO'],
+                ['DAGGER74SUN','CLASSIFICATO'],['MIKYPOWER','CLASSIFICATO'],
+                ['LILLUPAZZU','CLASSIFICATO'],['BRA_FOSY89','CLASSIFICATO'],
+                ['ICEANT16','DNF'],['KEIDIKID2','DNF'],
+                ['TICXY13','DNF'],['PEPPEFLE_IRT','DNF']
+            ].map(([pilota,stato],i)=>({posizione:i+1,pilota,
+                team:GRCC_DRIVERS.find(d=>d.name===pilota)?.team||'',
+                punti:stato==='DNF'?0:(F1_POINTS[i]||0),stato}))
+        };
         const GRCC_CINA_SPRINT_R2 = [
             'CECCO67_SCAI','DAVIARCO1999','GRCC F1 VITTORIO','CONDE785',
             'MIKYPOWER','GIUMEND29','SICKMIRKO','PEPPEFLE_IRT',
@@ -207,6 +226,7 @@
                 };
             }).filter(r=>r.pilota);
 
+            if (idRound === 'r3' && [...row.querySelectorAll('.race-result-row')].slice(0,20).some(r=>!r.querySelector('.result-driver').value)) throw new Error('Giappone: assegna tutti i 20 piloti prima di pubblicare. Controlla i 20 piloti prima di pubblicare.');
             if (!results.length) throw new Error('Inserisci almeno un pilota nella classifica.');
             if (!results.some(r=>r.posizione===1 && r.stato==='CLASSIFICATO')) throw new Error('Devi indicare il vincitore classificato.');
 
@@ -263,6 +283,10 @@
                     resultCache[idRound] = data;
                 }
                 if (!data || !Array.isArray(data.risultati) || !data.risultati.length) {
+                    if (idRound === 'r3') {
+                        populateResultForm(idRound, GRCC_GIAPPONE_R3);
+                        grccAvvisoBozza_(document.querySelector('#risultati-r3 .results-editor-head'), 'BOZZA GIAPPONE: 6° GIUMEND29, 7° GRCC F1 VITTORIO, 1° CECCO67_SCAI. Verifica e pubblica manualmente.');
+                    }
                     if (idRound === 'r2') {
                         populateResultForm(idRound, GRCC_CINA_R2);
                         grccAvvisoBozza_(document.querySelector('#risultati-r2 .results-editor-head'),'BOZZA GARA CINA: non pubblicata. Verificare posizioni, penalità e punti prima di premere PUBBLICA RISULTATI.');
