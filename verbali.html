@@ -1,7 +1,17 @@
 <!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Archivio Verbali | GRCC F1 ESPORTS</title>
 <style>
 :root{color-scheme:dark;--bg:#0b0f19;--card:#131a26;--line:#29374c;--cyan:#00ffd1;--muted:#a5b6ce}*{box-sizing:border-box}body{font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:white;margin:0;padding:16px}.container{max-width:980px;margin:auto}.back{display:inline-block;padding:11px 16px;border:1px solid var(--cyan);color:var(--cyan);border-radius:9px;text-decoration:none;font-weight:700;margin:12px 0 20px}.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:20px}h1{color:#f33434;font-size:24px;margin:0 0 9px}.sub{color:var(--muted);font-size:13px;letter-spacing:.07em}h2{font-size:18px;color:var(--cyan);margin:0 0 16px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:13px}label{display:block;font-weight:600;color:#a4c5e6;font-size:13px;margin-bottom:6px}input,select{width:100%;background:#0b111e;border:1px solid #33455e;border-radius:8px;color:#fff;padding:11px;font-size:14px}button{background:#00dfba;color:#08111a;border:0;border-radius:8px;padding:11px 16px;font-weight:750;cursor:pointer}button:disabled{opacity:.5;cursor:wait}.secondary{background:#26374c;color:#fff}.danger{background:#57242b;color:#fff}.row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.gp{border:1px solid var(--line);background:#0b111e;border-radius:12px;padding:18px;margin-top:16px}.gp h3{color:var(--cyan);margin:0 0 14px;font-size:17px}.doc{display:flex;justify-content:space-between;align-items:center;gap:14px;background:#172234;border-radius:9px;padding:13px;margin-top:10px;flex-wrap:wrap}.doc strong{display:block}.meta{color:var(--muted);font-size:12px;margin-top:5px}.actions{display:flex;gap:8px;align-items:center}.actions a{border:1px solid var(--cyan);border-radius:7px;color:var(--cyan);padding:8px 12px;text-decoration:none;font-size:13px}.empty{color:var(--muted);font-style:italic;text-align:center;padding:16px}.status{padding:12px;margin-top:12px;border-radius:8px;background:#1c2c3b;color:#c7e1f7;white-space:pre-wrap}.hidden{display:none!important}.hint{color:var(--muted);font-size:12px;margin-top:10px}@media(max-width:650px){.fields{grid-template-columns:1fr}.panel{padding:16px}.doc{align-items:flex-start}}
-</style></head><body><main class="container"><a class="back" href="index.html">← Torna al Race Control</a><section class="panel"><h1>ARCHIVIO VERBALI UFFICIALI</h1><div class="sub">GRCC F1 ESPORTS · STAGIONE 2026/27 · DOCUMENTI DELLA DIREZIONE GARA</div></section>
+</style><style id="grcc-fanta-promo-style">
+#grcc-fanta-promo{position:sticky;top:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;padding:9px 42px 9px 14px;background:linear-gradient(110deg,#250509,#ae1025 48%,#250509);color:white;text-align:center;font:700 13px/1.35 system-ui,Arial,sans-serif;border-bottom:2px solid #ffcf45;box-shadow:0 3px 18px #0008;animation:grccFantaGlow 2.5s ease-in-out infinite}
+#grcc-fanta-promo a{display:inline-block;background:#ffce31;color:#1a1010;padding:7px 13px;border-radius:7px;text-decoration:none;font-weight:900;white-space:nowrap}
+#grcc-fanta-promo a:hover{background:white}
+#grcc-fanta-promo button{position:absolute;right:9px;top:50%;transform:translateY(-50%);border:0;background:#ffffff25;color:white;font-size:20px;border-radius:5px;width:28px;height:28px;cursor:pointer}
+@keyframes grccFantaGlow{0%,100%{box-shadow:0 3px 12px #0007;border-bottom-color:#ffcf45}50%{box-shadow:0 4px 18px #ff294477;border-bottom-color:white}}
+@media(max-width:600px){#grcc-fanta-promo{font-size:11px;gap:5px;padding:7px 37px 7px 8px}#grcc-fanta-promo a{padding:5px 8px}}
+@media(prefers-reduced-motion:reduce){#grcc-fanta-promo{animation:none}}
+</style>
+</head><body>
+<div id="grcc-fanta-promo" role="region" aria-label="Promemoria Fanta GRCC"><span>🏎️ FANTA GRCC — Hai già fatto i tuoi pronostici? 🏆</span><a href="https://fanta-grcc.vercel.app/" target="_blank" rel="noopener noreferrer">GIOCA ORA →</a><button type="button" aria-label="Chiudi promemoria Fanta GRCC" onclick="this.parentElement.remove()">×</button></div><main class="container"><a class="back" href="index.html">← Torna al Race Control</a><section class="panel"><h1>ARCHIVIO VERBALI UFFICIALI</h1><div class="sub">GRCC F1 ESPORTS · STAGIONE 2026/27 · DOCUMENTI DELLA DIREZIONE GARA</div></section>
 <section id="adminPanel" class="panel hidden"><h2>📤 Pubblica un verbale PDF</h2><form id="uploadForm"><div class="fields"><div><label for="round">Gran Premio</label><select id="round" required><option value="1">R1 · GP Australia — Melbourne</option>
 <option value="2">R2 · GP Cina — Shanghai</option>
 <option value="3">R3 · GP Giappone — Suzuka</option>
@@ -44,4 +54,39 @@ async function removeDoc(d){if(!confirm('Ritirare il verbale "'+d.titolo+'"? Il 
 $('uploadForm').addEventListener('submit',async ev=>{ev.preventDefault();const file=$('pdf').files[0];if(!file)return;const msg=$('uploadStatus');if(!file.name.toLowerCase().endsWith('.pdf')){status(msg,'Seleziona un file PDF');return}if(!confirm('Pubblicare questo verbale nell’archivio ufficiale?'))return;const button=$('publish');button.disabled=true;status(msg,'Caricamento PDF in corso...');try{const b64=await new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=()=>reject(Error('Impossibile leggere il PDF'));r.onload=()=>resolve(String(r.result).split(',')[1]||'');r.readAsDataURL(file)});const n=Number($('round').value);const payload={action:'verbali_upload',adminToken:token,round:n,gp:gps[n-1],tipo:$('tipo').value,titolo:$('titolo').value.trim(),pilota:$('pilota').value.trim(),base64:b64};const result=await postData(payload);if(!result.success)throw Error(result.message||'Errore di salvataggio');status(msg,'Verbale pubblicato correttamente.');$('uploadForm').reset();await refresh()}catch(err){status(msg,'Pubblicazione non riuscita: '+err.message+'\nSe la richiesta è stata interrotta, aggiorna l’archivio prima di riprovare.')}finally{button.disabled=false}});
 $('sync').addEventListener('click',async()=>{if(!confirm('Generare i PDF per tutte le decisioni ufficiali già pubblicate? I verbali esistenti non saranno duplicati.'))return;const b=$('sync');b.disabled=true;status($('listStatus'),'Generazione verbali in corso...');try{const d=await postData({action:'verbali_sync_decisions',adminToken:token});status($('listStatus'),d.message||'Sincronizzazione terminata');await refresh();if(!d.success)alert((d.message||'Errori durante la generazione')+'\n'+(d.errori||[]).join('\n'));else alert(d.message||'Verbali aggiornati')}catch(e){status($('listStatus'),'Errore generazione: '+e.message)}finally{b.disabled=false}});
 $('refresh').addEventListener('click',refresh);refresh();
-</script></body></html>
+</script>
+<!-- GRCC: pulsante torna su, tutte le pagine -->
+<style id="grcc-back-to-top-style">
+#grcc-back-to-top{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:calc(22px + env(safe-area-inset-bottom));z-index:2147483000;width:52px;height:52px;border:2px solid rgba(255,255,255,.32);border-radius:50%;background:#e10600;color:#fff;box-shadow:0 6px 22px rgba(0,0,0,.4);font:800 27px/1 system-ui,Arial,sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;visibility:hidden;transform:translateY(12px);pointer-events:none;transition:opacity .2s ease,transform .2s ease,visibility .2s ease}
+#grcc-back-to-top.grcc-visible{opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto}
+#grcc-back-to-top:hover{background:#b90500}
+#grcc-back-to-top:focus-visible{outline:3px solid #00ffd1;outline-offset:3px}
+@media(max-width:640px){#grcc-back-to-top{width:46px;height:46px;right:15px;bottom:calc(18px + env(safe-area-inset-bottom));font-size:25px}}
+@media(prefers-reduced-motion:reduce){#grcc-back-to-top{transition:none}}
+</style>
+<script id="grcc-back-to-top-script">
+(function(){
+  function init(){
+    if(document.getElementById('grcc-back-to-top'))return;
+    var button=document.createElement('button');
+    button.type='button';button.id='grcc-back-to-top';button.textContent='↑';
+    button.setAttribute('aria-label','Torna in cima alla pagina');button.title='Torna su';
+    document.body.appendChild(button);
+    function update(){
+      var y=Math.max(window.scrollY||0,document.documentElement.scrollTop||0,document.body.scrollTop||0);
+      button.classList.toggle('grcc-visible',y>250);
+    }
+    button.addEventListener('click',function(){
+      var smooth=!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({top:0,behavior:smooth?'smooth':'auto'});
+      document.documentElement.scrollTo({top:0,behavior:smooth?'smooth':'auto'});
+    });
+    window.addEventListener('scroll',update,{passive:true});
+    window.addEventListener('resize',update,{passive:true});
+    update();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+
+</body></html>
