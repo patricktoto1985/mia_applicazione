@@ -26,6 +26,25 @@ module.exports = async (req, res) => {
     }
     const buf = Buffer.concat(chunks);
 
+    // Recupera la posizione realmente ricevuta da Drive dopo un timeout di rete.
+    if (req.headers['x-grcc-probe'] === '1') {
+      if (!Number.isSafeInteger(expectedSize) || expectedSize < 1) throw Error('Dimensione upload non valida');
+      const google = await fetch(s.location, {
+        method: 'PUT',
+        headers: {'Content-Length': '0', 'Content-Range': `bytes */${expectedSize}`}
+      });
+      if (google.status === 308) {
+        const range = google.headers.get('range') || '';
+        const match = /^bytes=0-(\d+)$/i.exec(range);
+        return res.json({ok: true, done: false, nextOffset: match ? Number(match[1]) + 1 : 0});
+      }
+      if (google.ok) {
+        return res.status(409).json({ok: false, error: 'Video già completato su Drive: riprova la registrazione con un nuovo caricamento'});
+      }
+      throw Error('Impossibile verificare lo stato del caricamento: HTTP ' + google.status);
+    }
+
+
     console.log('GRCC UPLOAD CHECK', {
       start, total, expectedSize, receivedBytes: buf.length,
       contentLength: req.headers['content-length'],
@@ -59,7 +78,11 @@ module.exports = async (req, res) => {
       },
       body: buf
     });
-    if (r.status === 308) return res.json({ok: true, done: false});
+    if (r.status === 308) {
+      const range = r.headers.get('range') || '';
+      const match = /^bytes=0-(\d+)$/i.exec(range);
+      return res.json({ok: true, done: false, nextOffset: match ? Number(match[1]) + 1 : 0});
+    }
     if (!r.ok) throw Error('Drive upload HTTP ' + r.status + ' ' + (await r.text()).slice(0, 200));
 
     const j = await r.json();

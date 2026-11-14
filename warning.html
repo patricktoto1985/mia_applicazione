@@ -570,7 +570,7 @@ async function caricaReclamiDirezioneGara() {
                     <div class="complaint-desc">${escapeHtml(r.descrizione)}</div>
                     ${r.video ? `<a class="video-link" href="${escapeAttr(r.video)}" target="_blank" rel="noopener">🎬 Guarda video / clip</a>` : ''}
                 </div>
-                ${grccAmministratoreLicenze() && r.id ? `<button class="btn-delete" type="button" onclick="cancellaReclamoDG('${escapeJs(r.id)}', '${escapeJs(r.segnalante)}', '${escapeJs(r.segnalato)}')">🗑 Elimina</button>` : ''}
+                <button class="btn-delete" type="button" onclick="cancellaReclamoDG(${Number.isFinite(r.riga) ? r.riga : 0}, '${escapeJs(r.segnalante)}', '${escapeJs(r.segnalato)}')">🗑 Elimina</button>
             </div>
         `).join('');
     } catch(err) {
@@ -578,12 +578,12 @@ async function caricaReclamiDirezioneGara() {
     }
 }
 
-async function cancellaReclamoDG(id, segnalante, segnalato) {
-    if (!grccAmministratoreLicenze()) {
-        alert('Operazione riservata agli amministratori autenticati.');
+async function cancellaReclamoDG(riga, segnalante, segnalato) {
+    if (!utenteDirezioneGara()) {
+        alert('Operazione riservata alla Direzione Gara.');
         return;
     }
-    if (!id) {
+    if (!riga || riga < 2) {
         alert('Reclamo non valido.');
         return;
     }
@@ -597,8 +597,7 @@ async function cancellaReclamoDG(id, segnalante, segnalato) {
             headers: {'Content-Type':'text/plain;charset=utf-8'},
             body: JSON.stringify({
                 action: 'complaint_delete',
-                adminToken: grccTokenAdminLicenze(),
-                id: id
+                row: riga
             })
         });
 
