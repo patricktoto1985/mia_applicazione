@@ -48,6 +48,22 @@ function render(){
    const draft=el('button','secondary','Salva bozza'),pub=el('button','','Pubblica decisione ufficiale');draft.type=pub.type='button';draft.onclick=()=>save(false);pub.onclick=()=>save(true);
    box.append(draft,pub,msg);card.append(box)
   }
+  if (r.id) {
+    const remove = el('button','secondary','🗑 Elimina reclamo');
+    remove.type='button';
+    remove.style.cssText='margin-top:14px;border:1px solid #e10600;color:#fff;background:#7c1111';
+    remove.onclick=async()=>{
+      if(!confirm(`Eliminare definitivamente il reclamo di ${r.segnalante||'—'} contro ${r.segnalato||'—'}? Questa operazione non è reversibile.`))return;
+      remove.disabled=true;
+      try {
+        const res=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'complaint_delete',adminToken:token,id:r.id})});
+        const data=await res.json();
+        if(!data.success)throw Error(data.message||'Eliminazione non riuscita');
+        await load();
+      }catch(err){alert('❌ '+err.message);remove.disabled=false;}
+    };
+    card.append(remove);
+  }
   results.append(card)
  }
 }

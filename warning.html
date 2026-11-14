@@ -23,33 +23,56 @@ async function grccUploadVideo(file,onProgress){
   const init=await json('/api/upload/start',{pilotToken,name:file.name,size:file.size,type:mime});
   const step=1024*1024;
   let offset=0;
+  const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  const requestChunk=async(bytes,start,probe=false)=>{
+    const r=await fetch('/api/upload/chunk',{
+      method:'POST',cache:'no-store',
+      headers:{'Content-Type':'application/octet-stream',
+        'X-GRCC-Upload-Token':init.token,
+        'X-GRCC-Start':String(start),
+        'X-GRCC-Total':String(file.size),
+        ...(probe?{'X-GRCC-Probe':'1'}:{})},
+      body:bytes
+    });
+    const reply=await r.json().catch(()=>({error:'Risposta non valida dal server video'}));
+    if(!r.ok||!reply.ok)throw Error(reply.error||'Errore invio blocco');
+    return reply;
+  };
   while(offset<file.size){
     const end=Math.min(offset+step,file.size);
-    // Safari iOS: leggere esplicitamente il Blob prima del fetch, anziché
-    // passare file.slice() direttamente come body della richiesta.
     const part=file.slice(offset,end);
     const bytes=new Uint8Array(await part.arrayBuffer());
-    if(bytes.byteLength!==end-offset)throw Error('Lettura video incompleta su questo dispositivo: seleziona nuovamente il video.');
-    let data;
-    for(let attempt=0;attempt<2;attempt++){
-      const res=await fetch('/api/upload/chunk',{
-        method:'POST',cache:'no-store',
-        headers:{'Content-Type':'application/octet-stream',
-          'X-GRCC-Upload-Token':init.token,
-          'X-GRCC-Start':String(offset),
-          'X-GRCC-Total':String(file.size)},
-        body:bytes
-      });
-      const reply=await res.json().catch(()=>({error:'Risposta non valida dal server video'}));
-      if(res.ok&&reply.ok){data=reply;break;}
-      const msg=String(reply.error||'Errore invio blocco');
-      // Un blocco da zero byte non è stato acquisito dal server: è sicuro ritentarlo.
-      if(attempt===0&&/zero byte/i.test(msg))continue;
-      throw Error(msg);
+    if(bytes.byteLength!==end-offset)throw Error('Lettura video incompleta: seleziona nuovamente il file.');
+    let reply=null;
+    for(let attempt=0;attempt<5;attempt++){
+      try{
+        reply=await requestChunk(bytes,offset);
+        break;
+      }catch(err){
+        // Dopo un errore, chiediamo a Drive quanti byte sono stati davvero ricevuti.
+        // Evita di rispedire un blocco già accettato se la risposta è andata persa.
+        try{
+          const status=await requestChunk(new Uint8Array(0),offset,true);
+          if(Number.isSafeInteger(status.nextOffset)&&status.nextOffset>offset){
+            reply=status;
+            break;
+          }
+        }catch(_ignored){}
+        if(attempt===4)throw Error('Caricamento interrotto dopo 5 tentativi: '+err.message);
+        if(onProgress)onProgress(Math.round(offset/file.size*100));
+        await pause(Math.min(1000*Math.pow(2,attempt),8000));
+      }
     }
-    offset=end;
+    if(reply.receipt)return reply.receipt;
+    const next=Number(reply.nextOffset);
+    if(Number.isSafeInteger(next)&&next>offset&&next<=file.size){
+      offset=next;
+    }else if(reply.done===false && reply.nextOffset===undefined){
+      offset=end; // Compatibilità con server già pubblicati.
+    }else{
+      throw Error('Google Drive non ha confermato la posizione del video');
+    }
     if(onProgress)onProgress(Math.round(offset/file.size*100));
-    if(data.receipt)return data.receipt;
   }
   throw Error('Il caricamento non è stato confermato da Google Drive');
 }
@@ -280,7 +303,7 @@ img,video,iframe{max-width:100%}
             
             <form id="incidentForm" onsubmit="salvaReclamo(event)">
                 <label for="selectRound">Seleziona il GP / Round dell'incidente:</label>
-                <select id="selectRound" onchange="mostraReclami()" required>
+                <select id="selectRound"  required>
                     <option value="R1">GP Australia</option>
                     <option value="R2">GP Cina</option>
                     <option value="R3">GP Giappone</option>
@@ -547,7 +570,7 @@ async function caricaReclamiDirezioneGara() {
                     <div class="complaint-desc">${escapeHtml(r.descrizione)}</div>
                     ${r.video ? `<a class="video-link" href="${escapeAttr(r.video)}" target="_blank" rel="noopener">🎬 Guarda video / clip</a>` : ''}
                 </div>
-                <button class="btn-delete" type="button" onclick="cancellaReclamoDG(${Number.isFinite(r.riga) ? r.riga : 0}, '${escapeJs(r.segnalante)}', '${escapeJs(r.segnalato)}')">🗑 Elimina</button>
+                ${grccAmministratoreLicenze() && r.id ? `<button class="btn-delete" type="button" onclick="cancellaReclamoDG('${escapeJs(r.id)}', '${escapeJs(r.segnalante)}', '${escapeJs(r.segnalato)}')">🗑 Elimina</button>` : ''}
             </div>
         `).join('');
     } catch(err) {
@@ -555,12 +578,12 @@ async function caricaReclamiDirezioneGara() {
     }
 }
 
-async function cancellaReclamoDG(riga, segnalante, segnalato) {
-    if (!utenteDirezioneGara()) {
-        alert('Operazione riservata alla Direzione Gara.');
+async function cancellaReclamoDG(id, segnalante, segnalato) {
+    if (!grccAmministratoreLicenze()) {
+        alert('Operazione riservata agli amministratori autenticati.');
         return;
     }
-    if (!riga || riga < 2) {
+    if (!id) {
         alert('Reclamo non valido.');
         return;
     }
@@ -574,7 +597,8 @@ async function cancellaReclamoDG(riga, segnalante, segnalato) {
             headers: {'Content-Type':'text/plain;charset=utf-8'},
             body: JSON.stringify({
                 action: 'complaint_delete',
-                row: riga
+                adminToken: grccTokenAdminLicenze(),
+                id: id
             })
         });
 
