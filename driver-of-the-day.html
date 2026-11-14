@@ -64,7 +64,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;ba
     <div id="tiePanel" style="display:none;margin:18px 0;padding:18px;border:1px solid #b68a36;border-radius:14px;background:#201a10"><h3 style="color:#ffd166">⚖️ Spareggio Direzione Gara</h3><p id="tieStatus">Seleziona un round nel registro per verificare eventuali parità.</p><div id="tieChoices" style="display:flex;gap:10px;flex-wrap:wrap"></div></div>
     <section style="margin-top:28px;border-top:1px solid #263044;padding-top:22px">
       <div class="admin-top"><div><h3><i class="fa-solid fa-list-check"></i> Registro votazioni</h3><p style="color:var(--muted)">Riservato alla Direzione Gara · chi ha votato e per chi</p></div><button class="admin-btn" onclick="loadVoteAudit()"><i class="fa-solid fa-rotate"></i> Aggiorna</button></div>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0"><label for="auditRound">Consulta lo storico:</label><select id="auditRound" onchange="loadVoteAudit()" style="background:#0b1019;color:white;border:1px solid #34445c;border-radius:9px;padding:10px"></select><button class="admin-btn" onclick="proclamaAustralia()" id="proclamaR1Btn" style="background:#9a7020">🏆 Proclama vincitore Australia R1</button></div><p id="auditStatus" style="color:#94a3b8">Caricamento registro...</p>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0"><label for="auditRound">Consulta lo storico:</label><select id="auditRound" onchange="updateProclaimButton();loadVoteAudit()" style="background:#0b1019;color:white;border:1px solid #34445c;border-radius:9px;padding:10px"></select><button class="admin-btn" onclick="proclamaRoundSelezionato()" id="proclamaRoundBtn" style="background:#9a7020">🏆 Proclama vincitore round selezionato</button></div><p id="auditStatus" style="color:#94a3b8">Caricamento registro...</p>
       <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;text-align:left;min-width:520px"><thead><tr><th style="padding:12px;border-bottom:1px solid #263044">Votante</th><th style="padding:12px;border-bottom:1px solid #263044">Pilota votato</th><th style="padding:12px;border-bottom:1px solid #263044">Data e ora</th></tr></thead><tbody id="auditRows"></tbody></table></div>
     </section>
   </section><div style="text-align:center"><a class="dotd-link" href="classifica-dotd.html"><i class="fa-solid fa-chart-column"></i> Classifica Driver of the Day</a></div>
@@ -345,7 +345,7 @@ function renderWinner(){
 document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeConfirm()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeConfirm()});
 loadState();
-if(isAdmin())loadVoteAudit();
+// Il registro viene caricato dopo aver popolato la lista dei round.
 setInterval(loadState,30000);
 
 function setupAuditRounds(){
@@ -383,21 +383,36 @@ async function resolveTie(round,name){
   await loadVoteAudit();await loadState();
  }catch(e){alert('Errore: '+e.message);buttons.forEach(b=>b.disabled=false);}
 }
-async function proclamaAustralia(){
- if(!isAdmin())return;
- const token=sessionStorage.getItem('grcc_admin_token');
- if(!token){alert('Accedi nuovamente come amministratore.');return;}
- if(!confirm('Proclamare il vincitore del Round 1 – Australia usando i voti già salvati?\n\nQuesta operazione CHIUDE la votazione del Round 1, senza cancellare i voti.'))return;
- const btn=document.getElementById('proclamaR1Btn');btn.disabled=true;
- try{
-  const result=await apiPost({action:'dotd_close',round:1,adminToken:token});
-  if(!result || !result.success)throw new Error(result?.message||'Risposta non valida');
-  alert('Round 1 chiuso. Vincitore: '+(result.vincitore||'nessuno')+' ('+(result.voti||0)+' voti). Verifica eventuali parità nel registro prima della pubblicazione definitiva.');
-  document.getElementById('auditRound').value='1';await loadVoteAudit();
- }catch(e){alert('Impossibile proclamare: '+e.message);}
- finally{btn.disabled=false;}
+function updateProclaimButton(){
+  const sel=document.getElementById('auditRound');
+  const btn=document.getElementById('proclamaRoundBtn');
+  if(!sel||!btn)return;
+  const round=Number(sel.value);
+  const gp=GRCC_GP_NAMES[round-1];
+  btn.textContent=gp?`🏆 Proclama vincitore ${gp} · Round ${round}`:'🏆 Seleziona un round';
+  btn.disabled=!gp;
 }
-document.addEventListener('DOMContentLoaded',setupAuditRounds);
+async function proclamaRoundSelezionato(){
+  if(!isAdmin())return;
+  const token=sessionStorage.getItem('grcc_admin_token');
+  if(!token){alert('Accedi nuovamente come amministratore.');return;}
+  const round=Number(document.getElementById('auditRound')?.value);
+  const gp=GRCC_GP_NAMES[round-1];
+  if(!gp){alert('Seleziona un Gran Premio valido.');return;}
+  if(!confirm(`Proclamare il vincitore del Round ${round} – ${gp} usando i voti già salvati?\n\nQuesta operazione CHIUDE la votazione del Round ${round}, senza cancellare i voti.`))return;
+  const btn=document.getElementById('proclamaRoundBtn');
+  btn.disabled=true;
+  try{
+    const result=await apiPost({action:'dotd_close',round,adminToken:token});
+    if(!result||!result.success)throw new Error(result?.message||'Risposta non valida');
+    alert(`Round ${round} – ${gp} chiuso. Vincitore: ${result.vincitore||'nessuno'} (${result.voti||0} voti). Verifica eventuali parità nel registro prima della pubblicazione definitiva.`);
+    await loadVoteAudit();
+    if(round===ROUND)await loadState();
+  }catch(e){alert('Impossibile proclamare: '+e.message);}
+  finally{updateProclaimButton();}
+}
+
+document.addEventListener('DOMContentLoaded',()=>{setupAuditRounds();updateProclaimButton();if(isAdmin())loadVoteAudit();});
 
 </script>
 
