@@ -78,6 +78,7 @@
             .pilot-name { font-size: 0.85rem; }
         }
     
+.sync-controls{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:12px 0 18px}.sync-controls button{background:#00ffd1;color:#061017;border:0;border-radius:9px;padding:11px 15px;font-weight:800;cursor:pointer}.sync-controls button:disabled{opacity:.5;cursor:wait}#grcc-sync-time{font-size:.82rem;color:#a9bbd0}
 /* GRCC: visualizzazione integrale delle classifiche su smartphone */
 @media (max-width: 640px) {
   html, body { max-width:100%; overflow-x:hidden; }
@@ -135,7 +136,8 @@
 
         <div class="card">
             <h2>Classifica Assoluta Piloti</h2>
-            <div class="status-text">GRCCF1ESPORTS — Stagione 2026/27 — Caricamento in corso</div>
+            <div class="status-text" role="status" aria-live="polite">GRCCF1ESPORTS — Stagione 2026/27 — Caricamento in corso</div>
+            <div class="sync-controls"><button id="grcc-refresh" type="button">↻ Aggiorna classifica</button><span id="grcc-sync-time"></span></div>
             
             <div class="table-responsive">
                 <table>
@@ -174,17 +176,29 @@ const DRIVERS=[
 const teams=["Ferrari","Mercedes","Red Bull","McLaren","Aston Martin","Audi","Cadillac","Racing Bulls","Alpine","Williams","Haas"];
 const aliases={"CECCO":"CECCO67_SCAI","GRCCMENDOLIA29":"GIUMEND29","MIKYPOW3R_25":"MIKYPOWER","GRCC VITTORIO_F1_":"GRCC F1 VITTORIO"};
 const roster=new Map(DRIVERS.map(d=>[d.name.toUpperCase(),d]));
-async function roundData(round){
- const response=await fetch(`${SCRIPT_URL}?action=results_round&round=${round}&_=${Date.now()}`,{cache:'no-store'});
- if(!response.ok)throw Error('HTTP '+response.status);
- const data=await response.json();
- if(data.success===false)throw Error(data.message||'Risposta server negativa');
- return Array.isArray(data.risultati)?data.risultati:[];
+async function grccRequest(action,round){
+  let lastError;
+  for(let attempt=0;attempt<3;attempt++){
+   const controller=new AbortController();
+   const timer=setTimeout(()=>controller.abort(),18000);
+   try{
+    const url=`${SCRIPT_URL}?action=${encodeURIComponent(action)}&round=${round}&_=${Date.now()}_${attempt}`;
+    const response=await fetch(url,{cache:'no-store',signal:controller.signal});
+    if(!response.ok)throw Error('HTTP '+response.status);
+    const data=await response.json();
+    if(data.success===false)throw Error(data.message||'Risposta server negativa');
+    if(!Array.isArray(data.risultati))throw Error('Formato risultati non valido');
+    return data.risultati;
+   }catch(err){lastError=err;if(attempt<2)await new Promise(r=>setTimeout(r,700*(attempt+1)));}
+   finally{clearTimeout(timer);}
+  }
+  throw lastError;
 }
+async function roundData(round){return grccRequest('results_round',round);}
 function td(tr,text,cls){const el=document.createElement('td');el.textContent=text;if(cls)el.className=cls;tr.appendChild(el)}
 const GRCC_CACHE_KEY='grcc_classifica_piloti_v4_sprint_live';
 const GRCC_EXCLUDED_DRIVERS=new Set(['TICXY13','MKI-110']);
-const GRCC_CACHE_MS=0; // Aggiorna sempre all'apertura; cache solo come ripiego
+let grccLoading=false; // La cache serve solo come ripiego, mai come conferma di sincronizzazione
 function grccDisegnaClassifica(rows, count, failed=0, cached=false){
  const body=document.querySelector('tbody'),status=document.querySelector('.status-text');
  body.replaceChildren();
@@ -195,8 +209,13 @@ function grccLeggiCache(){try{const v=JSON.parse(localStorage.getItem(GRCC_CACHE
 function grccSalvaCache(rows,count){try{localStorage.setItem(GRCC_CACHE_KEY,JSON.stringify({rows,count,time:Date.now()}));}catch(e){}}
 
 async function load(){
- const cached=grccLeggiCache();
- if(cached){grccDisegnaClassifica(cached.rows,cached.count,0,true);} // Mostra cache, ma aggiorna sempre
+  if(grccLoading)return;
+  grccLoading=true;
+  const refreshButton=document.getElementById("grcc-refresh");
+  refreshButton.disabled=true;
+  try{
+  const cached=grccLeggiCache();
+ if(cached){grccDisegnaClassifica(cached.rows,cached.count,0,true);document.getElementById("grcc-sync-time").textContent="Ultimo salvataggio completo: "+new Date(cached.time).toLocaleString("it-IT");} // Mostra cache ma segnala che non è una sincronizzazione
  const body=document.querySelector('tbody'),status=document.querySelector('.status-text');
  status.textContent='Caricamento risultati da Google Sheets...';
  const totals=new Map();let count=0,failed=0,sprintCount=0,sprintFailed=0;
@@ -242,14 +261,32 @@ async function load(){
       }
     }catch(err){sprintFailed++;console.warn('Sprint round '+round+' non disponibile',err);}
   }
- if(!totals.size && cached){status.textContent='Risultati salvati · aggiornamento non disponibile';return;}
+   if(failed||sprintFailed){
+    if(cached){
+      grccDisegnaClassifica(cached.rows,cached.count,failed+sprintFailed,true);
+      status.textContent=`⚠️ Aggiornamento incompleto (${failed} GP e ${sprintFailed} Sprint non disponibili). Visualizzati soltanto gli ultimi dati completi salvati, NON confermati come attuali.`;
+    }else{
+      body.replaceChildren();
+      const tr=document.createElement('tr'),cell=document.createElement('td');
+      cell.colSpan=4;cell.textContent=`⚠️ Impossibile verificare la classifica: ${failed} GP e ${sprintFailed} Sprint non disponibili. Riprova con Aggiorna classifica.`;
+      tr.appendChild(cell);body.appendChild(tr);
+      status.textContent='⚠️ Classifica non disponibile: sincronizzazione incompleta.';
+    }
+    return;
+  }
+if(!totals.size && cached){status.textContent='Risultati salvati · aggiornamento non disponibile';return;}
  if(!totals.size){body.innerHTML='<tr><td colspan="4" style="text-align:center;padding:25px">'+(failed?'Impossibile caricare i risultati dal server.':'Nessun risultato pubblicato.')+'</td></tr>';status.textContent=failed?'Errore collegamento Google Apps Script':'Campionato non ancora iniziato';return;}
  const rows=[...totals.values()].filter(entry=>!GRCC_EXCLUDED_DRIVERS.has(String(entry.name||'').trim().toUpperCase())).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name,'it'));
- if(failed===0 && sprintFailed===0)grccSalvaCache(rows,count);
+ grccSalvaCache(rows,count);
+  document.getElementById("grcc-sync-time").textContent="Sincronizzazione completa: "+new Date().toLocaleString("it-IT");
  grccDisegnaClassifica(rows,count,failed);
   status.textContent += ` · ${sprintCount} Sprint caricate` + (count>=2 && sprintCount===0?` · ATTENZIONE: nessun risultato Sprint ricevuto`:``) + (sprintFailed?` · ATTENZIONE: ${sprintFailed} richieste Sprint fallite`:``);
+  }catch(err){console.error(err);status.textContent="⚠️ Errore durante la sincronizzazione: classifica non verificata.";}finally{grccLoading=false;refreshButton.disabled=false;}
 }
-document.addEventListener('DOMContentLoaded',load);
+// Initial load and refresh after returning to a suspended mobile tab.
+document.addEventListener('DOMContentLoaded',()=>{load().catch(grccUnexpectedError);document.getElementById('grcc-refresh').addEventListener('click',()=>load().catch(grccUnexpectedError));});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)load().catch(grccUnexpectedError);});
+function grccUnexpectedError(err){console.error('Errore classifica:',err);document.querySelector('.status-text').textContent='⚠️ Aggiornamento non riuscito: dati non verificati. Riprova.';}
 
 </script>
 
